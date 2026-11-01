@@ -4,27 +4,22 @@
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
-  "observedAt": "2026-10-29T01:59:55Z",
+  "observedAt": "2026-11-01T20:45:00Z",
   "units": [
     {
-      "id": "AM-02.01",
+      "id": "AM-02-01",
       "title": "Evidence versions and acquisitions",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
-      "dependsOn": [
-        "AM-01.03",
-        "AM-01.05",
-        "AM-01.06",
-        "AM-01.08"
+      "dependsOn": [],
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Required original cross-project milestone AM-01.03 is not yet mapped to a verified upstream repo/unit; block this unit until source evidence is linked",
+        "Required original cross-project milestone AM-01.05 is not yet mapped to a verified upstream repo/unit; block this unit until source evidence is linked",
+        "Required original cross-project milestone AM-01.06 is not yet mapped to a verified upstream repo/unit; block this unit until source evidence is linked",
+        "Required original cross-project milestone AM-01.08 is not yet mapped to a verified upstream repo/unit; block this unit until source evidence is linked"
       ],
-      "externalDependencies": [
-        "AM-01.03",
-        "AM-01.05",
-        "AM-01.06",
-        "AM-01.08"
-      ],
-      "externalPrerequisites": [],
       "scope": [
         "Implement immutable originals, acquisition methods, dates, digests and object references."
       ],
@@ -32,20 +27,19 @@
         "Changed bytes at the same URL become a new version and old citations still resolve.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-02.01"
     },
     {
-      "id": "AM-02.02",
+      "id": "AM-02-02",
       "title": "Quarantine and parser isolation",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-02.01"
+        "AM-02-01"
       ],
-      "externalDependencies": [
-        "AM-02.01"
-      ],
+      "externalDependencies": [],
       "externalPrerequisites": [],
       "scope": [
         "Connect scanning and file-type limits; sandbox parsing and derivative generation."
@@ -54,20 +48,19 @@
         "Infected, unknown and failed-scan files cannot be promoted; malformed documents cannot escape workers.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-02.02"
     },
     {
-      "id": "AM-02.03",
+      "id": "AM-02-03",
       "title": "Source families and deduplication",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-02.01"
+        "AM-02-01"
       ],
-      "externalDependencies": [
-        "AM-02.01"
-      ],
+      "externalDependencies": [],
       "externalPrerequisites": [],
       "scope": [
         "Separate works, editions, mirrors, copies and independent sources with reversible matching."
@@ -76,22 +69,20 @@
         "Three mirrors do not become three corroborating witnesses; merge reversal restores references.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-02.03"
     },
     {
-      "id": "AM-02.04",
+      "id": "AM-02-04",
       "title": "Precise selectors and evidence viewer",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-02.01",
-        "AM-02.03"
+        "AM-02-01",
+        "AM-02-03"
       ],
-      "externalDependencies": [
-        "AM-02.01",
-        "AM-02.03"
-      ],
+      "externalDependencies": [],
       "externalPrerequisites": [],
       "scope": [
         "Implement text/page/time selectors, original/derivative alignment and highlights."
@@ -100,20 +91,19 @@
         "Selected snippets open the correct page, region or media segment after export/import.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-02.04"
     },
     {
-      "id": "AM-02.05",
+      "id": "AM-02-05",
       "title": "Handling records and integrity checks",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-02.01"
+        "AM-02-01"
       ],
-      "externalDependencies": [
-        "AM-02.01"
-      ],
+      "externalDependencies": [],
       "externalPrerequisites": [],
       "scope": [
         "Record custody and transformations, verify digests and generate evidence manifests."
@@ -122,22 +112,20 @@
         "Backup restoration and a deliberate corruption produce correct pass/fail records.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-02.05"
     },
     {
-      "id": "AM-02.06",
+      "id": "AM-02-06",
       "title": "Retention and protected derivatives",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-02.01",
-        "AM-02.02"
+        "AM-02-01",
+        "AM-02-02"
       ],
-      "externalDependencies": [
-        "AM-02.01",
-        "AM-02.02"
-      ],
+      "externalDependencies": [],
       "externalPrerequisites": [],
       "scope": [
         "Implement scoped copies, redaction, holds, expiry and erasure impact reporting."
@@ -146,20 +134,19 @@
         "Redacted text and metadata are absent from derivative bytes while restricted originals remain authorized-only.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-02.06"
     },
     {
-      "id": "AM-02.07",
+      "id": "AM-02-07",
       "title": "Interchange and import dry run",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-02.01"
+        "AM-02-01"
       ],
-      "externalDependencies": [
-        "AM-02.01"
-      ],
+      "externalDependencies": [],
       "externalPrerequisites": [],
       "scope": [
         "Create versioned portable bundles with legacy IDs and provenance gaps."
@@ -168,32 +155,25 @@
         "Round-trip preserves revisions, uncertainty and source relationships and rejects missing mandatory references.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-02.07"
     },
     {
-      "id": "AM-02.08",
+      "id": "AM-02-08",
       "title": "Visual provenance and audit export",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-02.01",
-        "AM-02.02",
-        "AM-02.03",
-        "AM-02.04",
-        "AM-02.05",
-        "AM-02.06",
-        "AM-02.07"
+        "AM-02-01",
+        "AM-02-02",
+        "AM-02-03",
+        "AM-02-04",
+        "AM-02-05",
+        "AM-02-06",
+        "AM-02-07"
       ],
-      "externalDependencies": [
-        "AM-02.01",
-        "AM-02.02",
-        "AM-02.03",
-        "AM-02.04",
-        "AM-02.05",
-        "AM-02.06",
-        "AM-02.07"
-      ],
+      "externalDependencies": [],
       "externalPrerequisites": [],
       "scope": [
         "Provide lineage graph, acquisition history and authorized evidence inventory."
@@ -202,10 +182,11 @@
         "Every derivative reveals inputs and handling events; hidden evidence cannot leak through graph counts.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-02.08"
     },
     {
-      "id": "AM-05.01",
+      "id": "AM-05-01",
       "title": "Entity event and claim model",
       "origin": "original",
       "prs": [],
@@ -219,16 +200,14 @@
         10
       ],
       "dependsOn": [
-        "AM-02.03",
-        "AM-02.04",
-        "AM-04.04"
+        "AM-02-03",
+        "AM-02-04"
       ],
-      "externalDependencies": [
-        "AM-02.03",
-        "AM-02.04",
-        "AM-04.04"
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Required original cross-project milestone AM-04.04 is not yet mapped to a verified upstream repo/unit; block this unit until source evidence is linked",
+        "Shared AM-05 milestone responsibility with Factual-investigation-engine is unresolved; do not claim independent completion"
       ],
-      "externalPrerequisites": [],
       "scope": [
         "Implement versioned entities, time ranges, role assertions and independent assessment dimensions."
       ],
@@ -236,10 +215,11 @@
         "Unknown dates remain unknown and entity match ambiguity is reviewable and reversible.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial PR1 pure bounded private entity/event/unassessed-claim revisions, explicit unknown UTC intervals, exact current subject/predecessor links, independent null assessment/procedural/editorial tracks and detached host-role/scope inspection. Twelve local tests/typecheck/build/registry pass after clean normal install, including actual2048 cap/2MiB UTF8 boundary. Initial source03c4de56ebecd73af68074a3f3d6a4e9ee1483ed CI40797317206/job123196826801 failed npm ci due symlink-generated workspace-path lock; regenerated clean lock, tests not run in that initial CI. All twelve groups also pass installed compiled public exports/index JS byte-match. Final-head CI/reviewed merge pending. Full approved15-engine/122-task JSON retained byte-for-byte; no private deployment policy. No qualified selectors/source families/evidence truth/assessment/entity resolution/correction impact/SQL storage/auth/consent/UI/live acceptance. Dependencies/visual acceptance remain integration prerequisites; not a completed AM-05.01. Expanded source5594de30fe5a1b1029243256398b596231a1efa9 CI40797547980/check123197575447 clean npm ci/12tests/typecheck/build/registry SUCCESS, logs inspected. Final-head acceptance remains required. New partial explicit reversible human entity-pair decisions; current edition checks/history/needs-review on changed entities; source checkpoint final CI/installed review pending. No identity proof, inferred transitive merge, rewritten IDs or verified findings. PR3 31 local+installed tests/typecheck/build/registry; source review no unresolved issue; docs/entity-identity-verification.json. InitialCI40820664785 success30/logs inspected; final-head CI required. New partial relationship/role assertions and explicit claim subject linkage; source checkpoint current-head CI/installed review pending. No verified role/identity/evidence inference. PR4 39 local+installed tests/typecheck/build/registry+pins; source review no unresolved finding; docs/relationships-verification.json. InitialCI40826129344 success37/logs inspected; current-head CI required. PR5 partial owning-DB Knowledge history repository,44 local tests/typecheck/build; source checkpoint installed/review/current-head CI pending. PR5 expanded46 local/installed tests; initialCI40838674355 success44; source review no unresolved finding; final-head CI required. PR6 partial explicit current stored Identity resource integration;50 sequential local tests pass, installed/review/current-head CI pending. PR6 all50 installed compiled exports pass; initialCI40845799181 success50/headlogs inspected; source review no unresolved finding; final-head CI required. PR7 partial own-DB reversible pair judgment persistence and current Identity facade integration; source checkpoint installed/review/CI pending. PR7 57 local/installed compiled exports tests pass; initialCI40853879112 success55/headlogs inspected; source review no unresolved finding; current-head CI required. Partial PR10 owning PostgreSQL-session qualification: initial8b89706f4ae53af97b07c4f0f32d5cdf5c938553 CI40915878504/postgres123595834098 passed five actual restricted PostgreSQL17 groups, logs inspected. Expanded seven include separate pair/link history CAS contenders and lost winning COMMIT acknowledgement/fresh pool/one effect; Expanded09a6468b2130d153344f196d80c0f0e806709d5a CI40916138527/check123596748563 passed69 ordinary; postgres123596748061 passed7 actual restricted PostgreSQL17 scenarios and strict integration compile, head/logs inspected. Final current-head checks remain a merge requirement; docs/postgres-verification.json records source-bound evidence.69 ordinary local tests/typecheck/build/registry and expanded strict compile/unsafe-config child checks pass. No local PostgreSQL/Docker, new installed-runtime or production qualification; see POSTGRES_TESTS.md."
+      "implementationStatus": "Partial PR1 pure bounded private entity/event/unassessed-claim revisions, explicit unknown UTC intervals, exact current subject/predecessor links, independent null assessment/procedural/editorial tracks and detached host-role/scope inspection. Twelve local tests/typecheck/build/registry pass after clean normal install, including actual2048 cap/2MiB UTF8 boundary. Initial source03c4de56ebecd73af68074a3f3d6a4e9ee1483ed CI40797317206/job123196826801 failed npm ci due symlink-generated workspace-path lock; regenerated clean lock, tests not run in that initial CI. All twelve groups also pass installed compiled public exports/index JS byte-match. Final-head CI/reviewed merge pending. Full approved15-engine/122-task JSON retained byte-for-byte; no private deployment policy. No qualified selectors/source families/evidence truth/assessment/entity resolution/correction impact/SQL storage/auth/consent/UI/live acceptance. Dependencies/visual acceptance remain integration prerequisites; not a completed AM-05.01. Expanded source5594de30fe5a1b1029243256398b596231a1efa9 CI40797547980/check123197575447 clean npm ci/12tests/typecheck/build/registry SUCCESS, logs inspected. Final-head acceptance remains required. New partial explicit reversible human entity-pair decisions; current edition checks/history/needs-review on changed entities; source checkpoint final CI/installed review pending. No identity proof, inferred transitive merge, rewritten IDs or verified findings. PR3 31 local+installed tests/typecheck/build/registry; source review no unresolved issue; docs/entity-identity-verification.json. InitialCI40820664785 success30/logs inspected; final-head CI required. New partial relationship/role assertions and explicit claim subject linkage; source checkpoint current-head CI/installed review pending. No verified role/identity/evidence inference. PR4 39 local+installed tests/typecheck/build/registry+pins; source review no unresolved finding; docs/relationships-verification.json. InitialCI40826129344 success37/logs inspected; current-head CI required. PR5 partial owning-DB Knowledge history repository,44 local tests/typecheck/build; source checkpoint installed/review/current-head CI pending. PR5 expanded46 local/installed tests; initialCI40838674355 success44; source review no unresolved finding; final-head CI required. PR6 partial explicit current stored Identity resource integration;50 sequential local tests pass, installed/review/current-head CI pending. PR6 all50 installed compiled exports pass; initialCI40845799181 success50/headlogs inspected; source review no unresolved finding; final-head CI required. PR7 partial own-DB reversible pair judgment persistence and current Identity facade integration; source checkpoint installed/review/CI pending. PR7 57 local/installed compiled exports tests pass; initialCI40853879112 success55/headlogs inspected; source review no unresolved finding; current-head CI required. Partial PR10 owning PostgreSQL-session qualification: initial8b89706f4ae53af97b07c4f0f32d5cdf5c938553 CI40915878504/postgres123595834098 passed five actual restricted PostgreSQL17 groups, logs inspected. Expanded seven include separate pair/link history CAS contenders and lost winning COMMIT acknowledgement/fresh pool/one effect; Expanded09a6468b2130d153344f196d80c0f0e806709d5a CI40916138527/check123596748563 passed69 ordinary; postgres123596748061 passed7 actual restricted PostgreSQL17 scenarios and strict integration compile, head/logs inspected. Final current-head checks remain a merge requirement; docs/postgres-verification.json records source-bound evidence.69 ordinary local tests/typecheck/build/registry and expanded strict compile/unsafe-config child checks pass. No local PostgreSQL/Docker, new installed-runtime or production qualification; see POSTGRES_TESTS.md.",
+      "legacyWorkUnitId": "AM-05.01"
     },
     {
-      "id": "AM-05.02",
+      "id": "AM-05-02",
       "title": "Evidence link and source dependence",
       "origin": "original",
       "prs": [],
@@ -250,12 +230,12 @@
         10
       ],
       "dependsOn": [
-        "AM-05.01"
+        "AM-05-01"
       ],
-      "externalDependencies": [
-        "AM-05.01"
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Shared AM-05 milestone responsibility with Factual-investigation-engine is unresolved; do not claim independent completion"
       ],
-      "externalPrerequisites": [],
       "scope": [
         "Support/challenge claims with selectors and source-family relations."
       ],
@@ -264,21 +244,22 @@
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
       "implementationStatus": "partial: exact private Evidence links and explicit snapshot revalidation; 23 local/installed/expanded-CI tests pass; PR8 partial owning-DB link history/current Identity methods; installed/review/CI pending Expanded64 local tests/typecheck/build/registry pass, including input/source capture, shared-command separation, project isolation and stored-sequence denial before cache; initialCI40860727418/check123402968265 SUCCESS62/head+logs inspected. Installed compiled exports and final-head CI pending. All64 installed compiled public-export tests pass with verified complete per-file TAP footers and repository/Identity JS byte-match; source review no unresolved finding. ExpandedCI40861626900/check123406032547 SUCCESS64/head+logs inspected; final documentation-head CI and normal expected-head merge required. Partial AM-05.02, not live source qualification. Partial owning checked link review: actual stored Knowledge/link histories loaded under one own project lock, existing pure source/fingerprint/current-edition validation and detached observed revisions; opt-in current Identity facade. Evidence remains trusted host input, not authenticated source transport or a verified finding. 68 local AND installed compiled-export tests pass; four new restricted-migration groups and extended actual dual-DB Identity review/revocation coverage. Initial9af6a6cc4afad6e0e8039c70d7311dad247c0512 CI40905981812/check123560729453 passed68/clean npmci/typecheck/build/registry, logs inspected; actual current-head CI remains a merge requirement; see EVIDENCE_LINK_REVIEW.md. Partial PR10 owning PostgreSQL-session qualification: initial8b89706f4ae53af97b07c4f0f32d5cdf5c938553 CI40915878504/postgres123595834098 passed five actual restricted PostgreSQL17 groups, logs inspected. Expanded seven include separate pair/link history CAS contenders and lost winning COMMIT acknowledgement/fresh pool/one effect; Expanded09a6468b2130d153344f196d80c0f0e806709d5a CI40916138527/check123596748563 passed69 ordinary; postgres123596748061 passed7 actual restricted PostgreSQL17 scenarios and strict integration compile, head/logs inspected. Final current-head checks remain a merge requirement; docs/postgres-verification.json records source-bound evidence.69 ordinary local tests/typecheck/build/registry and expanded strict compile/unsafe-config child checks pass. No local PostgreSQL/Docker, new installed-runtime or production qualification; see POSTGRES_TESTS.md.",
-      "implementationEvidence": "PR2; docs/EVIDENCE_LINKS.md and docs/evidence-links-verification.json. 23 local tests/typecheck/build/registry; all23 installed compiled exports/JS match. Eleven new actual pinned domain groups, prior12 preserved. Initial6fa03c72 CI40803447014/check123216699192 success20/logs inspected. Current authenticated Evidence snapshot transport, host Identity/consent/rights, durable own-DB history and UI remain pending; no truth/authentication/network/live claim. Expanded source01dcb46 CI40803800264/check123217829394 SUCCESS23/clean npm ci/typecheck/build/registry; logs inspected. Final documentation head requires current-head acceptance; direct GitHub merge state supersedes this timestamped checkpoint. PR8 EVIDENCE_LINKS_REPOSITORY.md and evidence-links-repository-verification.json supersede old persistence-pending statements: own Knowledge DB link history is partial implemented; authenticated current-source delivery, consent/rights integration and visual/live acceptance remain pending."
+      "implementationEvidence": "PR2; docs/EVIDENCE_LINKS.md and docs/evidence-links-verification.json. 23 local tests/typecheck/build/registry; all23 installed compiled exports/JS match. Eleven new actual pinned domain groups, prior12 preserved. Initial6fa03c72 CI40803447014/check123216699192 success20/logs inspected. Current authenticated Evidence snapshot transport, host Identity/consent/rights, durable own-DB history and UI remain pending; no truth/authentication/network/live claim. Expanded source01dcb46 CI40803800264/check123217829394 SUCCESS23/clean npm ci/typecheck/build/registry; logs inspected. Final documentation head requires current-head acceptance; direct GitHub merge state supersedes this timestamped checkpoint. PR8 EVIDENCE_LINKS_REPOSITORY.md and evidence-links-repository-verification.json supersede old persistence-pending statements: own Knowledge DB link history is partial implemented; authenticated current-source delivery, consent/rights integration and visual/live acceptance remain pending.",
+      "legacyWorkUnitId": "AM-05.02"
     },
     {
-      "id": "AM-05.03",
+      "id": "AM-05-03",
       "title": "Question and hypothesis planning",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-05.01"
+        "AM-05-01"
       ],
-      "externalDependencies": [
-        "AM-05.01"
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Shared AM-05 milestone responsibility with Factual-investigation-engine is unresolved; do not claim independent completion"
       ],
-      "externalPrerequisites": [],
       "scope": [
         "Create material-question trees, competing explanations, leads and stop conditions."
       ],
@@ -286,25 +267,24 @@
         "A report becomes a plan including at least one route for testing contrary evidence where applicable.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-05.03"
     },
     {
-      "id": "AM-05.04",
+      "id": "AM-05-04",
       "title": "Claim extraction and answer proposals",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-05.01",
-        "AM-05.02",
-        "AM-04.05"
+        "AM-05-01",
+        "AM-05-02"
       ],
-      "externalDependencies": [
-        "AM-05.01",
-        "AM-05.02",
-        "AM-04.05"
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Required original cross-project milestone AM-04.05 is not yet mapped to a verified upstream repo/unit; block this unit until source evidence is linked",
+        "Shared AM-05 milestone responsibility with Factual-investigation-engine is unresolved; do not claim independent completion"
       ],
-      "externalPrerequisites": [],
       "scope": [
         "Generate structured assertions from passages and replies with exact citations."
       ],
@@ -312,23 +292,23 @@
         "Every accepted proposal resolves to the original span; invented citations are rejected.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-05.04"
     },
     {
-      "id": "AM-05.05",
+      "id": "AM-05-05",
       "title": "Verification and challenge workflow",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-05.01",
-        "AM-05.04"
+        "AM-05-01",
+        "AM-05-04"
       ],
-      "externalDependencies": [
-        "AM-05.01",
-        "AM-05.04"
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Shared AM-05 milestone responsibility with Factual-investigation-engine is unresolved; do not claim independent completion"
       ],
-      "externalPrerequisites": [],
       "scope": [
         "Assess authenticity, source knowledge, independent support and counterevidence."
       ],
@@ -336,25 +316,24 @@
         "A contradicted or unresolved assertion cannot silently become a verified finding.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-05.05"
     },
     {
-      "id": "AM-05.06",
+      "id": "AM-05-06",
       "title": "Investigation completeness and closure",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-05.01",
-        "AM-05.03",
-        "AM-05.05"
+        "AM-05-01",
+        "AM-05-03",
+        "AM-05-05"
       ],
-      "externalDependencies": [
-        "AM-05.01",
-        "AM-05.03",
-        "AM-05.05"
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Shared AM-05 milestone responsibility with Factual-investigation-engine is unresolved; do not claim independent completion"
       ],
-      "externalPrerequisites": [],
       "scope": [
         "Track coverage, unavailable sources, exhausted leads, review basis and reopening triggers."
       ],
@@ -362,21 +341,22 @@
         "Material unanswered questions are explicitly unresolved, deferred or assigned before closure.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-05.06"
     },
     {
-      "id": "AM-05.07",
+      "id": "AM-05-07",
       "title": "Evidence reports and referral packages",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-05.01"
+        "AM-05-01"
       ],
-      "externalDependencies": [
-        "AM-05.01"
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Shared AM-05 milestone responsibility with Factual-investigation-engine is unresolved; do not claim independent completion"
       ],
-      "externalPrerequisites": [],
       "scope": [
         "Generate chronologies, claim dossiers, records-request drafts and scoped professional bundles."
       ],
@@ -384,33 +364,28 @@
         "Export includes contrary material, attribution limits and exact evidence versions within its authorized scope.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-05.07"
     },
     {
-      "id": "AM-05.08",
+      "id": "AM-05-08",
       "title": "Correction impact computation",
       "origin": "original",
       "prs": [],
       "contributingPrs": [],
       "dependsOn": [
-        "AM-05.01",
-        "AM-05.02",
-        "AM-05.03",
-        "AM-05.04",
-        "AM-05.05",
-        "AM-05.06",
-        "AM-05.07"
+        "AM-05-01",
+        "AM-05-02",
+        "AM-05-03",
+        "AM-05-04",
+        "AM-05-05",
+        "AM-05-06",
+        "AM-05-07"
       ],
-      "externalDependencies": [
-        "AM-05.01",
-        "AM-05.02",
-        "AM-05.03",
-        "AM-05.04",
-        "AM-05.05",
-        "AM-05.06",
-        "AM-05.07"
+      "externalDependencies": [],
+      "externalPrerequisites": [
+        "Shared AM-05 milestone responsibility with Factual-investigation-engine is unresolved; do not claim independent completion"
       ],
-      "externalPrerequisites": [],
       "scope": [
         "Traverse revised claim/source relationships and invalidate dependent decisions."
       ],
@@ -418,7 +393,8 @@
         "A corrected date finds all affected claims, findings and draft outputs while leaving unrelated work usable.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation"
+      "implementationStatus": "planned; not implemented in this foundation",
+      "legacyWorkUnitId": "AM-05.08"
     }
   ],
   "pullRequests": [],

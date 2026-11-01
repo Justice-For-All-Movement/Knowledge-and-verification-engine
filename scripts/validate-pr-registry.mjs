@@ -11,19 +11,33 @@ assert.equal(v.repository, "neophilism/Knowledge-and-verification-engine");
 assert.equal(v.planVerified, true);
 assert.equal(plan.tasks.length, 122);
 assert.equal(catalog.engines.length, 15);
-const expected = plan.tasks
-  .filter((t) => t.engines.includes("E07"))
-  .map((t) => t.id);
-assert.deepEqual(
-  v.units.map((u) => u.id),
-  expected,
-);
+const tasks = plan.tasks.filter((t) => t.engines.includes("E07"));
+assert.deepEqual(v.units.map((u) => u.legacyWorkUnitId), tasks.map((t) => t.id));
 assert.equal(v.plannedPrCount, v.units.length);
-for (const u of v.units) {
-  const original = plan.tasks.find((t) => t.id === u.id);
-  assert.deepEqual(u.dependsOn, original.dependencies);
-  assert(u.implementationStatus);
+
+const canonical = (id) => id.replaceAll(".", "-");
+const indexedIds = new Set(tasks.map((task) => task.id));
+for (const task of tasks) {
+  const unit = v.units.find((u) => u.legacyWorkUnitId === task.id);
+  assert(unit, "Missing original source task " + task.id);
+  assert.equal(unit.id, canonical(task.id), "Canonical ID mapping differs from source");
+  assert.deepEqual(
+    unit.dependsOn,
+    task.dependencies.filter((id) => indexedIds.has(id)).map(canonical),
+    "Original same-repository dependencies changed"
+  );
+  const expectedUnresolved = task.dependencies.filter((id) => !indexedIds.has(id))
+    .map((id) => "Required original cross-project milestone " + id +
+      " is not yet mapped to a verified upstream repo/unit; block this unit until source evidence is linked");
+  for (const prerequisite of expectedUnresolved) {
+    assert(unit.externalPrerequisites.includes(prerequisite),
+      "Missing original cross-project dependency hold for " + task.id);
+  }
+  assert.deepEqual(unit.externalDependencies, [],
+    "External dependency must not claim a verified upstream mapping until evidence exists");
+  assert.deepEqual(unit.prs, [], "Do not fabricate completed PR evidence");
 }
+for (const u of v.units) assert(u.implementationStatus);
 console.log(
   "Valid Knowledge registry:15 engines/122 original tasks; owning E07 task IDs/dependencies preserved; implementation partial",
 );
