@@ -35,3 +35,5 @@ The disposable owning-DB network fixture in POSTGRES_TESTS.md separately tests K
 CURRENT_EVIDENCE.md documents explicit current owning selector review composition; earlier host-snapshot-only limitations still apply to legacy APIs. No authenticated full EvidenceState is constructed or returned.
 
 SOURCE_LINK_WRITES.md documents the additive opt-in SourceEvidenceLinksWriter path through actual owning Evidence captures and current Identity/owning Knowledge SQL. Legacy snapshot APIs remain host-trust paths; source-backed metadata is historical, not atomic current source/consent/rights permission.
+
+CONSENT_LINK_WRITES.md documents mandatory opt-in current Identity/Consent checks before and after owning Evidence capture for private source-backed link writes. Existing host-trust paths remain unchanged. Exact configured original-byte resource bindings and private metadata/reproduction actions are observed sequentially; they do not permanently authorize a stored link or atomically fence another engine's revocation.
