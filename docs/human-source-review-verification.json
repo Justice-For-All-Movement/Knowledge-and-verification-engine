@@ -1,0 +1,61 @@
+{
+  "status": "PR20 qualification complete; final documentation-head CI/branch rules required",
+  "local": {
+    "focusedGroups": 6,
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0,
+    "normalNpmCi": "passed",
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "fullSuite": "118-test first implementation suite passed plus separate sixth focused group; no full119 single invocation claimed",
+    "invocations": "five groups plus separate lost-ack/cancel group"
+  },
+  "installed": {
+    "focusedGroups": 6,
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0,
+    "normalInstall": "passed",
+    "declarations": "passed",
+    "bothChangedRuntimeModulesByteMatch": true,
+    "fullSuite": "not claimed"
+  },
+  "ci": {
+    "observedSource": "6cc29b5fd1b5a4f775e48f0c0e81f2c457e43fd1",
+    "run": 41929903130,
+    "check": 126923863277,
+    "tests": 119,
+    "postgres": 126923862958,
+    "priorPgScenarios": 7,
+    "fail": 0,
+    "skipped": 0,
+    "rawLogs": "inspected",
+    "finalDocumentationHead": "required"
+  },
+  "remaining": [
+    "Installed public exports/declarations/module-byte qualification",
+    "Substantive source review and current-head CI/branch rules",
+    "Host proofing/mapping/delegation/rights/bytes/scanner/driver/CPU/heap and browser/AT/live qualification",
+    "Verification durability/fullworkflow and original cross-engine dependencies"
+  ],
+  "sourceSha256": {
+    "src/current-evidence.ts": "e6107ca0daecd8b5594801b86e8d28ba869be73b0ad0fe1d4c195251de77e59e",
+    "src/consent-links.ts": "932dfc2a5bcf0311d8256a7d3f537a2a5efe95d0a8aab0c22928054a31900a27",
+    "tests/current-evidence.test.ts": "97a1a771a7abcbf7e206bcd7ca820be132fff7a18605acd85a6674fa30825a13",
+    "package.json": "5c031c430acce4832b4c94a13967948e2683df5120b02303b4c5ed5950dcd062",
+    "package-lock.json": "61668d426ab542f563f87ee48c5e6836d7db42a08aacacff0c780f45dac0668f",
+    "scripts/validate-pr-registry.mjs": "d0f662c0196d6a155e7a5ecc78e77f579ca5b832cb05e1d3da09413480719094",
+    "docs/HUMAN_SOURCE_LINK_REVIEW.md": "14888b10dafabd1c8c0ad1daca4146226c6c55a2b33d040ffd627131c82498a3",
+    "docs/ARCHITECTURE.md": "ec642f1d0dc277e0334e0175e94b84ba9e3f4f9a56e3701b9a691901b6c75d1d",
+    "registry/prs.json": "35c7f6f4eeac0d99590e94cc76cc26099905a2bcb9bacdee3899f675846638be"
+  },
+  "review": [
+    "Actual same-human owning Evidence review captured once; no legacy fallback",
+    "Mandatory current Identity/Consent guards and fresh owning Knowledge basis unchanged",
+    "ClaimProposalReader guarded-instance gate and owning implementation dispatch unchanged",
+    "Lost actual Evidence read COMMIT/cancellation withhold result without rollback claim",
+    "Stable SQL SDK/separate DBs/Identity/Consent pins/contracts/original IDs-dependencies unchanged"
+  ]
+}

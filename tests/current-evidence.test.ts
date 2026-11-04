@@ -1805,3 +1805,131 @@ test("human-bound guarded replay rechecks the credential before returning a lega
   assert.equal(rows.revision, 2);
   assert.equal(rows.state.records.length, 2);
 });
+
+import { HumanConsentEvidenceKnowledgeReview } from "../src/consent-links.ts";
+
+test("human-bound review uses the actual principal with current guards and a captured method, without Knowledge writes", async (t) => {
+  const f = await consentWriterFixture(t);
+  Object.assign(f.service, { reviewSelectors: async () => { throw Error("legacy review forbidden"); } });
+  const client = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, f.makeGuard());
+  // The configured owning receiver/method is captured, rather than looked up after admission.
+  Object.assign(f.service, { reviewSelectorsForHuman: async () => { throw Error("late method replacement"); } });
+  const before = await f.facade.loadEvidenceLinks(c), knowledge = await f.facade.load(c);
+  const audits = await scoped(f.consentDb, c, tx => tx.audits());
+  const result = await client.review({ ...c, actor: { ...c.actor, roles: ["forged"] } }, f.link.record);
+  assert.equal(result.linksRevision, 1);
+  assert.equal(result.sources.supports!.sourceGroupCount, 1);
+  assert.equal(result.sources.challenges!.sourceGroupCount, 1);
+  assert.equal(result.sources.supports!.independentFamilyCount, null);
+  assert.equal(result.sources.quotes, null);
+  assert.equal((await scoped(f.consentDb, c, tx => tx.audits())).slice(audits.length).filter(x => x.type === "permission.evaluated").length, 2);
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
+  assert.deepEqual(await f.facade.load(c), knowledge);
+  assert.equal(f.signal()!.aborted, true);
+  const original = structuredClone(result);
+  Object.assign(result.revision.links[0]!, { id: "detached" });
+  assert.deepEqual(await client.review(c, f.link.record), original);
+});
+
+test("human-bound review denies another human and same-ID service or agent without legacy fallback", async (t) => {
+  const f = await consentWriterFixture(t);
+  let legacy = 0;
+  Object.assign(f.service, { reviewSelectors: async () => { legacy++; throw Error("forbidden fallback"); } });
+  const client = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, f.makeGuard());
+  const before = await f.facade.loadEvidenceLinks(c);
+  for (const actor of [{ id: "different", kind: "human" }, { id: "owner", kind: "service" }, { id: "owner", kind: "agent" }]) {
+    Object.assign(f.identities[0]!.actor, actor);
+    await assert.rejects(client.review(c, f.link.record), { code: "source_unavailable", message: "Current Evidence observation unavailable" });
+    assert.equal(f.signal()!.aborted, true);
+  }
+  assert.equal(legacy, 0);
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
+  Object.assign(f.identities[0]!.actor, { id: "owner", kind: "human" });
+  assert.equal((await client.review(c, f.link.record)).linksRevision, 1);
+});
+
+test("human-bound review still withholds actual source results after current Consent withdrawal", async (t) => {
+  const f = await consentWriterFixture(t), actual = f.service.reviewSelectorsForHuman.bind(f.service);
+  let expected: string | undefined, withdrawn = false;
+  const port = { reviewSelectorsForHuman: async (...args: Parameters<typeof actual>) => {
+    expected = args[2];
+    const result = await actual(...args);
+    if (!withdrawn) {
+      withdrawn = true;
+      await f.permissions.withdraw(c, "consent", "consent", 1, "human-review-withdrawal");
+    }
+    return result;
+  } } as EvidenceService;
+  const client = new HumanConsentEvidenceKnowledgeReview(f.facade, port, f.credential, f.makeGuard());
+  await assert.rejects(client.review(c, f.link.record), { code: "use_denied" });
+  assert.equal(expected, "owner");
+  assert.equal(f.signal()!.aborted, true);
+  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 1);
+  let credentials = 0;
+  const denied = new HumanConsentEvidenceKnowledgeReview(f.facade, port, async () => { credentials++; return f.req.token; }, f.makeGuard());
+  await assert.rejects(denied.review(c, f.link.record), { code: "use_denied" });
+  assert.equal(credentials, 0);
+});
+
+test("human-bound review construction requires the owning guard and method; empty observations need no credential", async (t) => {
+  const f = await consentWriterFixture(t);
+  assert.throws(() => new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, undefined as never), { code: "invalid_policy" });
+  assert.throws(() => new HumanConsentEvidenceKnowledgeReview(f.facade, {} as EvidenceService, f.credential, f.makeGuard()), { code: "invalid_policy" });
+  assert.throws(() => new ConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, f.makeGuard(), 10000, "invented" as never), { code: "invalid_policy" });
+  // A source-only reviewer cannot enter the proposal path, even when it selects the human method.
+  const unguarded = new CurrentEvidenceKnowledgeReview(f.facade, f.service, f.credential, 10000, undefined, "same-human");
+  assert.throws(() => new ClaimProposalReader(unguarded as never), { code: "invalid_policy" });
+  const empty = await f.makeWriter().record(c, 1, { ...f.command, links: [] }, "human-review-empty");
+  let credentials = 0;
+  const missing = new CurrentEvidenceUse(f.membership, f.permissions, { ...f.fixed, bindings: [] }, () => c.now);
+  const client = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, async () => { credentials++; throw Error("empty is not source use"); }, missing);
+  const result = await client.review(c, empty.record);
+  assert.equal(result.evidenceRevision, null);
+  assert.deepEqual(result.sources, { supports: null, challenges: null, quotes: null });
+  assert.equal(credentials, 0);
+});
+
+test("human-bound review composes with the protected proposal reader and exact Unicode excerpts without an override bypass", async (t) => {
+  const f = await proposalFixture(t, "Neutral 🧭 quoted passage");
+  Object.assign(f.service, { reviewSelectors: async () => { throw Error("legacy proposal review forbidden"); } });
+  const review = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, f.guard);
+  assert.ok(review instanceof ConsentEvidenceKnowledgeReview);
+  Object.assign(review, { review: async () => { throw Error("instance override must not run"); } });
+  const reader = new ClaimProposalReader(review), before = await f.facade.loadEvidenceLinks(c), knowledge = await f.facade.load(c);
+  const candidate = { ...f.candidate, start: 8, end: 10, quote: "🧭" };
+  const result = await reader.propose(c, f.selected, [candidate]);
+  assert.equal(result.proposals[0]!.citation.excerpt.quote, "🧭");
+  assert.equal(result.proposals[0]!.citation.excerpt.start, 8);
+  assert.equal(result.proposals[0]!.assessment, null);
+  assert.equal(result.proposals[0]!.editorialApproval, null);
+  inspectClaimProposals(c, result);
+  Object.assign(f.identities[0]!.actor, { kind: "service" });
+  await assert.rejects(reader.propose(c, f.selected, [candidate]), { code: "proposal_unavailable" });
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
+  assert.deepEqual(await f.facade.load(c), knowledge);
+});
+
+test("human-bound review awaits lost or cancelled actual Evidence SQL and never accepts its late result", async (t) => {
+  const f = await consentWriterFixture(t), transaction = f.evidence.transaction.bind(f.evidence);
+  let lose = true, cancel: AbortController | undefined;
+  Object.assign(f.evidence, { transaction: async <T>(fn: Parameters<Database["transaction"]>[0]): Promise<T> => {
+    const value = await transaction(fn);
+    if (lose) {
+      lose = false;
+      throw Error("private lost actual Evidence read COMMIT");
+    }
+    cancel?.abort();
+    return value as T;
+  } });
+  const client = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, f.makeGuard());
+  const before = await f.facade.loadEvidenceLinks(c);
+  await assert.rejects(client.review(c, f.link.record), { code: "source_unavailable", message: "Current Evidence observation unavailable" });
+  assert.equal(f.signal()!.aborted, true);
+  // The audit committed even though its acknowledgement was lost; failure does not imply rollback.
+  assert.ok((await scoped(f.evidence, c, tx => tx.audits())).some(x => x.type === "evidence.selectors.review_checked"));
+  cancel = new AbortController();
+  await assert.rejects(client.review(c, f.link.record, cancel.signal), { code: "source_unavailable" });
+  assert.equal(cancel.signal.aborted, true);
+  assert.equal(f.signal()!.aborted, true);
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
+});

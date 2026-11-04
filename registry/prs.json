@@ -232,7 +232,8 @@
         13,
         14,
         15,
-        19
+        19,
+        20
       ],
       "dependsOn": [
         "AM-05-01"
@@ -277,6 +278,12 @@
         "newGroups": 5,
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/19",
         "verification": "docs/human-source-writes-verification.json"
+      },
+      "humanSourceReview": {
+        "docs": "docs/HUMAN_SOURCE_LINK_REVIEW.md",
+        "status": "Six actual four-DB/encrypted-root local+installed groups; full118 local plus separate sixth group/typecheck/build/registry pass; expanded source6cc29b5 CI41929903130 passes119+7priorPG17. Final documentation-head CI required; no single full119 local/installed claim. Legacy profiles unchanged; partial unit only.",
+        "verification": "docs/human-source-review-verification.json",
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/20"
       }
     },
     {
@@ -309,7 +316,8 @@
       "prs": [],
       "contributingPrs": [
         16,
-        17
+        17,
+        20
       ],
       "dependsOn": [
         "AM-05-01",
@@ -339,6 +347,12 @@
         "status": "PR17 merged4265d1b; finalCI41901248494 passed101+7 priorPG17; earlier incomplete flags are historical",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/17",
         "verification": "docs/claim-proposal-review-verification.json"
+      },
+      "humanSourceReview": {
+        "docs": "docs/HUMAN_SOURCE_LINK_REVIEW.md",
+        "status": "Six actual four-DB/encrypted-root local+installed groups; full118 local plus separate sixth group/typecheck/build/registry pass; expanded source6cc29b5 CI41929903130 passes119+7priorPG17. Final documentation-head CI required; no single full119 local/installed claim. Legacy profiles unchanged; partial unit only.",
+        "verification": "docs/human-source-review-verification.json",
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/20"
       }
     },
     {
