@@ -1,0 +1,59 @@
+{
+  "status": "incomplete draft: pre-merge binding-consistency correction",
+  "local": {
+    "fullSuiteTests": 99,
+    "additionalExactBoundaryGroup": 1,
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "failure": 0,
+    "skipped": 0,
+    "bindingFocusedGroups": 6
+  },
+  "installed": {
+    "normalInstall": "passed",
+    "syntheticGroups": 5,
+    "actualOwningServiceGroups": 2,
+    "modulesByteMatch": [
+      "claim-proposals.js",
+      "claim-proposal-review.js"
+    ],
+    "broaderNewFullSuite": "pending; prior PR16 complete94 installed suite passed"
+  },
+  "ci": {
+    "initialSource": "bcab52a72f433541a296f02891e9272b77b22442",
+    "run": 41891795556,
+    "check": 126790828420,
+    "postgres": 126790827897,
+    "initialStatus": "success99+seven prior actualPG17/zero skips/raw logs inspected",
+    "expandedHead": "actual current-head checks pending",
+    "previousFinal": {
+      "source": "28a21032b448aa3f699627fbce5d2f6375fa486f",
+      "run": 41892618591,
+      "check": 126793733441,
+      "postgres": 126793733698,
+      "status": "success100+7 prior PG17, raw logs inspected, zero skips; superseded for merge by binding expansion"
+    }
+  },
+  "review": [
+    "Exact captured profiles/scope/purpose/revisions/null approval tracks and corruption digest; no authentication from captured data",
+    "Original selector/fingerprint separate from UTF16 excerpt; nonzero Unicode/surrogate and malformed-profile checks",
+    "REPRO old pre-digest budget accepted oversize; actual owning-service boundary rejects262145 accepts262144 bytes including digest",
+    "No new domain write/SQL/provider/permission authority or source truth; HOST current Identity/Consent/private export/CPUheap/driver and browserAT/live required",
+    "REPRO recomputed same-link parent conflict accepted; six focused groups now enforce parent/source-hash/representation-digest consistency without claiming authentication"
+  ],
+  "remaining": [
+    "Full expanded current-head CI/review before merge",
+    "Durable proposal acceptance/model/answers/HTTP/Visual and live qualification"
+  ],
+  "sourceSha256": {
+    "src/claim-proposal-review.ts": "e25dea671e7eefd09dde7aa965519591b749ef4d91587fbec0284b131c4ecc4e",
+    "src/claim-proposals.ts": "64cca5dc2d71a8bf68cdff8a349dc3078f4433eba0c63321a1c7c16065407d81",
+    "tests/claim-proposal-review.test.ts": "177812a8bbfcc3d60174860f0406c27e18cfcb857a6f7922ef40a7ddd1575362",
+    "tests/current-evidence.test.ts": "43c6d736f9a35fd4f4bfd4f82b2618aa305056c57b1f6c43bc9a1db8f8ad9862",
+    "package.json": "97987dbbe8b3c552fcd85892dabd455b9843f95336fd9155024abcb27489d62c",
+    "docs/CLAIM_PROPOSAL_REVIEW.md": "4d750e186703bb7fc01076aed9ea7668b681284e907ab4654e378b3262f64d20",
+    "docs/ARCHITECTURE.md": "fb9c11714e34a099ec7e61bebd3084cabe3bb8acbfaf576bd5bc7d9f3b9e6929",
+    "registry/prs.json": "fe6cdd06fa067c31cbf80aebd105fec64448281707043d532240ad4aebfeb577"
+  }
+}

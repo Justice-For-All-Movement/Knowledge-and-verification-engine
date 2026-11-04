@@ -120,7 +120,10 @@ async function fixture(t: test.TestContext) {
   };
 }
 
-async function ready(t: test.TestContext) {
+async function ready(
+  t: test.TestContext,
+  representationText = "Neutral unverified fixture",
+) {
   const f = await fixture(t);
   await f.membership.setResourcePolicy(c, 0, f.policy, "allow");
   const evidence = await f.database("evidence_login");
@@ -163,7 +166,7 @@ async function ready(t: test.TestContext) {
         verdict: "clean",
         representation: {
           sourceSha256: x.sha256,
-          text: "Neutral unverified fixture",
+          text: representationText,
           pages: null,
           durationMs: null,
           toolVersion: "synthetic-fixture",
@@ -563,8 +566,11 @@ test("fresh own storage observations reject unrelated revisions and empty links 
   });
 });
 
-async function sourceWriterFixture(t: test.TestContext) {
-  const f = await ready(t);
+async function sourceWriterFixture(
+  t: test.TestContext,
+  representationText?: string,
+) {
+  const f = await ready(t, representationText);
   const { SourceEvidenceLinksWriter } = await import("../src/source-links.ts");
   return {
     ...f,
@@ -954,8 +960,11 @@ import {
   ConsentEvidenceLinksWriter,
   evidenceUseResourceId,
 } from "../src/consent-links.ts";
-async function consentWriterFixture(t: test.TestContext) {
-  const f = await sourceWriterFixture(t),
+async function consentWriterFixture(
+  t: test.TestContext,
+  representationText?: string,
+) {
+  const f = await sourceWriterFixture(t, representationText),
     consentDb = await f.database("consent_login");
   const registryPolicy = {
     tenantId: c.tenantId,
@@ -1452,9 +1461,13 @@ test("consent-guarded review withholds actual source results after withdrawal du
   });
 });
 
+import { inspectClaimProposals } from "../src/claim-proposal-review.ts";
 import { ClaimProposalReader } from "../src/claim-proposals.ts";
-async function proposalFixture(t: test.TestContext) {
-  const f = await consentWriterFixture(t);
+async function proposalFixture(
+  t: test.TestContext,
+  representationText?: string,
+) {
+  const f = await consentWriterFixture(t, representationText);
   // Owning representation discovery is fixture setup only; runtime uses only the authenticated guarded API.
   const stored = await scoped(f.evidence, c, (tx) =>
     tx.get<{ domain: EvidenceState }>("evidence.aggregate", "project"),
@@ -1563,6 +1576,7 @@ test("claim proposals bind exact authenticated text spans and retain independent
   assert.equal(p.proposals[0]!.assessment, null);
   assert.equal(p.proposals[0]!.editorialApproval, null);
   assert.equal(p.visibility, "private");
+  assert.deepEqual(inspectClaimProposals(c, p), p);
   assert.equal(p.basis.linkRef.revision, 2);
   assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
   assert.deepEqual(await f.facade.load(c), knowledge);
@@ -1679,4 +1693,45 @@ test("proposal deadline rejects a late actual owning read and closes captured si
   });
   assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 2);
   assert.equal(f.signal()!.aborted, true);
+});
+
+test("complete proposal response budget includes its digest at the exact UTF8 boundary", async (t) => {
+  const { canonical, digest } = await import("../src/contracts.ts");
+  const f = await proposalFixture(t, "Neutral " + "x".repeat(6992));
+  const probe = await f.reader.propose(c, f.selected, [
+    { ...f.candidate, assertion: "A" },
+  ]);
+  const { digest: ignored, ...body } = probe;
+  const candidates = Array.from({ length: 32 }, (_, i) => ({
+    ...f.candidate,
+    id: `candidate-${i}`,
+    assertion: "A",
+  }));
+  const proposals = candidates.map((q) => ({
+    ...probe.proposals[0]!,
+    id: q.id,
+    assertion: q.assertion,
+  }));
+  const expected = () => ({
+    ...body,
+    proposals,
+    digest: digest({ ...body, proposals }),
+  });
+  let remaining = 256 * 1024 + 1 - Buffer.byteLength(canonical(expected()));
+  assert.ok(remaining > 0 && remaining < 32 * 3999);
+  for (let i = 0; i < candidates.length && remaining > 0; i++) {
+    const n = Math.min(3999, remaining);
+    candidates[i]!.assertion += "x".repeat(n);
+    proposals[i]!.assertion = candidates[i]!.assertion;
+    remaining -= n;
+  }
+  assert.equal(Buffer.byteLength(canonical(expected())), 256 * 1024 + 1);
+  await assert.rejects(f.reader.propose(c, f.selected, candidates), {
+    code: "proposal_full",
+  });
+  const index = candidates.findIndex((q) => q.assertion.length > 1);
+  candidates[index]!.assertion = candidates[index]!.assertion.slice(0, -1);
+  const accepted = await f.reader.propose(c, f.selected, candidates);
+  assert.equal(Buffer.byteLength(canonical(accepted)), 256 * 1024);
+  assert.deepEqual(inspectClaimProposals(c, accepted), accepted);
 });

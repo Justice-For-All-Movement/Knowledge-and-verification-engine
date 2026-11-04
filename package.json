@@ -43,6 +43,10 @@
     "./claim-proposals": {
       "types": "./dist/claim-proposals.d.ts",
       "default": "./dist/claim-proposals.js"
+    },
+    "./claim-proposal-review": {
+      "types": "./dist/claim-proposal-review.d.ts",
+      "default": "./dist/claim-proposal-review.js"
     }
   },
   "engines": {
