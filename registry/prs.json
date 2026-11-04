@@ -281,7 +281,7 @@
       },
       "humanSourceReview": {
         "docs": "docs/HUMAN_SOURCE_LINK_REVIEW.md",
-        "status": "Six focused actual four-DB/encrypted-root groups (five plus separate lost-ack/cancel invocation), normal npm ci/typecheck/build/registry pass; installed/current-head CI pending; legacy profiles unchanged",
+        "status": "Six actual four-DB/encrypted-root local+installed groups; full118 local plus separate sixth group/typecheck/build/registry pass; expanded source6cc29b5 CI41929903130 passes119+7priorPG17. Final documentation-head CI required; no single full119 local/installed claim. Legacy profiles unchanged; partial unit only.",
         "verification": "docs/human-source-review-verification.json",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/20"
       }
@@ -350,7 +350,7 @@
       },
       "humanSourceReview": {
         "docs": "docs/HUMAN_SOURCE_LINK_REVIEW.md",
-        "status": "Six focused actual four-DB/encrypted-root groups (five plus separate lost-ack/cancel invocation), normal npm ci/typecheck/build/registry pass; installed/current-head CI pending; legacy profiles unchanged",
+        "status": "Six actual four-DB/encrypted-root local+installed groups; full118 local plus separate sixth group/typecheck/build/registry pass; expanded source6cc29b5 CI41929903130 passes119+7priorPG17. Final documentation-head CI required; no single full119 local/installed claim. Legacy profiles unchanged; partial unit only.",
         "verification": "docs/human-source-review-verification.json",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/20"
       }

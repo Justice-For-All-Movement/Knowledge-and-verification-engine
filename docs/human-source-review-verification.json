@@ -1,5 +1,5 @@
 {
-  "status": "PR20 expanded qualification checkpoint; final-head CI/source review pending",
+  "status": "PR20 qualification complete; final documentation-head CI/branch rules required",
   "local": {
     "focusedGroups": 6,
     "pass": 6,
@@ -9,7 +9,7 @@
     "typecheck": "passed",
     "build": "passed",
     "registry": "passed",
-    "fullSuite": "118-test first implementation suite in progress; sixth new group passed separately",
+    "fullSuite": "118-test first implementation suite passed plus separate sixth focused group; no full119 single invocation claimed",
     "invocations": "five groups plus separate lost-ack/cancel group"
   },
   "installed": {
@@ -22,7 +22,18 @@
     "bothChangedRuntimeModulesByteMatch": true,
     "fullSuite": "not claimed"
   },
-  "ci": "pending",
+  "ci": {
+    "observedSource": "6cc29b5fd1b5a4f775e48f0c0e81f2c457e43fd1",
+    "run": 41929903130,
+    "check": 126923863277,
+    "tests": 119,
+    "postgres": 126923862958,
+    "priorPgScenarios": 7,
+    "fail": 0,
+    "skipped": 0,
+    "rawLogs": "inspected",
+    "finalDocumentationHead": "required"
+  },
   "remaining": [
     "Installed public exports/declarations/module-byte qualification",
     "Substantive source review and current-head CI/branch rules",
@@ -36,9 +47,9 @@
     "package.json": "5c031c430acce4832b4c94a13967948e2683df5120b02303b4c5ed5950dcd062",
     "package-lock.json": "61668d426ab542f563f87ee48c5e6836d7db42a08aacacff0c780f45dac0668f",
     "scripts/validate-pr-registry.mjs": "d0f662c0196d6a155e7a5ecc78e77f579ca5b832cb05e1d3da09413480719094",
-    "docs/HUMAN_SOURCE_LINK_REVIEW.md": "24cc92dfda5104431a49cf6b7e61c337058bba14203e19aeb6c28bbc13acd485",
+    "docs/HUMAN_SOURCE_LINK_REVIEW.md": "14888b10dafabd1c8c0ad1daca4146226c6c55a2b33d040ffd627131c82498a3",
     "docs/ARCHITECTURE.md": "ec642f1d0dc277e0334e0175e94b84ba9e3f4f9a56e3701b9a691901b6c75d1d",
-    "registry/prs.json": "1a4d593ff792bd3226dacf1a238d2022bf35edff8eb3b5111846e1957c7dddb0"
+    "registry/prs.json": "35c7f6f4eeac0d99590e94cc76cc26099905a2bcb9bacdee3899f675846638be"
   },
   "review": [
     "Actual same-human owning Evidence review captured once; no legacy fallback",
