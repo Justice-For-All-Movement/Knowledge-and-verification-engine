@@ -1,0 +1,51 @@
+{
+  "status": "incomplete PR18 qualification checkpoint; actual current-head checks required before merge",
+  "local": {
+    "focusedGroups": 7,
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "full107Suite": "running; no full108 single-suite result claimed"
+  },
+  "installed": {
+    "focusedCompiledPublicExportGroups": 7,
+    "strictDeclarationCompilation": "passed with explicit Node types",
+    "moduleByteMatch": true,
+    "normalInstall": "passed",
+    "full107Suite": "running"
+  },
+  "ci": {
+    "observedSource": "3ce1d217ec4941c9b15661fa8ba1dcefc75da82e",
+    "run": 41905058029,
+    "check": 126837372813,
+    "tests": 107,
+    "postgres": 126837372389,
+    "existingPgScenarios": 7,
+    "fail": 0,
+    "skipped": 0,
+    "rawLogs": "inspected",
+    "expandedHead": "required"
+  },
+  "review": [
+    "Pure human exact-purpose admission; host Context/supplied owning snapshots are not authentication",
+    "Current exact owning claim/link edition before CAS; all captured challenge IDs retained",
+    "Exact immutable predecessor and nonregressing basis refs; historical changed/missing basis needs review",
+    "Reproduced initial append/read historical challenge consistency gap; both paths now reject tampering",
+    "Four independent reviewer observations stay unresolved/null assessment-procedural-editorial even when every axis is reviewed",
+    "Full valid512 history readable/no eviction; aggregate bytes fail independently of valid individual note limits"
+  ],
+  "remaining": [
+    "Expanded current-head CI and ordinary local/installed suites",
+    "Owning SQL/current Identity-Consent/source-byte qualification and durable proposal acceptance",
+    "Complete challenge/verification workflow, full AM05.08/Editorial, browser/AT/live acceptance"
+  ],
+  "sourceSha256": {
+    "src/verification-review.ts": "ecc36e0bccf3c8671acd532e9e0549826b1b570fb4aa6a8e70a1d2f33f4741f5",
+    "tests/verification-review.test.ts": "999d370a32cc6cfaf1996bc25805b3e1a612d0ddaf817cba5da761b23ba93441",
+    "tests/verification-review-bounds.test.ts": "8944d1e43f200291793c47d17c4833d2839b9c6d5eb6994c7f0d4a87538f532f",
+    "package.json": "38f9bad4b5b367b53ae17a7d4a47981453c8c9564d05f948499669adecef4f1d",
+    "docs/VERIFICATION_REVIEW.md": "1d10b80e60294672c4bf6e151aa70fa5bdb9d446594804221923d702600cb100",
+    "docs/ARCHITECTURE.md": "9a053a45dc7c810875cb1dce57754d97370e35db8041207b6635e837c87409f5",
+    "registry/prs.json": "34d7f5e67d50a94fce710ebd224fab9e3d786252674d1a4282d228e3cf10d727"
+  }
+}
