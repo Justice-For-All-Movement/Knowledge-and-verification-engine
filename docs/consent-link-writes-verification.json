@@ -1,0 +1,79 @@
+{
+  "observedAt": "2026-11-04T15:09:45Z",
+  "scope": "AM-05.02 private current Consent-guarded owning Evidence link writes; partial suite",
+  "local": {
+    "ordinaryTests": 88,
+    "newActualFourRestrictedDatabaseGroups": 6,
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "updatedAttributionRejectionGroup": "passed focused rerun after source review"
+  },
+  "installed": {
+    "ordinaryTests": 88,
+    "fullTap": "passed; zero skips",
+    "normalCleanNpmCi": "passed with normal prepare/build",
+    "compiledGuardAndSourceWriter": "byte matched build",
+    "publicExports": "all tests and integration fixtures rewritten; no remaining ../src imports"
+  },
+  "initialCi": {
+    "source": "7d6cfcb751fb00f4e13079986a3a54d056799451",
+    "run": 41852548797,
+    "check": 126652400567,
+    "ordinaryTests": 88,
+    "postgres": 126652400952,
+    "existingPostgresGroups": 7,
+    "rawLogsInspected": true
+  },
+  "expandedCi": {
+    "source": "6fb3e2eb28e76ceb959253b410ca678f1c9e44bc",
+    "run": 41853445278,
+    "check": 126655574963,
+    "ordinaryTests": 88,
+    "postgres": 126655573789,
+    "existingPostgresGroups": 7,
+    "rawLogsInspected": true
+  },
+  "sourceReview": [
+    "Current stored per-Evidence Identity policy replaces caller roles before actual Consent evaluation; exact configured scoped ref/byte digest and fixed private audience/actions",
+    "Mandatory pre-credential and post-Evidence-capture checks; whole/page/time anchors use metadata-citation, literal text always reproduce",
+    "Source review rejected attribution-bearing configuration until a qualified credit-preserving consumer exists; null cannot satisfy credit-required grants",
+    "No caller permission records/subject requirements/allowed flags or full EvidenceState; actual separate migrated Identity,Knowledge,Evidence,Consent DBs; no foreign operational DB/root reads",
+    "Complete mapping before guard SQL; immutable bounded config; no fallback; replay freshly rechecks current permissions before historical ACK",
+    "Monotonic/cancellable admission and sanitized failed/late/lost begun Consent/Identity SQL results; await begun SQL and preserve acknowledged Knowledge commit semantics"
+  ],
+  "testEvidence": [
+    "Four-DB private capture+commit and pre/post decision deduplication; role replacement and configuration capture; owning DB separation",
+    "Actual text reproduction denial and permission upgrade via real authenticated representation",
+    "Separate Identity resource policy denial and consent withdrawal after actual source capture deny Knowledge write",
+    "Lost actual Knowledge COMMIT returns UNKNOWN; explicit original replay succeeds only while current rights remain",
+    "Exact missing/hash/foreign/purpose mapping, expiry and explicit empty-set semantics; attribution-bearing config denied",
+    "Lost actual Consent read COMMIT, blocked late result and cancellation deny without Knowledge writes"
+  ],
+  "limitations": [
+    "Sequential observations are not a distributed Identity/Consent/Evidence revocation fence; a later change including during Knowledge commit is possible",
+    "Stored link/permission decision/history replay are not later use permits, truth or release authority",
+    "Host authenticated identity/current policy/subject mapping/rights ownership/informed consent/clock/original-byte qualification and credential delegation remain required; token principal equality is not verified",
+    "Direct legacy host-trust APIs remain unchanged and must not be exposed as fallback; no authenticated network host/login is supplied",
+    "Host ingress/CPU/heap/driver/concurrency limits required; no SQL termination or callback isolation",
+    "Embedded four-DB fixtures use synthetic scanners and human mappings; no new independent TCP scenario, production TLS/crash/failover/browser/AT/live qualification",
+    "Private neutral fixtures only; no live provider sends, public publication, payments, paid infrastructure or PAM changes"
+  ],
+  "sourceSha256": {
+    "src/consent-links.ts": "670bca6a2903fc529e817409d24a065030cd89e33ffed78de8987128dd54de65",
+    "src/source-links.ts": "994ba406c1f7e63e7e137853433d343a5f7dbdb4d34aaaa97c08f4003901a12f",
+    "tests/current-evidence.test.ts": "53fcd70e4a0f4147e2441547f7fde0d4446ccd1b49db94f56f1554e4856b16f7",
+    "package.json": "a8ef14e0bbb2b6cb0462020b2a32caec3e270f73161dec89d77d9516e854ae78",
+    "package-lock.json": "8a4bbe2a442944ea447a5a99535f41ee6a2517d78aa3581317e2e06ecfab70d2",
+    "scripts/validate-pr-registry.mjs": "36c24916b49c42a7a2c4348a00295200cd1f53228ad1323e47f2909321084ed3",
+    "docs/CONSENT_LINK_WRITES.md": "ac58654918d4a6dc55043eb44d5ca0961ac25deef9c0b14ebbb5f6031e25a03e",
+    "docs/ARCHITECTURE.md": "ccac62886f7e0c2f4d253517bdd01b81fb11ef98f762a19db723e59090521f30",
+    "registry/prs.json": "a897c42d501c9d20bcdd1115e98d617628357d0be315f4bdf69841a3ab399415",
+    "src/contracts.ts": "d86141cb7546a723f837a298e4ea6fef62692918f78f5aab2d72d6639987fcc5"
+  },
+  "fixtureCorrections": [
+    "Initial focused run 5pass/1fail: test incorrectly read representations from inspect metadata; corrected to real scanner ID in owning test setup plus authenticated Evidence representation read. Full88 local/installed/current-head CI pass afterward",
+    "Early typecheck before dependency preparation completed was not counted; later completed typecheck/build pass",
+    "Installed setup and refresh overlapped initially; both settled, then a clean npm ci and full88 installed-export run passed. Earlier setup attempts not counted as package qualification"
+  ]
+}

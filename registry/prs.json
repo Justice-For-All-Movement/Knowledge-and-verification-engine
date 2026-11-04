@@ -4,7 +4,7 @@
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
-  "observedAt": "2026-11-04T14:57:25Z",
+  "observedAt": "2026-11-04T15:09:45Z",
   "units": [
     {
       "id": "AM-02-01",
@@ -246,7 +246,7 @@
         "Copied reports cannot inflate corroboration and unsupported links fail validation.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial_current_owning_identity_consent_guarded_source_link_writes; PR14 mandatory opt-in CurrentEvidenceUse/ConsentEvidenceLinksWriter checks exact fixed Evidence ref/byte digest/private action mappings through current stored Identity resource policy and actual owning Consent evaluateCurrent, before source credentials and after actual capture. Text requires reproduce; metadata anchors require metadata-citation. Six new actual four-restricted-database/encrypted Evidence groups authored; corrected full local/installed/current-head CI and source review pending. No distributed fence, permanent use permit, real rights/consent validity or live qualification.",
+      "implementationStatus": "partial_current_owning_identity_consent_guarded_source_link_writes; PR14 all88 ordinary local and freshly installed compiled public-export tests/typecheck/build/registry pass; six new actual four-restricted-migration DB/encrypted Evidence groups. Source6fb3e2e CI41853445278/check126655574963 passed88 and postgres126655573789 passed seven EXISTING actual PostgreSQL17 groups; raw head/logs inspected, zero skips. Mandatory opt-in private metadata/reproduction guard before source credentials and after actual capture; null-only attribution prevents unsupported credit claims. Final-head CI required. No distributed fence, permanent use permit, real rights/consent validity or live qualification.",
       "implementationEvidence": "PR2; docs/EVIDENCE_LINKS.md and docs/evidence-links-verification.json. 23 local tests/typecheck/build/registry; all23 installed compiled exports/JS match. Eleven new actual pinned domain groups, prior12 preserved. Initial6fa03c72 CI40803447014/check123216699192 success20/logs inspected. Current authenticated Evidence snapshot transport, host Identity/consent/rights, durable own-DB history and UI remain pending; no truth/authentication/network/live claim. Expanded source01dcb46 CI40803800264/check123217829394 SUCCESS23/clean npm ci/typecheck/build/registry; logs inspected. Final documentation head requires current-head acceptance; direct GitHub merge state supersedes this timestamped checkpoint. PR8 EVIDENCE_LINKS_REPOSITORY.md and evidence-links-repository-verification.json supersede old persistence-pending statements: own Knowledge DB link history is partial implemented; authenticated current-source delivery, consent/rights integration and visual/live acceptance remain pending.",
       "legacyWorkUnitId": "AM-05.02",
       "remainingWork": [
@@ -258,7 +258,8 @@
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/14",
         "source": "7d6cfcb751fb00f4e13079986a3a54d056799451",
         "documentation": "docs/CONSENT_LINK_WRITES.md",
-        "status": "WIP validation pending; no full acceptance claim"
+        "status": "Local/installed/current-source CI passed; final-head checks required before merge; partial AM-05.02",
+        "verification": "docs/consent-link-writes-verification.json"
       }
     },
     {
