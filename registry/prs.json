@@ -4,7 +4,7 @@
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
-  "observedAt": "2026-11-04T17:55:33Z",
+  "observedAt": "2026-11-04T17:57:53Z",
   "units": [
     {
       "id": "AM-02-01",
@@ -318,7 +318,7 @@
         "Every accepted proposal resolves to the original span; invented citations are rejected.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial WIP PR16 guarded exact-text-span claim proposals; four actual four-restricted-DB/encrypted-Evidence groups, typecheck/build pass. Original selector/fingerprint retained separately from subspan excerpt. Full suite/installed/current-head CI pending. No Knowledge writes/assessment/answers/model/HTTP/Visual/live qualification.",
+      "implementationStatus": "partial WIP PR16 guarded exact-text-span claim proposals; all94 local tests/typecheck/build/registry and four new installed public-export integration groups pass. Original selector/fingerprint retained separately from absolute UTF16 excerpt. Actual current-head CI pending; no Knowledge writes/assessment/answers/model/HTTP/Visual/live qualification.",
       "legacyWorkUnitId": "AM-05.04",
       "claimProposals": {
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/16",
