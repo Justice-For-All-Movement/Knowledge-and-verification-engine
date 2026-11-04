@@ -1,0 +1,35 @@
+{
+  "status": "incomplete WIP PR16",
+  "local": {
+    "focusedGroups": 4,
+    "fail": 0,
+    "skips": 0,
+    "typecheck": "passed",
+    "build": "passed",
+    "fullSuite": "running"
+  },
+  "installed": {
+    "normalInstall": "completed",
+    "moduleByteMatch": true,
+    "focusedGroups": "running"
+  },
+  "review": [
+    "Original stored selector fingerprint never relabelled as excerpt fingerprint; exact absolute UTF16 excerpt remains separate",
+    "Mandatory constructed Consent guard and owning implementation binding; no snapshot or source-only fallback",
+    "Candidate capture/exact fields, scope, IDs, offsets, dense JSON/limits before credentials; no model/provider",
+    "Untrusted proposal assertion has independent null tracks; read-only/no domain writes or source-quality inference",
+    "Monotonic admission/final clone gates and owned signal cleanup; await begun SQL/unknown read acknowledgement not rollback"
+  ],
+  "remaining": [
+    "Full local/installed/current-head CI qualification and substantive final review before merge",
+    "Durable proposal acceptance/model extraction/answers/HTTP/Visual/live qualification; HOSTidentityrightsclockdelegationCPUheapdriver requirements"
+  ],
+  "sourceSha256": {
+    "src/claim-proposals.ts": "67bfbc43d6ca8f660400bf11fb9e3b2251b9e5c0be5e4e8bf09a761739763dd6",
+    "tests/current-evidence.test.ts": "78da25b32348ac4844f14699f4fcc3baed9702bda4228edbf7464bde85cf2ef0",
+    "package.json": "a8cead869d5d5be56552894d81296252226722f9f93d0e6d6090c6602d908875",
+    "docs/CLAIM_PROPOSALS.md": "cca2291bd8fc2c0eb1ae66a9cbe425b2e802d438ba96bec555543e755aaed68b",
+    "docs/ARCHITECTURE.md": "f473daf5bb4eb8bf0f6f022ce9a24fd86b834c0000af12942af9054d2d2e69e3",
+    "registry/prs.json": "8f7ce9ae34d472ee86bcbe04fd5089fdd59a4834c66251b78f78ea0d8413f0d0"
+  }
+}

@@ -152,13 +152,13 @@ export class ClaimProposalReader {
           citation: {
             linkId: link!.id,
             relation: link!.relation,
-            selector: {
-              ...s,
+            selector: s,
+            excerpt: {
               start: s.start + p.start,
               end: s.start + p.end,
               quote: p.quote,
             },
-            fingerprint: link!.fingerprint,
+            selectorFingerprint: link!.fingerprint,
           },
           limitations: [
             "Untrusted assertion proposal; an exact quotation is not verification or corroboration.",
