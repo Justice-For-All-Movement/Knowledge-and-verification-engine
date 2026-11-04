@@ -1451,3 +1451,232 @@ test("consent-guarded review withholds actual source results after withdrawal du
     quotes: null,
   });
 });
+
+import { ClaimProposalReader } from "../src/claim-proposals.ts";
+async function proposalFixture(t: test.TestContext) {
+  const f = await consentWriterFixture(t);
+  // Owning representation discovery is fixture setup only; runtime uses only the authenticated guarded API.
+  const stored = await scoped(f.evidence, c, (tx) =>
+    tx.get<{ domain: EvidenceState }>("evidence.aggregate", "project"),
+  );
+  const rep = await f.service.representation(
+    f.req,
+    f.source.ref,
+    stored!.value.domain.representations[0]!.id,
+  );
+  const selector = {
+    ...f.selector,
+    kind: "text" as const,
+    representationId: rep.id,
+    representationDigest: rep.digest,
+    page: null,
+    start: 0,
+    end: rep.text!.length,
+    quote: rep.text!,
+  };
+  const terms = { ...f.terms, actions: ["reproduce" as const] };
+  await f.permissions.grantRights(
+    c,
+    {
+      ...terms,
+      id: "text-rights",
+      holderId: "fictional-owner",
+      attribution: null,
+      noDerivatives: false,
+    },
+    "text-rights",
+  );
+  await f.permissions.recordConsent(
+    c,
+    { ...terms, id: "text-consent", subjectId: "subject" },
+    "text-consent",
+  );
+  const guard = new CurrentEvidenceUse(
+    f.membership,
+    f.permissions,
+    {
+      ...f.fixed,
+      bindings: [
+        {
+          resource: terms.resource,
+          rights: ["text-rights"],
+          consents: ["text-consent"],
+          attribution: null,
+        },
+      ],
+    },
+    () => f.time.now,
+  );
+  const link = await f.makeWriter(guard).record(
+    c,
+    1,
+    {
+      ...f.command,
+      links: [{ id: "passage", relation: "quotes", selector }],
+    },
+    "text-link",
+  );
+  const review = new ConsentEvidenceKnowledgeReview(
+    f.facade,
+    f.service,
+    f.credential,
+    guard,
+  );
+  const candidate = {
+    id: "proposal",
+    assertion: "An unverified fictional assertion",
+    linkId: "passage",
+    start: 0,
+    end: 7,
+    quote: "Neutral",
+  };
+  return {
+    ...f,
+    guard,
+    review,
+    reader: new ClaimProposalReader(review),
+    selected: link.record,
+    candidate,
+  };
+}
+test("claim proposals bind exact authenticated text spans and retain independent null assessment tracks without writes", async (t) => {
+  const f = await proposalFixture(t),
+    before = await f.facade.loadEvidenceLinks(c),
+    knowledge = await f.facade.load(c);
+  const p = await f.reader.propose(
+    { ...c, actor: { ...c.actor, roles: ["forged"] } },
+    f.selected,
+    [f.candidate],
+  );
+  assert.equal(p.proposals[0]!.citation.excerpt.quote, "Neutral");
+  assert.equal(p.proposals[0]!.citation.excerpt.start, 0);
+  assert.equal(
+    p.proposals[0]!.citation.selector.quote,
+    "Neutral unverified fixture",
+  );
+  const storedLink = before.state.records.at(-1)!.links[0]!;
+  assert.deepEqual(p.proposals[0]!.citation.selector, storedLink.selector);
+  assert.equal(
+    p.proposals[0]!.citation.selectorFingerprint,
+    storedLink.fingerprint,
+  );
+  assert.equal(p.proposals[0]!.assessment, null);
+  assert.equal(p.proposals[0]!.editorialApproval, null);
+  assert.equal(p.visibility, "private");
+  assert.equal(p.basis.linkRef.revision, 2);
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
+  assert.deepEqual(await f.facade.load(c), knowledge);
+  f.candidate.assertion = "caller changed";
+  assert.notEqual(p.proposals[0]!.assertion, f.candidate.assertion);
+  await f.permissions.withdraw(
+    c,
+    "consent",
+    "text-consent",
+    1,
+    "proposal-withdraw",
+  );
+  await assert.rejects(f.reader.propose(c, f.selected, [f.candidate]), {
+    code: "proposal_unavailable",
+  });
+});
+test("invented quotes IDs offsets duplicate proposals extra authority and nontext citations cannot be accepted", async (t) => {
+  const f = await proposalFixture(t);
+  for (const bad of [
+    { ...f.candidate, quote: "Invented" },
+    { ...f.candidate, linkId: "absent" },
+    { ...f.candidate, end: 999 },
+    { ...f.candidate, assessment: "verified" },
+  ])
+    await assert.rejects(f.reader.propose(c, f.selected, [bad]));
+  await assert.rejects(
+    f.reader.propose(c, f.selected, [f.candidate, f.candidate]),
+  );
+  await assert.rejects(
+    f.reader.propose(c, { ...f.selected, projectId: "foreign" }, [f.candidate]),
+  );
+  await assert.rejects(
+    f.reader.propose(c, f.link.record, [{ ...f.candidate, linkId: "support" }]),
+  );
+  const aborted = new AbortController();
+  aborted.abort();
+  await assert.rejects(
+    f.reader.propose(c, f.selected, [f.candidate], aborted.signal),
+  );
+  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 2);
+  const whole = await f
+    .makeWriter()
+    .record(c, 2, { ...f.command, expectedRevision: 2 }, "whole-current");
+  const metadata = new ClaimProposalReader(
+    new ConsentEvidenceKnowledgeReview(
+      f.facade,
+      f.service,
+      f.credential,
+      f.makeGuard(),
+    ),
+  );
+  await assert.rejects(
+    metadata.propose(c, whole.record, [{ ...f.candidate, linkId: "support" }]),
+    { code: "invalid_proposal" },
+  );
+  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 3);
+});
+test("proposal return is withheld after actual source-time withdrawal without domain writes", async (t) => {
+  const f = await proposalFixture(t),
+    review = f.service.reviewSelectors.bind(f.service);
+  let revoke = true;
+  const service = {
+    reviewSelectors: async (...args: Parameters<typeof review>) => {
+      const r = await review(...args);
+      if (revoke) {
+        revoke = false;
+        await f.permissions.withdraw(
+          c,
+          "rights-grant",
+          "text-rights",
+          1,
+          "proposal-during",
+        );
+      }
+      return r;
+    },
+  } as EvidenceService;
+  const client = new ClaimProposalReader(
+    new ConsentEvidenceKnowledgeReview(
+      f.facade,
+      service,
+      f.credential,
+      f.guard,
+    ),
+  );
+  await assert.rejects(client.propose(c, f.selected, [f.candidate]), {
+    code: "proposal_unavailable",
+  });
+  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 2);
+});
+
+test("proposal deadline rejects a late actual owning read and closes captured signals", async (t) => {
+  const f = await proposalFixture(t),
+    review = f.service.reviewSelectors.bind(f.service);
+  const service = {
+    reviewSelectors: async (...args: Parameters<typeof review>) => {
+      const result = await review(...args);
+      const until = performance.now() + 1050;
+      while (performance.now() < until) {}
+      return result;
+    },
+  } as EvidenceService;
+  const client = new ClaimProposalReader(
+    new ConsentEvidenceKnowledgeReview(
+      f.facade,
+      service,
+      f.credential,
+      f.guard,
+    ),
+    1000,
+  );
+  await assert.rejects(client.propose(c, f.selected, [f.candidate]), {
+    code: "proposal_unavailable",
+  });
+  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 2);
+  assert.equal(f.signal()!.aborted, true);
+});
