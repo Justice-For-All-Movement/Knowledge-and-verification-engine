@@ -356,11 +356,11 @@
         "A contradicted or unresolved assertion cannot silently become a verified finding.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial pure unresolved human review history; seven owning-domain groups local+installed compiled exports/typecheck/build/registry pass; actual initial source3ce1d217 CI41905058029 passed107+7 priorPG17. Full107 local/installed suites running, new capacity group independently passed; final current-head CI required. Exact current claim/link CAS, preserved historical contrary IDs and four check notes never become findings/approvals. Owning SQL/current Identity-Consent/source proof and complete workflow acceptance pending.",
+      "implementationStatus": "partial pure unresolved human review history; full107 local+installed compiled public-export suites pass, plus seven expanded focused groups in both environments, typecheck/build/registry and installed declarations. Expanded sourceac797a9 CI41906197243/check126841384452 passed108/postgres126841384025 passed7priorPG17; zero skips/raw logs inspected. Final documentation-head CI required before merge. No single full108 local/installed invocation claimed. Exact current claim/link CAS, preserved historical contrary IDs and four check notes never become findings/approvals. Owning SQL/current Identity-Consent/source proof and complete workflow acceptance pending.",
       "legacyWorkUnitId": "AM-05.05",
       "verificationReview": {
         "docs": "docs/VERIFICATION_REVIEW.md",
-        "status": "expanded incomplete qualification checkpoint; initial107 CI passed; seven local+installed focused groups pass",
+        "status": "qualified pure contract: local107+installed107 and seven focused groups; observedCI108+7priorPG17; final documentation-head checks required",
         "focusedTests": 7,
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/18",
         "verification": "docs/verification-review-verification.json"

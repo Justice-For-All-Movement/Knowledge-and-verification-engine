@@ -1,30 +1,40 @@
 {
-  "status": "incomplete PR18 qualification checkpoint; actual current-head checks required before merge",
+  "status": "PR18 pure contract qualification; final documentation-head checks required before merge",
   "local": {
     "focusedGroups": 7,
     "typecheck": "passed",
     "build": "passed",
     "registry": "passed",
-    "full107Suite": "running; no full108 single-suite result claimed"
+    "fullSuite": {
+      "tests": 107,
+      "fail": 0,
+      "skipped": 0
+    },
+    "expandedFocusedGroups": 7
   },
   "installed": {
     "focusedCompiledPublicExportGroups": 7,
     "strictDeclarationCompilation": "passed with explicit Node types",
     "moduleByteMatch": true,
     "normalInstall": "passed",
-    "full107Suite": "running"
+    "fullSuite": {
+      "tests": 107,
+      "fail": 0,
+      "skipped": 0
+    },
+    "singleFull108Invocation": "not claimed; new capacity group separately passed"
   },
   "ci": {
-    "observedSource": "3ce1d217ec4941c9b15661fa8ba1dcefc75da82e",
-    "run": 41905058029,
-    "check": 126837372813,
-    "tests": 107,
-    "postgres": 126837372389,
+    "observedSource": "ac797a9753cbd2f711c08346257199c7a856412e",
+    "run": 41906197243,
+    "check": 126841384452,
+    "tests": 108,
+    "postgres": 126841384025,
     "existingPgScenarios": 7,
     "fail": 0,
     "skipped": 0,
     "rawLogs": "inspected",
-    "expandedHead": "required"
+    "finalDocumentationHead": "required"
   },
   "review": [
     "Pure human exact-purpose admission; host Context/supplied owning snapshots are not authentication",
@@ -35,7 +45,7 @@
     "Full valid512 history readable/no eviction; aggregate bytes fail independently of valid individual note limits"
   ],
   "remaining": [
-    "Expanded current-head CI and ordinary local/installed suites",
+    "Final documentation-head CI required before merge",
     "Owning SQL/current Identity-Consent/source-byte qualification and durable proposal acceptance",
     "Complete challenge/verification workflow, full AM05.08/Editorial, browser/AT/live acceptance"
   ],
@@ -44,8 +54,14 @@
     "tests/verification-review.test.ts": "999d370a32cc6cfaf1996bc25805b3e1a612d0ddaf817cba5da761b23ba93441",
     "tests/verification-review-bounds.test.ts": "8944d1e43f200291793c47d17c4833d2839b9c6d5eb6994c7f0d4a87538f532f",
     "package.json": "38f9bad4b5b367b53ae17a7d4a47981453c8c9564d05f948499669adecef4f1d",
-    "docs/VERIFICATION_REVIEW.md": "1d10b80e60294672c4bf6e151aa70fa5bdb9d446594804221923d702600cb100",
+    "docs/VERIFICATION_REVIEW.md": "7e448b543b1c59d43bc070e33db7de2e3ec22e393acc69e70cf306cce04c0566",
     "docs/ARCHITECTURE.md": "9a053a45dc7c810875cb1dce57754d97370e35db8041207b6635e837c87409f5",
-    "registry/prs.json": "34d7f5e67d50a94fce710ebd224fab9e3d786252674d1a4282d228e3cf10d727"
+    "registry/prs.json": "58deb7da7a6ec1dcc95f0d3e55142d97d15f8b25dec024206b4e6f601c50ccb5"
+  },
+  "upstreamHold": {
+    "originalTask": "AM-04.05 timed audio/video transcription/playback/corrections",
+    "owningPartialUnit": "Processing DMP-004: supplied WebVTT import and bounded text-translation callback; speech recognition/full qualification pending",
+    "observedRegistry": "https://github.com/neophilism/Document-and-Media-Processing-Engine/blob/main/registry/prs.json",
+    "fullUnitAcceptance": "not claimed; original dependency hold preserved"
   }
 }
