@@ -1908,3 +1908,28 @@ test("human-bound review composes with the protected proposal reader and exact U
   assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
   assert.deepEqual(await f.facade.load(c), knowledge);
 });
+
+test("human-bound review awaits lost or cancelled actual Evidence SQL and never accepts its late result", async (t) => {
+  const f = await consentWriterFixture(t), transaction = f.evidence.transaction.bind(f.evidence);
+  let lose = true, cancel: AbortController | undefined;
+  Object.assign(f.evidence, { transaction: async <T>(fn: Parameters<Database["transaction"]>[0]): Promise<T> => {
+    const value = await transaction(fn);
+    if (lose) {
+      lose = false;
+      throw Error("private lost actual Evidence read COMMIT");
+    }
+    cancel?.abort();
+    return value as T;
+  } });
+  const client = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, f.makeGuard());
+  const before = await f.facade.loadEvidenceLinks(c);
+  await assert.rejects(client.review(c, f.link.record), { code: "source_unavailable", message: "Current Evidence observation unavailable" });
+  assert.equal(f.signal()!.aborted, true);
+  // The audit committed even though its acknowledgement was lost; failure does not imply rollback.
+  assert.ok((await scoped(f.evidence, c, tx => tx.audits())).some(x => x.type === "evidence.selectors.review_checked"));
+  cancel = new AbortController();
+  await assert.rejects(client.review(c, f.link.record, cancel.signal), { code: "source_unavailable" });
+  assert.equal(cancel.signal.aborted, true);
+  assert.equal(f.signal()!.aborted, true);
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
+});

@@ -1,17 +1,27 @@
 {
-  "status": "Incomplete WIP; first tested implementation checkpoint",
+  "status": "PR20 expanded qualification checkpoint; final-head CI/source review pending",
   "local": {
-    "focusedGroups": 5,
-    "pass": 5,
+    "focusedGroups": 6,
+    "pass": 6,
     "fail": 0,
     "skipped": 0,
     "normalNpmCi": "passed",
     "typecheck": "passed",
     "build": "passed",
     "registry": "passed",
-    "fullSuite": "not yet run"
+    "fullSuite": "118-test first implementation suite in progress; sixth new group passed separately",
+    "invocations": "five groups plus separate lost-ack/cancel group"
   },
-  "installed": "pending",
+  "installed": {
+    "focusedGroups": 6,
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0,
+    "normalInstall": "passed",
+    "declarations": "passed",
+    "bothChangedRuntimeModulesByteMatch": true,
+    "fullSuite": "not claimed"
+  },
   "ci": "pending",
   "remaining": [
     "Installed public exports/declarations/module-byte qualification",
@@ -22,12 +32,19 @@
   "sourceSha256": {
     "src/current-evidence.ts": "e6107ca0daecd8b5594801b86e8d28ba869be73b0ad0fe1d4c195251de77e59e",
     "src/consent-links.ts": "932dfc2a5bcf0311d8256a7d3f537a2a5efe95d0a8aab0c22928054a31900a27",
-    "tests/current-evidence.test.ts": "20b05c12347874f3988addd38f1bb57cdd409979f417fd594f9395660667e47d",
+    "tests/current-evidence.test.ts": "97a1a771a7abcbf7e206bcd7ca820be132fff7a18605acd85a6674fa30825a13",
     "package.json": "5c031c430acce4832b4c94a13967948e2683df5120b02303b4c5ed5950dcd062",
     "package-lock.json": "61668d426ab542f563f87ee48c5e6836d7db42a08aacacff0c780f45dac0668f",
     "scripts/validate-pr-registry.mjs": "d0f662c0196d6a155e7a5ecc78e77f579ca5b832cb05e1d3da09413480719094",
-    "docs/HUMAN_SOURCE_LINK_REVIEW.md": "95350f8e6222fce3496aed71303f0a7f386075402ab524e2c308b9e378cb94b9",
+    "docs/HUMAN_SOURCE_LINK_REVIEW.md": "24cc92dfda5104431a49cf6b7e61c337058bba14203e19aeb6c28bbc13acd485",
     "docs/ARCHITECTURE.md": "ec642f1d0dc277e0334e0175e94b84ba9e3f4f9a56e3701b9a691901b6c75d1d",
-    "registry/prs.json": "32543276a91deb2d26832e70c9c98f33a479c59d57365c70fc57a67f775e695b"
-  }
+    "registry/prs.json": "1a4d593ff792bd3226dacf1a238d2022bf35edff8eb3b5111846e1957c7dddb0"
+  },
+  "review": [
+    "Actual same-human owning Evidence review captured once; no legacy fallback",
+    "Mandatory current Identity/Consent guards and fresh owning Knowledge basis unchanged",
+    "ClaimProposalReader guarded-instance gate and owning implementation dispatch unchanged",
+    "Lost actual Evidence read COMMIT/cancellation withhold result without rollback claim",
+    "Stable SQL SDK/separate DBs/Identity/Consent pins/contracts/original IDs-dependencies unchanged"
+  ]
 }
