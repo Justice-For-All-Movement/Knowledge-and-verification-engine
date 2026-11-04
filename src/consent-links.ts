@@ -26,7 +26,7 @@ export type EvidenceUseBinding = Readonly<{
   resource: ExactResource;
   rights: readonly string[];
   consents: readonly string[];
-  attribution: string | null;
+  attribution: null;
 }>;
 export type EvidenceUsePolicy = Scope &
   Readonly<{
@@ -116,8 +116,11 @@ export class CurrentEvidenceUse {
         );
         for (const id of ids) nonempty(id, "Permission ID", 200);
       }
-      if (binding.attribution !== null)
-        nonempty(binding.attribution, "Attribution", 200);
+      invariant(
+        binding.attribution === null,
+        "invalid_policy",
+        "Attribution-bearing use requires a qualified credit-preserving consumer",
+      );
     }
     invariant(
       typeof clock === "function" &&
@@ -209,10 +212,25 @@ export class CurrentEvidenceUse {
           ),
         );
         gate();
-        exact(decision, ["allowed", "action", "audience", "purpose", "resource", "reasons", "grants", "consents", "checkedAt"]);
-        invariant(Array.isArray(decision.grants) && decision.grants.length <= 1 &&
-          Array.isArray(decision.consents) && decision.consents.length <= 100,
-          "use_unavailable", "Bounded current permission references required");
+        exact(decision, [
+          "allowed",
+          "action",
+          "audience",
+          "purpose",
+          "resource",
+          "reasons",
+          "grants",
+          "consents",
+          "checkedAt",
+        ]);
+        invariant(
+          Array.isArray(decision.grants) &&
+            decision.grants.length <= 1 &&
+            Array.isArray(decision.consents) &&
+            decision.consents.length <= 100,
+          "use_unavailable",
+          "Bounded current permission references required",
+        );
         invariant(
           Buffer.byteLength(canonical(decision)) <= 256 * 1024 &&
             same(decision.resource, binding.resource) &&
@@ -233,7 +251,9 @@ export class CurrentEvidenceUse {
         );
       }
       invariant(
-        decision.allowed === true && decision.reasons.length === 0 && decision.grants.length === 1,
+        decision.allowed === true &&
+          decision.reasons.length === 0 &&
+          decision.grants.length === 1,
         "use_denied",
         "Current evidence use is not permitted",
       );
