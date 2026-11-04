@@ -83,7 +83,7 @@ export function inspectClaimProposals(
     b.basis.evidenceRevision,
   ])
     invariant(
-      Number.isSafeInteger(n) && n! > 0,
+      n !== null && Number.isSafeInteger(n) && n > 0,
       "invalid_proposal_bundle",
       "Actual positive containing revisions required",
     );

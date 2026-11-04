@@ -1,0 +1,50 @@
+{
+  "status": "incomplete draft PR17",
+  "local": {
+    "fullSuiteTests": 99,
+    "additionalExactBoundaryGroup": 1,
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "failure": 0,
+    "skipped": 0
+  },
+  "installed": {
+    "normalInstall": "passed",
+    "syntheticGroups": 5,
+    "actualOwningServiceGroups": 2,
+    "modulesByteMatch": [
+      "claim-proposals.js",
+      "claim-proposal-review.js"
+    ],
+    "broaderNewFullSuite": "pending; prior PR16 complete94 installed suite passed"
+  },
+  "ci": {
+    "initialSource": "bcab52a72f433541a296f02891e9272b77b22442",
+    "run": 41891795556,
+    "check": 126790828420,
+    "postgres": 126790827897,
+    "initialStatus": "success99+seven prior actualPG17/zero skips/raw logs inspected",
+    "expandedHead": "actual current-head checks pending"
+  },
+  "review": [
+    "Exact captured profiles/scope/purpose/revisions/null approval tracks and corruption digest; no authentication from captured data",
+    "Original selector/fingerprint separate from UTF16 excerpt; nonzero Unicode/surrogate and malformed-profile checks",
+    "REPRO old pre-digest budget accepted oversize; actual owning-service boundary rejects262145 accepts262144 bytes including digest",
+    "No new domain write/SQL/provider/permission authority or source truth; HOST current Identity/Consent/private export/CPUheap/driver and browserAT/live required"
+  ],
+  "remaining": [
+    "Full expanded current-head CI/review before merge",
+    "Durable proposal acceptance/model/answers/HTTP/Visual and live qualification"
+  ],
+  "sourceSha256": {
+    "src/claim-proposal-review.ts": "9434bec33e869f0dbc341cce5d985c69111148b187b879a8660d0ad6807715bb",
+    "src/claim-proposals.ts": "64cca5dc2d71a8bf68cdff8a349dc3078f4433eba0c63321a1c7c16065407d81",
+    "tests/claim-proposal-review.test.ts": "5e54afe9739875fe263ce83bbfbcd0141eb45f4ee8abff238facbc6790e63b5f",
+    "tests/current-evidence.test.ts": "43c6d736f9a35fd4f4bfd4f82b2618aa305056c57b1f6c43bc9a1db8f8ad9862",
+    "package.json": "97987dbbe8b3c552fcd85892dabd455b9843f95336fd9155024abcb27489d62c",
+    "docs/CLAIM_PROPOSAL_REVIEW.md": "2df38c06e51b361902afe1407b4bae6cd6b06ce71815b4da2e0a769c99d29911",
+    "docs/ARCHITECTURE.md": "fb9c11714e34a099ec7e61bebd3084cabe3bb8acbfaf576bd5bc7d9f3b9e6929",
+    "registry/prs.json": "989404e780143468cdf87898f849da2f02b0c66ece315aed38aa40cc6d9b36bc"
+  }
+}
