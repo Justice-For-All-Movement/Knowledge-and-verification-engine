@@ -33,3 +33,5 @@ Owning checked evidence-link review is documented in EVIDENCE_LINK_REVIEW.md. It
 The disposable owning-DB network fixture in POSTGRES_TESTS.md separately tests Knowledge append contention/lost acknowledgements, review ordering behind actual committed claim/link revisions and role/scope boundaries. Seven actual restricted PostgreSQL17 scenarios passed expanded-source CI40916138527/postgres123596748061, and69 ordinary tests passed check123596748563, with head/logs inspected; final-head CI remains a merge requirement; it does not authenticate Context or supplied Evidence, or qualify production deployment.
 
 CURRENT_EVIDENCE.md documents explicit current owning selector review composition; earlier host-snapshot-only limitations still apply to legacy APIs. No authenticated full EvidenceState is constructed or returned.
+
+SOURCE_LINK_WRITES.md documents the additive opt-in SourceEvidenceLinksWriter path through actual owning Evidence captures and current Identity/owning Knowledge SQL. Legacy snapshot APIs remain host-trust paths; source-backed metadata is historical, not atomic current source/consent/rights permission.
