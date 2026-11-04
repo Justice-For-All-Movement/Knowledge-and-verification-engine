@@ -1,0 +1,54 @@
+{
+  "observedAt": "2026-11-04T15:25:51Z",
+  "scope": "AM-05.02 current Consent on owning private link review; partial suite",
+  "local": {
+    "newActualRestrictedFourDatabaseGroups": 2,
+    "focusedTests": "passed; zero skips",
+    "typecheck": "passed",
+    "build": "passed",
+    "fullOrdinaryTests": 90,
+    "registry": "passed"
+  },
+  "installed": {
+    "ordinaryTests": 90,
+    "fullTap": "passed; zero skips",
+    "compiledGuardAndCurrentReview": "byte matched build",
+    "publicExports": "all tests and integration fixtures rewritten; no remaining ../src imports",
+    "normalPackageInstall": "passed using freshly packed reviewed package; same accepted prepared dependencies"
+  },
+  "initialCi": {
+    "source": "c946ff257541b46f3d857ab31dc85a1198425aeb",
+    "run": 41855705835,
+    "check": 126663620687,
+    "ordinaryTests": 90,
+    "postgres": 126663619993,
+    "existingPostgres17Groups": 7,
+    "rawLogsInspected": true
+  },
+  "sourceReview": [
+    "Only actual selected owning link revision supplies command selectors; caller supplies selected ref and authenticated host context only",
+    "Current Identity/Consent guard before any source credentials and after real owning Evidence observations; no stored old allow reused",
+    "Preserves exact fingerprints/single Evidence edition/relation-separated analysis and final actual current Knowledge Identity/basis equality",
+    "Empty sets invoke no Consent/Evidence credential request; both owning Knowledge observations remain required",
+    "No new domain write/outbox/persisted assessment/permission mutation; retained actor/time/ref semantics; source/Identity/Consent SQL awaited and acceptance gated",
+    "Type-only reverse dependency avoids a runtime module cycle; old signatures/default paths unchanged; installed exports must verify compiled resolution"
+  ],
+  "limitations": [
+    "Sequential observations may be revoked after a check, during final Knowledge reads or response copies; not distributed fencing or future use/export/release permit",
+    "Host proofing/current roles/policy/clock/subject mapping/real rights-consent validity/credential delegation and CPU-heap-driver-concurrency limits remain required",
+    "Token principal equality, hosted network/TLS/browser/AT/original-byte/scanner/live acceptance remain unqualified",
+    "Four real restricted migrated PGlite databases and encrypted objects use synthetic identity/scanner/permission fixtures; no new independent TCP case",
+    "Private neutral records only; no sends/publication/payment/paid infrastructure/PAM changes"
+  ],
+  "sourceSha256": {
+    "src/current-evidence.ts": "ed8799d0bc7822984dcb6c70922bf8aaed0ac7529722faa9584eb669cf3c307c",
+    "src/consent-links.ts": "79099c402d88e66f8a4381d81e45aa59fa5a4b14e5563f561ba26d8bb24585a4",
+    "tests/current-evidence.test.ts": "d8e34b7752c21b73308eff54073131563a8dca373192d8289a16f454a297f559",
+    "docs/CONSENT_LINK_REVIEW.md": "599561cd82cd2f049e1818ca566379d4b33c03592ef6d9e22635ee2d73337343",
+    "docs/ARCHITECTURE.md": "22a4455a043a6a6ec86d58f9f4d272daafb4042241d849acba242ff8cbad6fed",
+    "registry/prs.json": "4c844bd451213d0d6f1147def2fcf54c8ee5b87e2a49b51856e30dccce5c7cf2",
+    "package.json": "a8ef14e0bbb2b6cb0462020b2a32caec3e270f73161dec89d77d9516e854ae78",
+    "package-lock.json": "8a4bbe2a442944ea447a5a99535f41ee6a2517d78aa3581317e2e06ecfab70d2",
+    "src/contracts.ts": "d86141cb7546a723f837a298e4ea6fef62692918f78f5aab2d72d6639987fcc5"
+  }
+}
