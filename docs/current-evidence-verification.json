@@ -33,7 +33,8 @@
     "Actual authenticated Evidence service per relation; one source edition; exact selector/fingerprint/source-partition bindings; no fabricated EvidenceState",
     "Incoming roles stripped before trusted credential callback; captured receivers/inputs; bounded cancellable callback; begun SQL awaited/late acceptance fenced/signals closed",
     "Output/history/source edition changes and revocation fail closed, empty groups null, source analysis never turns support/challenge into verified findings",
-    "Stable persistence SDK dce7105a70b42d77afe4cd48d34723331447037c and Identity pins/contracts/schema unchanged; explicit Evidence domain/service pin a2f704ea6d35c8070c74aae16ae1518ca35cdb70; legacy API unchanged; PR11 registry normalization retained"
+    "Stable persistence SDK dce7105a70b42d77afe4cd48d34723331447037c and Identity pins/contracts/schema unchanged; explicit Evidence domain/service pin a2f704ea6d35c8070c74aae16ae1518ca35cdb70; legacy API unchanged; PR11 registry normalization retained",
+    "Before merge, added post-final-clone monotonic gate after source review identified a copy-over-deadline edge; delayed-final-clone regression in existing response group passes locally and through all76 corrected-source installed tests/full TAP. Actual current-head CI required."
   ],
   "limits": [
     "Host authorizes credential release for human or explicit delegation; token principal equality is not verified by coordinator",
@@ -50,10 +51,10 @@
     "src/evidence-links.ts": "60f280f4a11963db52152d6b86e392e69ce0cab49886131d6c998c6f2c503f8a",
     "src/repository.ts": "db6bca25ebc24502c95b58b20b80cc918dc89f49dc355e74c5a0223d81adb7d1",
     "src/identity-repository.ts": "4cff6d9b6ad746d3e06e7244b31487d2e7ba3c15c5e34bf505c5a0c670368d9b",
-    "src/current-evidence.ts": "4bcd2523ac682248c7343b8734a10a6b783777c9b1b00ef373bb26a9f6fb5ccc",
-    "tests/current-evidence.test.ts": "8c37b294e333a53e2a1fcbe0665c86ee46a3b8f9eae82b7390a31d5ce3d4ec95",
-    "docs/CURRENT_EVIDENCE.md": "5e02b616cc147497b6085eee99a6c147b6e145bb739611ffc6e86a0e6fcb520f",
+    "src/current-evidence.ts": "482475b7274bc4bc675d30544e17cd60b23c3c09b8f46c6e0fb6b1357bc1c4ea",
+    "tests/current-evidence.test.ts": "e70c7a7f98b01aa344e88a290e351cedf45e5ab51d3c5c683093c5a65b0b820f",
+    "docs/CURRENT_EVIDENCE.md": "e92decfdc2d5ef609c3d0bc1f8661e7258957f9729ec04338ec99b1467505dd8",
     "docs/ARCHITECTURE.md": "84adfad75767cd9e0f2fcc41d9059618df2a2a1615fba4db555f7249159b43d2",
-    "registry/prs.json": "17312b701115fdb5852c39cf568cae5cb06fdc8db1e7815d007e5ca8c84b6480"
+    "registry/prs.json": "f87c000e2cf273a5c94a4129de04ea019ab87a74adcd1d92d336446763c488db"
   }
 }

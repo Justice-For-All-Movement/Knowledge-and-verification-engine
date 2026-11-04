@@ -443,6 +443,41 @@ test("current source boundary rejects malformed/foreign/changed bindings and a l
   );
   assert.equal(began, true);
   assert.equal(f.signal()!.aborted, true);
+
+  f.service.reviewSelectors = actual;
+  const clone = globalThis.structuredClone;
+  let copied = false;
+  globalThis.structuredClone = ((
+    value: unknown,
+    options?: StructuredSerializeOptions,
+  ) => {
+    const result = clone(value, options);
+    if (
+      value &&
+      typeof value === "object" &&
+      Object.hasOwn(value, "evidenceRevision") &&
+      Object.hasOwn(value, "sources")
+    ) {
+      copied = true;
+      const until = performance.now() + 600;
+      while (performance.now() < until) {}
+    }
+    return result;
+  }) as typeof structuredClone;
+  try {
+    await assert.rejects(
+      new CurrentEvidenceKnowledgeReview(
+        f.facade,
+        f.service,
+        f.credential,
+        500,
+      ).review(c, f.link.record),
+      { code: "source_unavailable" },
+    );
+    assert.equal(copied, true);
+  } finally {
+    globalThis.structuredClone = clone;
+  }
 });
 test("credential cancellation errors and receiver capture cannot bypass current source admission", async (t) => {
   const f = await ready(t),

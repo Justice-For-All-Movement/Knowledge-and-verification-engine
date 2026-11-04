@@ -241,7 +241,9 @@ export class CurrentEvidenceKnowledgeReview {
         "Review output budget exceeded",
       );
       gate();
-      return structuredClone(result);
+      const copied = structuredClone(result);
+      gate();
+      return copied;
     } finally {
       clearTimeout(timer);
       signal?.removeEventListener("abort", abort);
