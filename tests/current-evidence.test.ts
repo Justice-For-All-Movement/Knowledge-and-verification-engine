@@ -950,6 +950,7 @@ test("source-backed writer bounds credential cancellation and source admission w
 import { PermissionRegistry } from "@accountability/consent-rights/registry";
 import {
   CurrentEvidenceUse,
+  ConsentEvidenceKnowledgeReview,
   ConsentEvidenceLinksWriter,
   evidenceUseResourceId,
 } from "../src/consent-links.ts";
@@ -1282,25 +1283,23 @@ test("exact mapping, purpose, digest and foreign selector fail closed before cre
     { code: "use_denied" },
   );
   await assert.rejects(
-    f
-      .makeWriter()
-      .record(
-        c,
-        1,
-        {
-          ...f.command,
-          links: [
-            {
-              ...f.command.links[0]!,
-              selector: {
-                ...f.selector,
-                evidence: { ...f.source.ref, tenantId: "foreign" },
-              },
+    f.makeWriter().record(
+      c,
+      1,
+      {
+        ...f.command,
+        links: [
+          {
+            ...f.command.links[0]!,
+            selector: {
+              ...f.selector,
+              evidence: { ...f.source.ref, tenantId: "foreign" },
             },
-          ],
-        },
-        "foreign",
-      ),
+          },
+        ],
+      },
+      "foreign",
+    ),
   );
   await assert.rejects(
     f
@@ -1363,4 +1362,92 @@ test("lost or late begun Consent SQL and cancellation cannot become permission o
     f.makeWriter().record(c, 1, f.command, "cancelled", aborted.signal),
   );
   assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+});
+
+test("consent-guarded owning review uses actual stored selectors and current permissions without revising Knowledge", async (t) => {
+  const f = await consentWriterFixture(t);
+  const client = new ConsentEvidenceKnowledgeReview(
+    f.facade,
+    f.service,
+    f.credential,
+    f.makeGuard(),
+  );
+  const before = await f.facade.loadEvidenceLinks(c);
+  const reviewed = await client.review(
+    { ...c, actor: { ...c.actor, roles: ["forged"] } },
+    f.link.record,
+  );
+  assert.equal(reviewed.linksRevision, 1);
+  assert.equal(reviewed.sources.supports!.sourceGroupCount, 1);
+  assert.equal(reviewed.sources.challenges!.sourceGroupCount, 1);
+  assert.equal(reviewed.sources.quotes, null);
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
+  const original = structuredClone(reviewed);
+  Object.assign(reviewed.revision.links[0]!, { id: "detached" });
+  assert.deepEqual(await client.review(c, f.link.record), original);
+  await f.permissions.withdraw(
+    c,
+    "consent",
+    "consent",
+    1,
+    "withdraw-before-review",
+  );
+  await assert.rejects(client.review(c, f.link.record), { code: "use_denied" });
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
+});
+
+test("consent-guarded review withholds actual source results after withdrawal during observation and keeps empty sets explicit", async (t) => {
+  const f = await consentWriterFixture(t),
+    review = f.service.reviewSelectors.bind(f.service);
+  let withdrew = false;
+  const service = {
+    reviewSelectors: async (...args: Parameters<typeof review>) => {
+      const result = await review(...args);
+      if (!withdrew) {
+        withdrew = true;
+        await f.permissions.withdraw(
+          c,
+          "rights-grant",
+          "rights",
+          1,
+          "withdraw-during-review",
+        );
+      }
+      return result;
+    },
+  } as EvidenceService;
+  const client = new ConsentEvidenceKnowledgeReview(
+    f.facade,
+    service,
+    f.credential,
+    f.makeGuard(),
+  );
+  await assert.rejects(client.review(c, f.link.record), { code: "use_denied" });
+  assert.equal(f.signal()!.aborted, true);
+  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 1);
+  const empty = await f
+    .makeWriter()
+    .record(c, 1, { ...f.command, links: [] }, "explicit-empty");
+  const missing = new CurrentEvidenceUse(
+    f.membership,
+    f.permissions,
+    { ...f.fixed, bindings: [] },
+    () => c.now,
+  );
+  const noCredential = async () => {
+    throw Error("must not obtain credentials for empty links");
+  };
+  const emptyClient = new ConsentEvidenceKnowledgeReview(
+    f.facade,
+    f.service,
+    noCredential,
+    missing,
+  );
+  const result = await emptyClient.review(c, empty.record);
+  assert.equal(result.evidenceRevision, null);
+  assert.deepEqual(result.sources, {
+    supports: null,
+    challenges: null,
+    quotes: null,
+  });
 });
