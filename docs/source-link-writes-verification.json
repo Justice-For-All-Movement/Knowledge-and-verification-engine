@@ -1,0 +1,53 @@
+{
+  "scope": "Partial AM-05.02 source-backed private link writes",
+  "local": {
+    "tests": 82,
+    "typecheckBuildRegistry": "passed",
+    "newActualRestrictedThreeDbEncryptedRootGroups": 6
+  },
+  "installed": {
+    "publicExportTests": 82,
+    "completeTap": true,
+    "fourRuntimeJsByteMatch": true
+  },
+  "initialCi": {
+    "source": "689536b1857c266bdc2db94ed579213c5db4c483",
+    "run": 41834468041,
+    "check": 126589708237,
+    "tests": 82,
+    "postgres": 126589708598,
+    "existingActualPostgres17Groups": 7,
+    "headAndLogsInspected": true
+  },
+  "review": [
+    "Actual configured owning Evidence capture, no caller/fabricated EvidenceState",
+    "Exact scoped command before credentials; copied role-stripped host principal/receivers",
+    "Current Identity/own admission before source and fresh Identity then own locked current claims/link reads before cache/storage CAS",
+    "Captured family/fingerprint syntax is not authentication; low-level methods remain host-trust",
+    "Whole monotonic/cancellable admission including own-lock gate before cache/new put; begun SQL awaited/ACK retained after cancellation; UNKNOWN not rollback",
+    "Distinct capture operation; original historical replay only; no reused effect or fresh source/claim permit",
+    "Source containing edition audit only, immutable historical family/fingerprint values; combined source analysis not persisted",
+    "Stable SQL/Identity/contracts/approved design/migrations unchanged; explicit Evidence f13686 pin upgrade"
+  ],
+  "limits": [
+    "Host proofing/human-delegation credential-release policy required; no token-principal equality proof",
+    "Source may change after capture before/after commit; sequential observations not distributed permission fence",
+    "Private link metadata is not original bytes/scanner/extraction/consent/rights truth/answers/closure",
+    "CPUheap/deadline/SQL driver/concurrency/host limits required; PGlite hooks are not new TCP qualification",
+    "No HTTPUI/browserAT/live/provider/send/pub/payment/PAM changes"
+  ],
+  "sourceSha256": {
+    "package.json": "3f24e365493deee302baceb632240884a88f8b1f6e419dc59927e52a7c672122",
+    "package-lock.json": "22d359ac92970213dc4bfbff669b964daf6d986d1d5a22a324ccf35f15f50588",
+    "scripts/validate-pr-registry.mjs": "c45096b2349b1a66d5c0fc20ba0c7943412023e8d961a29e01711cca73b8dd5f",
+    "registry/prs.json": "0df41007d58bbf6cc79bcdb209be1bbd557c776d667e98ee548710d9e9baab63",
+    "src/evidence-links.ts": "6649bc4b8bccf9abfe0fd2b5b16bdd8f0953bd1bfdd6be9616add20e218db438",
+    "src/repository.ts": "e04614d2cf16d590168217d40589d2c3ddfafaf39d0dee615b6a8046ecf384b7",
+    "src/identity-repository.ts": "feed63fa4db98bfdcc6dd5e91a8f5ebafc4fee2aebbd8ec7d5eb3e32b8e4fad0",
+    "src/source-links.ts": "c60fa673bd855f1b05d5a4c25f1fcb28fde1ed766c2fa9089048460049036e90",
+    "tests/current-evidence.test.ts": "f5691f57b591623a6ca845ec7cf8d6d305a6fedef50c5c439f24446dee68ec80",
+    "docs/SOURCE_LINK_WRITES.md": "f679828a7740b0e93ed08388426d608611c2c9d58483192da1e2f597b68cb9f2",
+    "docs/ARCHITECTURE.md": "112deff53fbe11921b2ad846e4ddd20c576ef3cb4b1c4dbe47055b828ba7d2e2"
+  },
+  "sourceReview": "No unresolved finding; exact bindings, captured ports/inputs, current local authority before cache, own locked CAS/history/audit/outbox, deadline and uncertainty semantics inspected"
+}
