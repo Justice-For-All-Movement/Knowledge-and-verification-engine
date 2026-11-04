@@ -47,3 +47,5 @@ CLAIM_PROPOSAL_REVIEW.md describes owning captured proposal-bundle validation, d
 VERIFICATION_REVIEW.md documents private unresolved human observations tied to exact captured claim/citation editions, distinct from authenticated current source review, findings or approvals.
 
 HUMAN_SOURCE_LINK_WRITES.md documents explicit same-human credential binding plus mandatory current Identity/Consent for private source-backed writes. Legacy writers/readers retain their own profiles.
+
+HUMAN_SOURCE_LINK_REVIEW.md documents opt-in same-human owning review and its protected proposal-reader composition, retaining mandatory current Identity/Consent and legacy defaults.

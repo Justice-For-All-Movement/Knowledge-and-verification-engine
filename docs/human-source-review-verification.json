@@ -1,0 +1,33 @@
+{
+  "status": "Incomplete WIP; first tested implementation checkpoint",
+  "local": {
+    "focusedGroups": 5,
+    "pass": 5,
+    "fail": 0,
+    "skipped": 0,
+    "normalNpmCi": "passed",
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "fullSuite": "not yet run"
+  },
+  "installed": "pending",
+  "ci": "pending",
+  "remaining": [
+    "Installed public exports/declarations/module-byte qualification",
+    "Substantive source review and current-head CI/branch rules",
+    "Host proofing/mapping/delegation/rights/bytes/scanner/driver/CPU/heap and browser/AT/live qualification",
+    "Verification durability/fullworkflow and original cross-engine dependencies"
+  ],
+  "sourceSha256": {
+    "src/current-evidence.ts": "e6107ca0daecd8b5594801b86e8d28ba869be73b0ad0fe1d4c195251de77e59e",
+    "src/consent-links.ts": "932dfc2a5bcf0311d8256a7d3f537a2a5efe95d0a8aab0c22928054a31900a27",
+    "tests/current-evidence.test.ts": "20b05c12347874f3988addd38f1bb57cdd409979f417fd594f9395660667e47d",
+    "package.json": "5c031c430acce4832b4c94a13967948e2683df5120b02303b4c5ed5950dcd062",
+    "package-lock.json": "61668d426ab542f563f87ee48c5e6836d7db42a08aacacff0c780f45dac0668f",
+    "scripts/validate-pr-registry.mjs": "d0f662c0196d6a155e7a5ecc78e77f579ca5b832cb05e1d3da09413480719094",
+    "docs/HUMAN_SOURCE_LINK_REVIEW.md": "95350f8e6222fce3496aed71303f0a7f386075402ab524e2c308b9e378cb94b9",
+    "docs/ARCHITECTURE.md": "ec642f1d0dc277e0334e0175e94b84ba9e3f4f9a56e3701b9a691901b6c75d1d",
+    "registry/prs.json": "32543276a91deb2d26832e70c9c98f33a479c59d57365c70fc57a67f775e695b"
+  }
+}

@@ -277,6 +277,11 @@
         "newGroups": 5,
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/19",
         "verification": "docs/human-source-writes-verification.json"
+      },
+      "humanSourceReview": {
+        "docs": "docs/HUMAN_SOURCE_LINK_REVIEW.md",
+        "status": "Implementation WIP: five actual four-DB/encrypted-root focused groups/typecheck/build/registry passed; installed/current-head CI pending; legacy profiles unchanged",
+        "verification": "docs/human-source-review-verification.json"
       }
     },
     {
@@ -339,6 +344,11 @@
         "status": "PR17 merged4265d1b; finalCI41901248494 passed101+7 priorPG17; earlier incomplete flags are historical",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/17",
         "verification": "docs/claim-proposal-review-verification.json"
+      },
+      "humanSourceReview": {
+        "docs": "docs/HUMAN_SOURCE_LINK_REVIEW.md",
+        "status": "Implementation WIP: five actual four-DB/encrypted-root focused groups/typecheck/build/registry passed; installed/current-head CI pending; legacy profiles unchanged",
+        "verification": "docs/human-source-review-verification.json"
       }
     },
     {

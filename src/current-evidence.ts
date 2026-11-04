@@ -86,7 +86,7 @@ function analysis(value: SourceAnalysis, selected: readonly Ref[]) {
 /** Opt-in read-only composition. Own histories are observed before and after sequential Evidence observations. */
 export class CurrentEvidenceKnowledgeReview {
   readonly #basis: IdentityKnowledgeRepository["prepareEvidenceReview"];
-  readonly #review: EvidenceService["reviewSelectors"];
+  readonly #review: EvidenceService["reviewSelectorsForHuman"];
   readonly #credential: EvidenceCredential;
   readonly #timeout: number;
   readonly #authorize: CurrentEvidenceUse["authorize"] | undefined;
@@ -96,9 +96,25 @@ export class CurrentEvidenceKnowledgeReview {
     credential: EvidenceCredential,
     timeoutMs = 10000,
     permissions?: CurrentEvidenceUse,
+    reviewProfile: "legacy" | "same-human" = "legacy",
   ) {
     this.#basis = repository.prepareEvidenceReview.bind(repository);
-    this.#review = evidence.reviewSelectors.bind(evidence);
+    invariant(
+      reviewProfile === "legacy" || reviewProfile === "same-human",
+      "invalid_policy",
+      "Explicit source review profile required",
+    );
+    if (reviewProfile === "same-human") {
+      invariant(
+        typeof evidence.reviewSelectorsForHuman === "function",
+        "invalid_policy",
+        "Human-bound owning Evidence API required",
+      );
+      this.#review = evidence.reviewSelectorsForHuman.bind(evidence);
+    } else {
+      const legacy = evidence.reviewSelectors.bind(evidence);
+      this.#review = (request, selectors, _humanId) => legacy(request, selectors);
+    }
     this.#credential = credential;
     invariant(
       typeof credential === "function" &&
@@ -195,6 +211,7 @@ export class CurrentEvidenceKnowledgeReview {
                 requestId: `knowledge:${digest({ request: c.requestId, choice, relation })}`,
               },
               links.map((l) => l.selector),
+              principal.actor.id,
             ),
           );
           gate();

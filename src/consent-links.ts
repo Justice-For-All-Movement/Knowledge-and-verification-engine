@@ -290,13 +290,14 @@ export class ConsentEvidenceKnowledgeReview extends CurrentEvidenceKnowledgeRevi
     credential: EvidenceCredential,
     permissions: CurrentEvidenceUse,
     timeoutMs = 10000,
+    reviewProfile: "legacy" | "same-human" = "legacy",
   ) {
     invariant(
       permissions instanceof CurrentEvidenceUse,
       "invalid_policy",
       "Current owning permission guard required",
     );
-    super(repository, evidence, credential, timeoutMs, permissions);
+    super(repository, evidence, credential, timeoutMs, permissions, reviewProfile);
   }
 }
 
@@ -312,5 +313,18 @@ export class HumanConsentEvidenceLinksWriter extends SourceEvidenceLinksWriter {
     invariant(permissions instanceof CurrentEvidenceUse, "invalid_policy",
       "Current owning permission guard required");
     super(repository, evidence, credential, timeoutMs, permissions, "same-human");
+  }
+}
+
+/** Same-human owning review, retaining the mandatory current-use guard for proposal readers. */
+export class HumanConsentEvidenceKnowledgeReview extends ConsentEvidenceKnowledgeReview {
+  constructor(
+    repository: IdentityKnowledgeRepository,
+    evidence: EvidenceService,
+    credential: EvidenceCredential,
+    permissions: CurrentEvidenceUse,
+    timeoutMs = 10000,
+  ) {
+    super(repository, evidence, credential, permissions, timeoutMs, "same-human");
   }
 }
