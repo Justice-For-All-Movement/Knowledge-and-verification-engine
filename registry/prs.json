@@ -4,7 +4,7 @@
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
-  "observedAt": "2026-11-04T19:52:43Z",
+  "observedAt": "2026-11-04T20:20:00Z",
   "units": [
     {
       "id": "AM-02-01",
@@ -354,8 +354,13 @@
         "A contradicted or unresolved assertion cannot silently become a verified finding.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-05.05"
+      "implementationStatus": "partial pure unresolved human review history; six owning-domain groups/typecheck pass, exact current claim/link CAS and preserved historical contrary IDs; four independent check notes never become findings/approvals. Full local/build/installed/current-head CI, owning SQL/current Identity-Consent/source proof and complete workflow acceptance pending.",
+      "legacyWorkUnitId": "AM-05.05",
+      "verificationReview": {
+        "docs": "docs/VERIFICATION_REVIEW.md",
+        "status": "incomplete source checkpoint",
+        "focusedTests": 6
+      }
     },
     {
       "id": "AM-05-06",

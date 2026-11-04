@@ -43,3 +43,5 @@ CONSENT_LINK_REVIEW.md documents the corresponding opt-in current Consent guard 
 CLAIM_PROPOSALS.md documents mandatory current Consent-guarded exact-span private proposals, distinct from Knowledge revisions, verified findings and answers.
 
 CLAIM_PROPOSAL_REVIEW.md describes owning captured proposal-bundle validation, distinct from current guarded service observations and authentication.
+
+VERIFICATION_REVIEW.md documents private unresolved human observations tied to exact captured claim/citation editions, distinct from authenticated current source review, findings or approvals.
