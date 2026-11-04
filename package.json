@@ -27,6 +27,10 @@
     "./identity-repository": {
       "types": "./dist/identity-repository.d.ts",
       "default": "./dist/identity-repository.js"
+    },
+    "./current-evidence": {
+      "types": "./dist/current-evidence.d.ts",
+      "default": "./dist/current-evidence.js"
     }
   },
   "engines": {
@@ -51,7 +55,7 @@
     "docs"
   ],
   "dependencies": {
-    "@accountability/evidence": "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#c9aafd0cc7d655e4dc3f8b5b8b833ef102d4cf2b",
+    "@accountability/evidence": "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#a2f704ea6d35c8070c74aae16ae1518ca35cdb70",
     "@accountability/evidence-sql": "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#dce7105a70b42d77afe4cd48d34723331447037c",
     "@accountability/identity-policy": "git+https://github.com/neophilism/Identity-Authorization-and-Policy-Engine.git#763060ddc840979b56483afd830f78679a2369b0"
   }

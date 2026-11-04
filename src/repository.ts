@@ -1,3 +1,4 @@
+import {selectCurrentEvidenceLinks} from "./evidence-links.ts";
 import type { EvidenceState } from "@accountability/evidence";
 import {
   createEvidenceLinksState,
@@ -288,6 +289,15 @@ export class KnowledgeRepository {
         ...links,
         knowledgeRevision: knowledge.revision,
       });
+    });
+  }
+  async prepareEvidenceReview(context: Context, selected: Ref) {
+    const c = this.#context(context), choice = structuredClone(selected);
+    return scoped(this.#db, c, async tx => {
+      await tx.audit("knowledge.evidence-links.basis_checked", {});
+      const knowledge = await this.#load(tx, c), links = await this.#links(tx, c);
+      return structuredClone({knowledgeRevision:knowledge.revision, linksRevision:links.revision,
+        revision:selectCurrentEvidenceLinks(c, knowledge.state, links.state, choice)});
     });
   }
   /** Checked read over actual owning histories; supplied Evidence remains host-trusted. */

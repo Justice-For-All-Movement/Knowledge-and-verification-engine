@@ -13,6 +13,7 @@ export class IdentityKnowledgeRepository {
   readonly #resolve: MembershipRegistry["resolveResource"];
   readonly #load: KnowledgeRepository["load"];
   readonly #links: KnowledgeRepository["loadEvidenceLinks"];
+  readonly #prepareReview: KnowledgeRepository["prepareEvidenceReview"];
   readonly #reviewLinks: KnowledgeRepository["reviewEvidenceLinks"];
   readonly #recordLinks: KnowledgeRepository["recordEvidenceLinks"];
   readonly #pairs: KnowledgeRepository["loadEntityIdentities"];
@@ -29,6 +30,7 @@ export class IdentityKnowledgeRepository {
     this.#resolve = membership.resolveResource.bind(membership);
     this.#load = repository.load.bind(repository);
     this.#links = repository.loadEvidenceLinks.bind(repository);
+    this.#prepareReview = repository.prepareEvidenceReview.bind(repository);
     this.#reviewLinks = repository.reviewEvidenceLinks.bind(repository);
     this.#recordLinks = repository.recordEvidenceLinks.bind(repository);
     this.#pairs = repository.loadEntityIdentities.bind(repository);
@@ -131,6 +133,10 @@ export class IdentityKnowledgeRepository {
   }
   async loadEvidenceLinks(context: Context, signal?: AbortSignal) {
     return this.#links(await this.#context(context, signal));
+  }
+  async prepareEvidenceReview(context: Context, selected: Ref, signal?: AbortSignal) {
+    const choice = structuredClone(selected);
+    return this.#prepareReview(await this.#context(context, signal), choice);
   }
   async reviewEvidenceLinks(
     context: Context,

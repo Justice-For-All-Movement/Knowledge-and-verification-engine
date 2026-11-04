@@ -435,27 +435,7 @@ export function reviewEvidenceLinks(
   selected: Ref,
 ): EvidenceLinksReview {
   const c = structuredClone(context),
-    s = structuredClone(state),
-    rref = structuredClone(selected);
-  authorize(c, s);
-  assertEvidenceLinksState(s);
-  ref(rref, s, "knowledge-evidence-links");
-  const r = s.records.find((r) => same(r.ref, rref));
-  invariant(r, "missing_reference", "Exact link edition missing");
-  invariant(
-    !s.records.some(
-      (x) => x.ref.id === r.ref.id && x.ref.revision > r.ref.revision,
-    ),
-    "stale_links",
-    "Explicit latest link set required",
-  );
-  currentClaim(c, knowledge, r.claim);
-  requireScope(c, knowledge);
-  invariant(
-    r.purpose === c.purpose,
-    "purpose_denied",
-    "Review purpose differs from capture",
-  );
+    r = selectCurrentEvidenceLinks(c, knowledge, state, selected);
   const e = captureEvidence(evidence, c);
   for (const l of r.links) {
     invariant(
@@ -481,4 +461,32 @@ export function reviewEvidenceLinks(
       quotes: analyze("quotes"),
     },
   };
+}
+
+export function selectCurrentEvidenceLinks(
+  context: Context, knowledge: KnowledgeState, state: EvidenceLinksState, selected: Ref,
+): EvidenceLinksRevision {
+  const c = structuredClone(context),
+    s = structuredClone(state),
+    rref = structuredClone(selected);
+  authorize(c, s);
+  assertEvidenceLinksState(s);
+  ref(rref, s, "knowledge-evidence-links");
+  const r = s.records.find((r) => same(r.ref, rref));
+  invariant(r, "missing_reference", "Exact link edition missing");
+  invariant(
+    !s.records.some(
+      (x) => x.ref.id === r.ref.id && x.ref.revision > r.ref.revision,
+    ),
+    "stale_links",
+    "Explicit latest link set required",
+  );
+  currentClaim(c, knowledge, r.claim);
+  requireScope(c, knowledge);
+  invariant(
+    r.purpose === c.purpose,
+    "purpose_denied",
+    "Review purpose differs from capture",
+  );
+  return structuredClone(r);
 }
