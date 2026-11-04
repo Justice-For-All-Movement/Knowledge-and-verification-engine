@@ -1,3 +1,4 @@
+import { CurrentEvidenceKnowledgeReview } from "./current-evidence.ts";
 import type { EvidenceService } from "@accountability/evidence/service";
 import type { MembershipRegistry } from "@accountability/identity-policy/membership";
 import type { PermissionRegistry } from "@accountability/consent-rights/registry";
@@ -265,6 +266,24 @@ export class CurrentEvidenceUse {
 
 /** Mandatory current-use guard; legacy source-only writer is unchanged unless explicitly configured. */
 export class ConsentEvidenceLinksWriter extends SourceEvidenceLinksWriter {
+  constructor(
+    repository: IdentityKnowledgeRepository,
+    evidence: EvidenceService,
+    credential: EvidenceCredential,
+    permissions: CurrentEvidenceUse,
+    timeoutMs = 10000,
+  ) {
+    invariant(
+      permissions instanceof CurrentEvidenceUse,
+      "invalid_policy",
+      "Current owning permission guard required",
+    );
+    super(repository, evidence, credential, timeoutMs, permissions);
+  }
+}
+
+/** Mandatory current-use observations before source access and before returning an owning review. */
+export class ConsentEvidenceKnowledgeReview extends CurrentEvidenceKnowledgeReview {
   constructor(
     repository: IdentityKnowledgeRepository,
     evidence: EvidenceService,

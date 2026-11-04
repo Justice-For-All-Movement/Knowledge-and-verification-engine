@@ -1,3 +1,4 @@
+import type { CurrentEvidenceUse } from "./consent-links.ts";
 import type {
   EvidenceService,
   SelectorReview,
@@ -88,11 +89,13 @@ export class CurrentEvidenceKnowledgeReview {
   readonly #review: EvidenceService["reviewSelectors"];
   readonly #credential: EvidenceCredential;
   readonly #timeout: number;
+  readonly #authorize: CurrentEvidenceUse["authorize"] | undefined;
   constructor(
     repository: IdentityKnowledgeRepository,
     evidence: EvidenceService,
     credential: EvidenceCredential,
     timeoutMs = 10000,
+    permissions?: CurrentEvidenceUse,
   ) {
     this.#basis = repository.prepareEvidenceReview.bind(repository);
     this.#review = evidence.reviewSelectors.bind(evidence);
@@ -106,6 +109,7 @@ export class CurrentEvidenceKnowledgeReview {
       "Credential provider and bounded acceptance budget required",
     );
     this.#timeout = timeoutMs;
+    this.#authorize = permissions?.authorize.bind(permissions);
   }
   async review(
     context: Context,
@@ -131,6 +135,18 @@ export class CurrentEvidenceKnowledgeReview {
     try {
       gate();
       const before = await this.#basis(principal, choice, owned.signal);
+      gate();
+      // Reconstruct syntax only from the actual owning selected link revision, never caller permission data.
+      const useCommand = {
+        claim: before.revision.claim,
+        expectedRevision: before.revision.ref.revision,
+        links: before.revision.links.map(({ id, relation, selector }) => ({
+          id,
+          relation,
+          selector,
+        })),
+      };
+      await this.#authorize?.(principal, useCommand, owned.signal);
       gate();
       const sources: Record<Relation, SourceAnalysis | null> = {
         supports: null,
@@ -226,6 +242,8 @@ export class CurrentEvidenceKnowledgeReview {
         edition = result.revision;
         sources[relation] = result.sources;
       }
+      gate();
+      await this.#authorize?.(principal, useCommand, owned.signal);
       gate();
       const after = await this.#basis(principal, choice, owned.signal);
       gate();
