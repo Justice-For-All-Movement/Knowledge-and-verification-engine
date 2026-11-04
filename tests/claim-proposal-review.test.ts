@@ -156,3 +156,40 @@ test("host role kind scope purpose and request time admission remain separate fr
   ])
     assert.throws(() => inspectClaimProposals(context as never, fixture()));
 });
+
+test("recomputed bundles cannot bind one stored link or immutable source edition to conflicting parents", () => {
+  const b = fixture(),
+    first = b.proposals[0]!;
+  const second = structuredClone(first);
+  second.id = "second";
+  second.citation.excerpt = { start: 17, end: 18, quote: "A" };
+  const valid = { ...b, proposals: [first, second] };
+  assert.equal(inspectClaimProposals(c, signed(valid)).proposals.length, 2);
+  for (const edit of [
+    (x: typeof second) => {
+      x.citation.relation = "supports";
+    },
+    (x: typeof second) => {
+      x.citation.selectorFingerprint = "e".repeat(64);
+    },
+    (x: typeof second) => {
+      x.citation.selector.representationDigest = "c".repeat(64);
+    },
+    (x: typeof second) => {
+      x.citation.linkId = "another-link";
+      x.citation.selector.sha256 = "d".repeat(64);
+    },
+    (x: typeof second) => {
+      x.citation.linkId = "another-link";
+      x.citation.selector.representationDigest = "c".repeat(64);
+    },
+  ]) {
+    const changed = structuredClone(second);
+    edit(changed);
+    assert.throws(
+      () =>
+        inspectClaimProposals(c, signed({ ...b, proposals: [first, changed] })),
+      { code: "invalid_proposal_bundle" },
+    );
+  }
+});

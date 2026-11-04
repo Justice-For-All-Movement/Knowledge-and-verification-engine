@@ -4,7 +4,7 @@
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
-  "observedAt": "2026-11-04T18:59:35Z",
+  "observedAt": "2026-11-04T19:52:43Z",
   "units": [
     {
       "id": "AM-02-01",
@@ -319,7 +319,7 @@
         "Every accepted proposal resolves to the original span; invented citations are rejected.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial; PR16 accepted0b09cacf/finalCI41882569146 pass94+7PG; all94 installed later pass. PR17 owning captured bundle validation and reproduced producer complete-response digest-budget fix:99-test suite plus additional boundary regression/final typecheckbuildregistry;5synthetic+2actual installed groups pass. Initialbcab52a CI41891795556 pass99+7PG; expanded current-head CI pending. Captures/digests are NOT authentication/current permission. No durable acceptance/model/answers/HTTP/Visual/live completion.",
+      "implementationStatus": "partial; PR16 accepted0b09cacf/finalCI41882569146 pass94+7PG; all94 installed later pass. PR17 owning captured bundle validation and reproduced producer complete-response digest-budget fix:99-test suite plus additional boundary regression/final typecheckbuildregistry;5synthetic+2actual installed groups pass. Initialbcab52a CI41891795556 pass99+7PG; expanded current-head CI pending. Captures/digests are NOT authentication/current permission. No durable acceptance/model/answers/HTTP/Visual/live completion. Pre-merge review REPRO conflicting same-link parent/immutable source metadata; expanded validator denies while allowing different valid excerpts. Six focused groups/typecheck pass; expanded current-head CI pending.",
       "legacyWorkUnitId": "AM-05.04",
       "claimProposals": {
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/16",

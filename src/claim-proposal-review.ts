@@ -114,6 +114,9 @@ export function inspectClaimProposals(
     "Bounded nonempty proposal list required",
   );
   const ids = new Set<string>();
+  const parents = new Map<string, string>();
+  const sourceHashes = new Map<string, string>();
+  const representations = new Map<string, string>();
   for (const p of b.proposals) {
     exact(p, [
       "id",
@@ -151,6 +154,26 @@ export function inspectClaimProposals(
         { id: p.citation.linkId, relation: p.citation.relation, selector: s },
       ],
     });
+    const parent = canonical({
+      relation: p.citation.relation,
+      selector: s,
+      fingerprint: p.citation.selectorFingerprint,
+    });
+    const sourceKey = canonical(s.evidence);
+    const representationKey = canonical([s.evidence, s.representationId]);
+    invariant(
+      (!parents.has(p.citation.linkId) ||
+        parents.get(p.citation.linkId) === parent) &&
+        (!sourceHashes.has(sourceKey) ||
+          sourceHashes.get(sourceKey) === s.sha256) &&
+        (!representations.has(representationKey) ||
+          representations.get(representationKey) === s.representationDigest),
+      "invalid_proposal_bundle",
+      "Captured citation and immutable source bindings conflict",
+    );
+    parents.set(p.citation.linkId, parent);
+    sourceHashes.set(sourceKey, s.sha256);
+    representations.set(representationKey, s.representationDigest);
     exact(e, ["start", "end", "quote"]);
     nonempty(e.quote, "Excerpt", 16000);
     invariant(
