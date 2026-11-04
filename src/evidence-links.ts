@@ -464,7 +464,10 @@ export function reviewEvidenceLinks(
 }
 
 export function selectCurrentEvidenceLinks(
-  context: Context, knowledge: KnowledgeState, state: EvidenceLinksState, selected: Ref,
+  context: Context,
+  knowledge: KnowledgeState,
+  state: EvidenceLinksState,
+  selected: Ref,
 ): EvidenceLinksRevision {
   const c = structuredClone(context),
     s = structuredClone(state),
@@ -489,4 +492,160 @@ export function selectCurrentEvidenceLinks(
     "Review purpose differs from capture",
   );
   return structuredClone(r);
+}
+
+/** Syntax only; neither a source observation nor authentication. */
+export function captureEvidenceLinksCommand(
+  scope: Scope,
+  command: EvidenceLinksCommand,
+): EvidenceLinksCommand {
+  const q = structuredClone(command);
+  exact(q, ["claim", "expectedRevision", "links"]);
+  ref(q.claim, scope, "claim");
+  invariant(
+    Number.isSafeInteger(q.expectedRevision) &&
+      q.expectedRevision >= 0 &&
+      q.expectedRevision < Number.MAX_SAFE_INTEGER,
+    "invalid_revision",
+    "Expected logical link revision required",
+  );
+  invariant(
+    Array.isArray(q.links) && q.links.length <= 64,
+    "invalid_links",
+    "Bounded link input required",
+  );
+  const ids = new Set<string>(),
+    selectors = new Set<string>();
+  for (const l of q.links) {
+    exact(l, ["id", "relation", "selector"]);
+    input(l, scope);
+    const key = canonical([l.relation, l.selector]);
+    invariant(
+      !ids.has(l.id) && !selectors.has(key),
+      "duplicate_link",
+      "Distinct link IDs and relation/selectors required",
+    );
+    ids.add(l.id);
+    selectors.add(key);
+  }
+  return q;
+}
+/** Host-trusted owning capture model adapter. Metadata syntax is not authentication or EvidenceState. */
+export function reviseEvidenceLinksFromCapture(
+  context: Context,
+  knowledge: KnowledgeState,
+  state: EvidenceLinksState,
+  command: EvidenceLinksCommand,
+  capture:
+    | import("@accountability/evidence/service").SelectorLinkCapture
+    | null,
+): EvidenceLinksState {
+  const c = structuredClone(context),
+    s = structuredClone(state),
+    q = captureEvidenceLinksCommand(c, command);
+  authorize(c, s);
+  assertEvidenceLinksState(s);
+  currentClaim(c, knowledge, q.claim);
+  const previous = s.records.filter((r) => r.ref.id === q.claim.id).at(-1);
+  invariant(
+    (previous?.ref.revision ?? 0) === q.expectedRevision,
+    "revision_conflict",
+    "Link edition changed",
+  );
+  const links = capturedEvidenceLinks(c, q, capture);
+  const next: EvidenceLinksState = {
+    ...s,
+    records: [
+      ...s.records,
+      {
+        ref: {
+          tenantId: s.tenantId,
+          projectId: s.projectId,
+          kind: "knowledge-evidence-links",
+          id: q.claim.id,
+          revision: q.expectedRevision + 1,
+        },
+        supersedes: previous?.ref ?? null,
+        claim: q.claim,
+        visibility: "private",
+        actorId: c.actor.id,
+        actorKind: c.actor.kind,
+        createdAt: c.now,
+        requestId: c.requestId,
+        purpose: c.purpose,
+        links,
+      },
+    ],
+  };
+  assertEvidenceLinksState(next);
+  return next;
+}
+
+/** Syntax/binding validation only; provenance comes from the configured owning service, not this object. */
+export function capturedEvidenceLinks(
+  c: Scope & { purpose: string },
+  command: EvidenceLinksCommand,
+  capture:
+    | import("@accountability/evidence/service").SelectorLinkCapture
+    | null,
+): EvidenceLink[] {
+  const q = captureEvidenceLinksCommand(c, command);
+  let links: EvidenceLink[] = [];
+  if (q.links.length === 0)
+    invariant(
+      capture === null,
+      "invalid_links",
+      "Empty link set has no Evidence observation",
+    );
+  else {
+    bounded(capture, 256 * 1024);
+    const source = structuredClone(capture);
+    exact(source, [
+      "schemaVersion",
+      "tenantId",
+      "projectId",
+      "purpose",
+      "revision",
+      "selectors",
+      "sources",
+    ]);
+    requireScope(c, source!);
+    invariant(
+      source!.schemaVersion === 1 &&
+        source!.purpose === c.purpose &&
+        Number.isSafeInteger(source!.revision) &&
+        source!.revision > 0 &&
+        Array.isArray(source!.selectors) &&
+        source!.selectors.length === q.links.length,
+      "invalid_links",
+      "Exact owning source capture required",
+    );
+    links = q.links.map((l, i) => {
+      const entry = source!.selectors[i]!;
+      exact(entry, ["selector", "fingerprint", "family"]);
+      invariant(
+        same(entry.selector, l.selector),
+        "invalid_links",
+        "Captured selector binding differs",
+      );
+      return { ...l, family: entry.family, fingerprint: entry.fingerprint };
+    });
+  }
+  for (const link of links) {
+    exact(link.family, ["familyId", "roots", "basisDigest"]);
+    const family = link.family;
+    if (family.familyId !== null) nonempty(family.familyId, "Family", 128);
+    invariant(
+      Array.isArray(family.roots) &&
+        family.roots.length <= 64 &&
+        new Set(family.roots).size === family.roots.length &&
+        (family.familyId !== null || family.roots.length === 0) &&
+        hash.test(family.basisDigest) &&
+        hash.test(link.fingerprint),
+      "invalid_links",
+      "Exact compact family and fingerprint required",
+    );
+    for (const root of family.roots) nonempty(root, "Root", 128);
+  }
+  return links;
 }

@@ -1,9 +1,10 @@
-import {selectCurrentEvidenceLinks} from "./evidence-links.ts";
+import { selectCurrentEvidenceLinks } from "./evidence-links.ts";
 import type { EvidenceState } from "@accountability/evidence";
 import {
   createEvidenceLinksState,
   assertEvidenceLinksState,
   reviseEvidenceLinks,
+  reviseEvidenceLinksFromCapture,
   reviewEvidenceLinks as reviewLinks,
 } from "./evidence-links.ts";
 import type {
@@ -292,12 +293,22 @@ export class KnowledgeRepository {
     });
   }
   async prepareEvidenceReview(context: Context, selected: Ref) {
-    const c = this.#context(context), choice = structuredClone(selected);
-    return scoped(this.#db, c, async tx => {
+    const c = this.#context(context),
+      choice = structuredClone(selected);
+    return scoped(this.#db, c, async (tx) => {
       await tx.audit("knowledge.evidence-links.basis_checked", {});
-      const knowledge = await this.#load(tx, c), links = await this.#links(tx, c);
-      return structuredClone({knowledgeRevision:knowledge.revision, linksRevision:links.revision,
-        revision:selectCurrentEvidenceLinks(c, knowledge.state, links.state, choice)});
+      const knowledge = await this.#load(tx, c),
+        links = await this.#links(tx, c);
+      return structuredClone({
+        knowledgeRevision: knowledge.revision,
+        linksRevision: links.revision,
+        revision: selectCurrentEvidenceLinks(
+          c,
+          knowledge.state,
+          links.state,
+          choice,
+        ),
+      });
     });
   }
   /** Checked read over actual owning histories; supplied Evidence remains host-trusted. */
@@ -389,6 +400,84 @@ export class KnowledgeRepository {
           await tx.audit(
             "knowledge.evidence-links.recorded",
             json({ ...result, knowledgeRevision: knowledge.revision }),
+          );
+          await tx.enqueue("knowledge.evidence-links.revised", json(result));
+          return json(result);
+        },
+      )) as KnowledgeAcknowledgement;
+    });
+  }
+  async recordCapturedEvidenceLinks(
+    context: Context,
+    expectedStorageRevision: number,
+    capture:
+      | import("@accountability/evidence/service").SelectorLinkCapture
+      | null,
+    command: EvidenceLinksCommand,
+    commandId: string,
+    admit?: () => void,
+  ): Promise<KnowledgeAcknowledgement> {
+    const c = this.#context(context),
+      q = structuredClone(command),
+      source = structuredClone(capture);
+    nonempty(commandId, "Command", 128);
+    invariant(
+      Number.isSafeInteger(expectedStorageRevision) &&
+        expectedStorageRevision >= 0,
+      "invalid_revision",
+      "Expected link storage revision required",
+    );
+    return scoped(this.#db, c, async (tx) => {
+      await tx.audit("knowledge.evidence-links.capture_append_checked", {});
+      const knowledge = await this.#load(tx, c),
+        links = await this.#links(tx, c);
+      admit?.();
+      return (await tx.idempotent(
+        commandId,
+        json({
+          operation: "evidence-link-capture",
+          actorKind: c.actor.kind,
+          purpose: c.purpose,
+          expectedStorageRevision,
+          command: q,
+        }),
+        async () => {
+          invariant(
+            links.revision === expectedStorageRevision,
+            "revision_conflict",
+            "Link storage edition changed",
+          );
+          const state = reviseEvidenceLinksFromCapture(
+            c,
+            knowledge.state,
+            links.state,
+            q,
+            source,
+          );
+          admit?.();
+          const stored = await tx.put(
+            EVIDENCE_LINKS_KIND,
+            EVIDENCE_LINKS_KEY,
+            links.revision,
+            state,
+          );
+          const result = {
+            storage: {
+              tenantId: c.tenantId,
+              projectId: c.projectId,
+              kind: EVIDENCE_LINKS_KIND,
+              id: EVIDENCE_LINKS_KEY,
+              revision: stored.revision,
+            },
+            record: state.records.at(-1)!.ref,
+          };
+          await tx.audit(
+            "knowledge.evidence-links.recorded",
+            json({
+              ...result,
+              knowledgeRevision: knowledge.revision,
+              evidenceRevision: source?.revision ?? null,
+            }),
           );
           await tx.enqueue("knowledge.evidence-links.revised", json(result));
           return json(result);

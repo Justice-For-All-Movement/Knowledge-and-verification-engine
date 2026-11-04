@@ -562,3 +562,387 @@ test("fresh own storage observations reject unrelated revisions and empty links 
     quotes: null,
   });
 });
+
+async function sourceWriterFixture(t: test.TestContext) {
+  const f = await ready(t);
+  const { SourceEvidenceLinksWriter } = await import("../src/source-links.ts");
+  return {
+    ...f,
+    Writer: SourceEvidenceLinksWriter,
+    command: { ...f.linkCommand, expectedRevision: 1 },
+  };
+}
+test("source-backed writer captures actual Evidence family metadata and commits private link history with current authority", async (t) => {
+  const f = await sourceWriterFixture(t),
+    writer = new f.Writer(f.facade, f.service, f.credential);
+  const ack = await writer.record(c, 1, f.command, "captured-links");
+  assert.equal(ack.storage.revision, 2);
+  assert.equal(ack.record.revision, 2);
+  const links = await f.facade.loadEvidenceLinks(c),
+    r = links.state.records.at(-1)!;
+  const capture = await f.service.captureSelectorLinks(
+    f.req,
+    f.command.links.map((l) => l.selector),
+  );
+  assert.deepEqual(
+    r.links.map((l) => l.family),
+    capture.selectors.map((s) => s.family),
+  );
+  assert.deepEqual(
+    r.links.map((l) => l.fingerprint),
+    capture.selectors.map((s) => s.fingerprint),
+  );
+  assert.equal(links.state.records.length, 2);
+  assert.equal(f.signal()!.aborted, true);
+  const audits = await scoped(f.knowledge, c, (tx) => tx.audits());
+  const recorded = audits.findLast(
+    (a) => a.type === "knowledge.evidence-links.recorded",
+  )!;
+  assert.equal(
+    (recorded.payload as { evidenceRevision: number }).evidenceRevision,
+    capture.revision,
+  );
+  assert.ok(!JSON.stringify(audits).includes(f.req.token));
+  let credentials = 0;
+  const empty = new f.Writer(f.facade, f.service, async () => {
+    credentials++;
+    throw Error("must not request");
+  });
+  await empty.record(
+    c,
+    2,
+    { ...f.command, expectedRevision: 2, links: [] },
+    "empty-capture",
+  );
+  assert.equal(credentials, 0);
+  assert.equal(
+    (await f.facade.loadEvidenceLinks(c)).state.records.at(-1)!.links.length,
+    0,
+  );
+});
+test("source-backed writes deny quarantined source and fresh Knowledge revocation after actual source capture", async (t) => {
+  const f = await sourceWriterFixture(t);
+  const capture = f.service.captureSelectorLinks.bind(f.service);
+  const port = {
+    captureSelectorLinks: async (...args: Parameters<typeof capture>) => {
+      const r = await capture(...args);
+      await f.membership.setResourcePolicy(
+        c,
+        1,
+        { ...f.policy, actions: [] },
+        "revoke-after-capture",
+      );
+      return r;
+    },
+  } as EvidenceService;
+  await assert.rejects(
+    new f.Writer(f.facade, port, f.credential).record(
+      c,
+      1,
+      f.command,
+      "denied",
+    ),
+    { code: "identity_unavailable" },
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  await f.membership.setResourcePolicy(c, 2, f.policy, "allow-again");
+  const observed = await f.service.inspect(f.req, f.source.ref);
+  await f.service.quarantine(
+    f.req,
+    f.source.ref,
+    observed.revision,
+    "fixture-quarantine",
+  );
+  await assert.rejects(
+    new f.Writer(f.facade, f.service, f.credential).record(
+      c,
+      1,
+      f.command,
+      "quarantined",
+    ),
+    { code: "source_unavailable" },
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+});
+test("source-backed writes validate fresh stored claim and both storage and logical CAS without accepting malformed captures", async (t) => {
+  const f = await sourceWriterFixture(t),
+    capture = f.service.captureSelectorLinks.bind(f.service);
+  const port = {
+    captureSelectorLinks: async (...args: Parameters<typeof capture>) => ({
+      ...(await capture(...args)),
+      projectId: "foreign",
+    }),
+  } as EvidenceService;
+  await assert.rejects(
+    new f.Writer(f.facade, port, f.credential).record(
+      c,
+      1,
+      f.command,
+      "foreign",
+    ),
+  );
+  await assert.rejects(
+    new f.Writer(f.facade, f.service, f.credential).record(
+      c,
+      0,
+      f.command,
+      "wrong-storage",
+    ),
+    { code: "revision_conflict" },
+  );
+  await assert.rejects(
+    new f.Writer(f.facade, f.service, f.credential).record(
+      c,
+      1,
+      { ...f.command, expectedRevision: 0 },
+      "wrong-logical",
+    ),
+    { code: "revision_conflict" },
+  );
+  const stale = {
+    captureSelectorLinks: async (...args: Parameters<typeof capture>) => {
+      const r = await capture(...args);
+      await f.facade.append(
+        c,
+        1,
+        { ...f.claim, expectedRevision: 1 },
+        "new-claim",
+      );
+      return r;
+    },
+  } as EvidenceService;
+  await assert.rejects(
+    new f.Writer(f.facade, stale, f.credential).record(
+      c,
+      1,
+      f.command,
+      "stale",
+    ),
+    { code: "stale_claim" },
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+});
+test("lost source-backed Knowledge COMMIT replays only original acknowledgement and new commands retain atomic history", async (t) => {
+  const f = await sourceWriterFixture(t);
+  let lose = true;
+  const db: Database = {
+    close: async () => {},
+    transaction: async (fn) => {
+      let wrote = false;
+      const result = await f.knowledge.transaction((tx) =>
+        fn({
+          query: async <T>(sql: string, values?: unknown[]) => {
+            const r = await tx.query<T>(sql, values);
+            if (sql.startsWith("INSERT INTO public.evidence_outbox"))
+              wrote = true;
+            return r;
+          },
+        }),
+      );
+      if (lose && wrote) {
+        lose = false;
+        throw Error("lost real Knowledge COMMIT");
+      }
+      return result;
+    },
+  };
+  const repo = new KnowledgeRepository(db, { ...f.fixed, humanIds: ["owner"] });
+  const facade = new IdentityKnowledgeRepository(repo, f.membership, f.fixed);
+  await assert.rejects(
+    new f.Writer(facade, f.service, f.credential).record(
+      c,
+      1,
+      f.command,
+      "lost-captured",
+    ),
+    /lost real Knowledge COMMIT/,
+  );
+  const writer = new f.Writer(f.facade, f.service, f.credential),
+    ack = await writer.record(c, 1, f.command, "lost-captured");
+  assert.equal(ack.storage.revision, 2);
+  await writer.record(
+    c,
+    2,
+    { ...f.command, expectedRevision: 2, links: [] },
+    "subsequent-empty",
+  );
+  assert.deepEqual(await writer.record(c, 1, f.command, "lost-captured"), ack);
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 3);
+  await f.membership.setResourcePolicy(
+    c,
+    1,
+    { ...f.policy, actions: [] },
+    "revoke-replay",
+  );
+  await assert.rejects(writer.record(c, 1, f.command, "lost-captured"), {
+    code: "identity_unavailable",
+  });
+});
+test("source-backed write rollback and post-lock deadline deny commits but preserve acknowledged results after cancellation", async (t) => {
+  const f = await sourceWriterFixture(t);
+  let fail = true;
+  const db: Database = {
+    close: async () => {},
+    transaction: (fn) =>
+      f.knowledge.transaction((tx) =>
+        fn({
+          query: async <T>(sql: string, values?: unknown[]) => {
+            if (fail && sql.startsWith("INSERT INTO public.evidence_outbox")) {
+              fail = false;
+              throw Error("rollback capture outbox");
+            }
+            return tx.query<T>(sql, values);
+          },
+        }),
+      ),
+  };
+  const repo = new KnowledgeRepository(db, { ...f.fixed, humanIds: ["owner"] }),
+    facade = new IdentityKnowledgeRepository(repo, f.membership, f.fixed);
+  await assert.rejects(
+    new f.Writer(facade, f.service, f.credential).record(
+      c,
+      1,
+      f.command,
+      "rollback",
+    ),
+    /rollback capture outbox/,
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  let slow = false;
+  const delayed: Database = {
+    close: async () => {},
+    transaction: (fn) =>
+      f.knowledge.transaction((tx) =>
+        fn({
+          query: async <T>(sql: string, values?: unknown[]) => {
+            const r = await tx.query<T>(sql, values);
+            if (
+              slow &&
+              sql.includes("FROM public.evidence_project") &&
+              sql.includes("FOR UPDATE")
+            ) {
+              slow = false;
+              const end = performance.now() + 650;
+              while (performance.now() < end) {}
+            }
+            return r;
+          },
+        }),
+      ),
+  };
+  const delayedRepo = new KnowledgeRepository(delayed, {
+      ...f.fixed,
+      humanIds: ["owner"],
+    }),
+    delayedFacade = new IdentityKnowledgeRepository(
+      delayedRepo,
+      f.membership,
+      f.fixed,
+    );
+  const capture = f.service.captureSelectorLinks.bind(f.service);
+  const slowPort = {
+    captureSelectorLinks: async (...args: Parameters<typeof capture>) => {
+      const r = await capture(...args);
+      slow = true;
+      return r;
+    },
+  } as EvidenceService;
+  await assert.rejects(
+    new f.Writer(delayedFacade, slowPort, f.credential, 500).record(
+      c,
+      1,
+      f.command,
+      "post-lock-expired",
+    ),
+    { code: "source_unavailable" },
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  const control = new AbortController();
+  const acknowledged: Database = {
+    close: async () => {},
+    transaction: async (fn) => {
+      let wrote = false;
+      const r = await f.knowledge.transaction((tx) =>
+        fn({
+          query: async <T>(sql: string, values?: unknown[]) => {
+            const r = await tx.query<T>(sql, values);
+            if (sql.startsWith("INSERT INTO public.evidence_outbox"))
+              wrote = true;
+            return r;
+          },
+        }),
+      );
+      if (wrote) control.abort();
+      return r;
+    },
+  };
+  const ackRepo = new KnowledgeRepository(acknowledged, {
+      ...f.fixed,
+      humanIds: ["owner"],
+    }),
+    ackFacade = new IdentityKnowledgeRepository(ackRepo, f.membership, f.fixed);
+  const ack = await new f.Writer(ackFacade, f.service, f.credential).record(
+    c,
+    1,
+    f.command,
+    "ack-cancel",
+    control.signal,
+  );
+  assert.equal(ack.record.revision, 2);
+  assert.equal(control.signal.aborted, true);
+});
+test("source-backed writer bounds credential cancellation and source admission without forwarding roles or foreign selectors", async (t) => {
+  const f = await sourceWriterFixture(t);
+  let calls = 0,
+    signal: AbortSignal | undefined;
+  const foreign = structuredClone(f.command);
+  Object.assign(foreign.links[0]!.selector.evidence, { projectId: "foreign" });
+  const credentials = async (context: Context, s: AbortSignal) => {
+    assert.deepEqual(context.actor.roles, []);
+    calls++;
+    signal = s;
+    return f.req.token;
+  };
+  await assert.rejects(
+    new f.Writer(f.facade, f.service, credentials).record(
+      c,
+      1,
+      foreign,
+      "foreign",
+    ),
+  );
+  assert.equal(calls, 0);
+  const bounded = new f.Writer(
+    f.facade,
+    f.service,
+    async (_c, s) => {
+      signal = s;
+      return new Promise<string>(() => {});
+    },
+    100,
+  );
+  await assert.rejects(bounded.record(c, 1, f.command, "hung"), {
+    code: "source_unavailable",
+  });
+  assert.equal(signal!.aborted, true);
+  const capture = f.service.captureSelectorLinks.bind(f.service);
+  const late = {
+    captureSelectorLinks: async (...args: Parameters<typeof capture>) => {
+      const r = await capture(...args);
+      const end = performance.now() + 150;
+      while (performance.now() < end) {}
+      return r;
+    },
+  } as EvidenceService;
+  await assert.rejects(
+    new f.Writer(f.facade, late, credentials, 100).record(
+      c,
+      1,
+      f.command,
+      "late",
+    ),
+    { code: "source_unavailable" },
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  assert.equal(signal!.aborted, true);
+});

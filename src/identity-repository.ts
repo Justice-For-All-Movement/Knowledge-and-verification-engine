@@ -15,6 +15,7 @@ export class IdentityKnowledgeRepository {
   readonly #links: KnowledgeRepository["loadEvidenceLinks"];
   readonly #prepareReview: KnowledgeRepository["prepareEvidenceReview"];
   readonly #reviewLinks: KnowledgeRepository["reviewEvidenceLinks"];
+  readonly #recordCapture: KnowledgeRepository["recordCapturedEvidenceLinks"];
   readonly #recordLinks: KnowledgeRepository["recordEvidenceLinks"];
   readonly #pairs: KnowledgeRepository["loadEntityIdentities"];
   readonly #recordPair: KnowledgeRepository["recordEntityIdentity"];
@@ -32,6 +33,8 @@ export class IdentityKnowledgeRepository {
     this.#links = repository.loadEvidenceLinks.bind(repository);
     this.#prepareReview = repository.prepareEvidenceReview.bind(repository);
     this.#reviewLinks = repository.reviewEvidenceLinks.bind(repository);
+    this.#recordCapture =
+      repository.recordCapturedEvidenceLinks.bind(repository);
     this.#recordLinks = repository.recordEvidenceLinks.bind(repository);
     this.#pairs = repository.loadEntityIdentities.bind(repository);
     this.#recordPair = repository.recordEntityIdentity.bind(repository);
@@ -134,7 +137,11 @@ export class IdentityKnowledgeRepository {
   async loadEvidenceLinks(context: Context, signal?: AbortSignal) {
     return this.#links(await this.#context(context, signal));
   }
-  async prepareEvidenceReview(context: Context, selected: Ref, signal?: AbortSignal) {
+  async prepareEvidenceReview(
+    context: Context,
+    selected: Ref,
+    signal?: AbortSignal,
+  ) {
     const choice = structuredClone(selected);
     return this.#prepareReview(await this.#context(context, signal), choice);
   }
@@ -168,6 +175,28 @@ export class IdentityKnowledgeRepository {
       source,
       q,
       commandId,
+    );
+  }
+  async recordCapturedEvidenceLinks(
+    context: Context,
+    expectedStorageRevision: number,
+    capture:
+      | import("@accountability/evidence/service").SelectorLinkCapture
+      | null,
+    command: EvidenceLinksCommand,
+    commandId: string,
+    signal?: AbortSignal,
+    admit?: () => void,
+  ) {
+    const source = structuredClone(capture),
+      q = structuredClone(command);
+    return this.#recordCapture(
+      await this.#context(context, signal),
+      expectedStorageRevision,
+      source,
+      q,
+      commandId,
+      admit,
     );
   }
 }
