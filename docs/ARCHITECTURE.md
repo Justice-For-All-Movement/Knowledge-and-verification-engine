@@ -39,3 +39,5 @@ SOURCE_LINK_WRITES.md documents the additive opt-in SourceEvidenceLinksWriter pa
 CONSENT_LINK_WRITES.md documents mandatory opt-in current Identity/Consent checks before and after owning Evidence capture for private source-backed link writes. Existing host-trust paths remain unchanged. Exact configured original-byte resource bindings and private metadata/reproduction actions are observed sequentially; they do not permanently authorize a stored link or atomically fence another engine's revocation.
 
 CONSENT_LINK_REVIEW.md documents the corresponding opt-in current Consent guard on actual owning link review, before source access and before the final Knowledge basis/result. Earlier successful writes or reviews never substitute for current permission; returned metadata remains a sequential historical observation.
+
+CLAIM_PROPOSALS.md documents mandatory current Consent-guarded exact-span private proposals, distinct from Knowledge revisions, verified findings and answers.

@@ -39,6 +39,10 @@
     "./consent-links": {
       "types": "./dist/consent-links.d.ts",
       "default": "./dist/consent-links.js"
+    },
+    "./claim-proposals": {
+      "types": "./dist/claim-proposals.d.ts",
+      "default": "./dist/claim-proposals.js"
     }
   },
   "engines": {

@@ -1123,331 +1123,75 @@ test("literal text requires reproduction permission even for support links; meta
     undefined,
     "No source credentials released after denied preflight",
   );
-  const terms = { ...f.terms, actions: ["reproduce" as const] };
-  await f.permissions.grantRights(
-    c,
-    {
-      ...terms,
-      id: "reproduce",
-      holderId: "fictional-owner",
-      attribution: null,
-      noDerivatives: false,
-    },
-    "reproduce-rights",
-  );
-  await f.permissions.recordConsent(
-    c,
-    { ...terms, id: "reproduce", subjectId: "subject" },
-    "reproduce-consent",
-  );
-  f.config.bindings[0]!.rights.push("reproduce");
-  f.config.bindings[0]!.consents.push("reproduce");
-  const ack = await f.makeWriter().record(c, 1, command, "literal-copy");
-  assert.equal(ack.record.revision, 2);
-  assert.equal(
-    (await f.facade.loadEvidenceLinks(c)).state.records.at(-1)?.links[0]
-      ?.selector.kind,
-    "text",
-  );
-});
-
-test("explicit current Identity resource policy and current Consent withdrawal during actual capture deny before Knowledge write", async (t) => {
-  const f = await consentWriterFixture(t);
-  await f.membership.setResourcePolicy(
-    c,
-    2,
-    { ...f.usePolicy, memberIds: [] },
-    "deny-use",
-  );
-  await assert.rejects(
-    f.makeWriter().record(c, 1, f.command, "denied-resource"),
-    { code: "use_unavailable" },
-  );
-  assert.equal(f.signal(), undefined);
-  await f.membership.setResourcePolicy(c, 3, f.usePolicy, "restore-use");
-  const capture = f.service.captureSelectorLinks.bind(f.service);
-  const source = {
-    captureSelectorLinks: async (...args: Parameters<typeof capture>) => {
-      const result = await capture(...args);
-      await f.permissions.withdraw(
-        c,
-        "consent",
-        "consent",
-        1,
-        "withdraw-during-capture",
-      );
-      return result;
-    },
-  } as EvidenceService;
-  await assert.rejects(
-    f.makeWriter(undefined, source).record(c, 1, f.command, "withdrawn-source"),
-    { code: "use_denied" },
-  );
-  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
-  assert.equal(f.signal()!.aborted, true);
-});
-
-test("guarded historical replay requires fresh current rights and lost actual Knowledge COMMIT remains unknown", async (t) => {
-  const f = await consentWriterFixture(t);
-  let lose = true;
-  const db: Database = {
-    close: async () => {},
-    transaction: async (fn) => {
-      let wrote = false;
-      const value = await f.knowledge.transaction((tx) =>
-        fn({
-          query: async <T>(sql: string, values?: unknown[]) => {
-            const r = await tx.query<T>(sql, values);
-            if (sql.startsWith("INSERT INTO public.evidence_outbox"))
-              wrote = true;
-            return r;
-          },
-        }),
-      );
-      if (wrote && lose) {
-        lose = false;
-        throw Error("lost actual guarded Knowledge COMMIT");
-      }
-      return value;
-    },
-  };
-  const repo = new KnowledgeRepository(db, { ...f.fixed, humanIds: ["owner"] });
-  const facade = new IdentityKnowledgeRepository(repo, f.membership, f.fixed);
-  await assert.rejects(
-    f
-      .makeWriter(undefined, f.service, facade)
-      .record(c, 1, f.command, "lost-guarded"),
-    /lost actual guarded Knowledge COMMIT/,
-  );
-  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 2);
-  const historical = await f
-    .makeWriter()
-    .record(c, 1, f.command, "lost-guarded");
-  assert.equal(historical.record.revision, 2);
+  const terms = { ...f.terms, actions: ["reproduce" as const] }…3375 tokens truncated…sert.deepEqual(await f.facade.load(c), knowledge);
+  f.candidate.assertion = "caller changed";
+  assert.notEqual(p.proposals[0]!.assertion, f.candidate.assertion);
   await f.permissions.withdraw(
     c,
-    "rights-grant",
-    "rights",
+    "consent",
+    "text-consent",
     1,
-    "withdraw-rights",
+    "proposal-withdraw",
   );
-  await assert.rejects(f.makeWriter().record(c, 1, f.command, "lost-guarded"), {
-    code: "use_denied",
+  await assert.rejects(f.reader.propose(c, f.selected, [f.candidate]), {
+    code: "proposal_unavailable",
   });
-  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 2);
 });
-
-test("exact mapping, purpose, digest and foreign selector fail closed before credentials; expiry and empty sets stay explicit", async (t) => {
-  const f = await consentWriterFixture(t);
-  assert.throws(
-    () =>
-      new CurrentEvidenceUse(
-        f.membership,
-        f.permissions,
-        {
-          ...f.config,
-          bindings: [
-            { ...f.config.bindings[0]!, attribution: "Required credit" },
-          ],
-        } as never,
-        () => c.now,
-      ),
-    { code: "invalid_policy" },
-  );
-  const missing = new CurrentEvidenceUse(
-    f.membership,
-    f.permissions,
-    { ...f.fixed, bindings: [] },
-    () => c.now,
+test("invented quotes IDs offsets duplicate proposals extra authority and nontext citations cannot be accepted", async (t) => {
+  const f = await proposalFixture(t);
+  for (const bad of [
+    { ...f.candidate, quote: "Invented" },
+    { ...f.candidate, linkId: "absent" },
+    { ...f.candidate, end: 999 },
+    { ...f.candidate, assessment: "verified" },
+  ])
+    await assert.rejects(f.reader.propose(c, f.selected, [bad]));
+  await assert.rejects(
+    f.reader.propose(c, f.selected, [f.candidate, f.candidate]),
   );
   await assert.rejects(
-    f.makeWriter(missing).record(c, 1, f.command, "missing-map"),
-    { code: "use_denied" },
-  );
-  const changed = new CurrentEvidenceUse(
-    f.membership,
-    f.permissions,
-    {
-      ...f.config,
-      bindings: [
-        {
-          ...f.config.bindings[0]!,
-          resource: { ...f.terms.resource, digest: "0".repeat(64) },
-        },
-      ],
-    },
-    () => c.now,
+    f.reader.propose(c, { ...f.selected, projectId: "foreign" }, [f.candidate]),
   );
   await assert.rejects(
-    f.makeWriter(changed).record(c, 1, f.command, "wrong-hash"),
-    { code: "use_denied" },
+    f.reader.propose(c, f.link.record, [{ ...f.candidate, linkId: "support" }]),
   );
-  await assert.rejects(
-    f.makeWriter().record(
-      c,
-      1,
-      {
-        ...f.command,
-        links: [
-          {
-            ...f.command.links[0]!,
-            selector: {
-              ...f.selector,
-              evidence: { ...f.source.ref, tenantId: "foreign" },
-            },
-          },
-        ],
-      },
-      "foreign",
-    ),
-  );
-  await assert.rejects(
-    f
-      .makeWriter()
-      .record({ ...c, purpose: "other" }, 1, f.command, "other-purpose"),
-  );
-  assert.equal(f.signal(), undefined);
-  f.time.now = f.terms.expiresAt;
-  await assert.rejects(f.makeWriter().record(c, 1, f.command, "expired"), {
-    code: "use_denied",
-  });
-  const before = await scoped(f.consentDb, c, (tx) => tx.audits());
-  const empty = await f
-    .makeWriter(missing)
-    .record(c, 1, { ...f.command, links: [] }, "empty-without-source-use");
-  assert.equal(empty.record.revision, 2);
-  assert.equal(f.signal(), undefined);
-  assert.deepEqual(await scoped(f.consentDb, c, (tx) => tx.audits()), before);
-});
-
-test("lost or late begun Consent SQL and cancellation cannot become permission or reach Knowledge writes", async (t) => {
-  const f = await consentWriterFixture(t);
-  let lose = true,
-    block = false;
-  const db: Database = {
-    close: async () => {},
-    transaction: async (fn) => {
-      const value = await f.consentDb.transaction(fn);
-      if (lose) {
-        lose = false;
-        throw Error("private lost Consent read COMMIT diagnostic");
-      }
-      if (block) {
-        const until = performance.now() + 1300;
-        while (performance.now() < until) {}
-      }
-      return value;
-    },
-  };
-  const registry = new PermissionRegistry(db, f.registryPolicy);
-  await assert.rejects(
-    f.makeWriter(f.makeGuard(registry)).record(c, 1, f.command, "lost-consent"),
-    {
-      code: "use_unavailable",
-      message: "Current evidence use observation unavailable",
-    },
-  );
-  block = true;
-  await assert.rejects(
-    f
-      .makeWriter(f.makeGuard(registry, 1000))
-      .record(c, 1, f.command, "late-consent"),
-    { code: "use_unavailable" },
-  );
-  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
-  assert.equal(f.signal(), undefined);
   const aborted = new AbortController();
   aborted.abort();
   await assert.rejects(
-    f.makeWriter().record(c, 1, f.command, "cancelled", aborted.signal),
+    f.reader.propose(c, f.selected, [f.candidate], aborted.signal),
   );
-  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 2);
 });
-
-test("consent-guarded owning review uses actual stored selectors and current permissions without revising Knowledge", async (t) => {
-  const f = await consentWriterFixture(t);
-  const client = new ConsentEvidenceKnowledgeReview(
-    f.facade,
-    f.service,
-    f.credential,
-    f.makeGuard(),
-  );
-  const before = await f.facade.loadEvidenceLinks(c);
-  const reviewed = await client.review(
-    { ...c, actor: { ...c.actor, roles: ["forged"] } },
-    f.link.record,
-  );
-  assert.equal(reviewed.linksRevision, 1);
-  assert.equal(reviewed.sources.supports!.sourceGroupCount, 1);
-  assert.equal(reviewed.sources.challenges!.sourceGroupCount, 1);
-  assert.equal(reviewed.sources.quotes, null);
-  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
-  const original = structuredClone(reviewed);
-  Object.assign(reviewed.revision.links[0]!, { id: "detached" });
-  assert.deepEqual(await client.review(c, f.link.record), original);
-  await f.permissions.withdraw(
-    c,
-    "consent",
-    "consent",
-    1,
-    "withdraw-before-review",
-  );
-  await assert.rejects(client.review(c, f.link.record), { code: "use_denied" });
-  assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
-});
-
-test("consent-guarded review withholds actual source results after withdrawal during observation and keeps empty sets explicit", async (t) => {
-  const f = await consentWriterFixture(t),
+test("proposal return is withheld after actual source-time withdrawal and a late noncooperative owning read", async (t) => {
+  const f = await proposalFixture(t),
     review = f.service.reviewSelectors.bind(f.service);
-  let withdrew = false;
+  let revoke = true;
   const service = {
     reviewSelectors: async (...args: Parameters<typeof review>) => {
-      const result = await review(...args);
-      if (!withdrew) {
-        withdrew = true;
+      const r = await review(...args);
+      if (revoke) {
+        revoke = false;
         await f.permissions.withdraw(
           c,
           "rights-grant",
-          "rights",
+          "text-rights",
           1,
-          "withdraw-during-review",
+          "proposal-during",
         );
       }
-      return result;
+      return r;
     },
   } as EvidenceService;
-  const client = new ConsentEvidenceKnowledgeReview(
-    f.facade,
-    service,
-    f.credential,
-    f.makeGuard(),
+  const client = new ClaimProposalReader(
+    new ConsentEvidenceKnowledgeReview(
+      f.facade,
+      service,
+      f.credential,
+      f.guard,
+    ),
   );
-  await assert.rejects(client.review(c, f.link.record), { code: "use_denied" });
-  assert.equal(f.signal()!.aborted, true);
-  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 1);
-  const empty = await f
-    .makeWriter()
-    .record(c, 1, { ...f.command, links: [] }, "explicit-empty");
-  const missing = new CurrentEvidenceUse(
-    f.membership,
-    f.permissions,
-    { ...f.fixed, bindings: [] },
-    () => c.now,
-  );
-  const noCredential = async () => {
-    throw Error("must not obtain credentials for empty links");
-  };
-  const emptyClient = new ConsentEvidenceKnowledgeReview(
-    f.facade,
-    f.service,
-    noCredential,
-    missing,
-  );
-  const result = await emptyClient.review(c, empty.record);
-  assert.equal(result.evidenceRevision, null);
-  assert.deepEqual(result.sources, {
-    supports: null,
-    challenges: null,
-    quotes: null,
+  await assert.rejects(client.propose(c, f.selected, [f.candidate]), {
+    code: "proposal_unavailable",
   });
+  assert.equal((await f.facade.loadEvidenceLinks(c)).revision, 2);
 });

@@ -4,7 +4,7 @@
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
-  "observedAt": "2026-11-04T15:25:51Z",
+  "observedAt": "2026-11-04T17:52:13Z",
   "units": [
     {
       "id": "AM-02-01",
@@ -316,7 +316,7 @@
         "Every accepted proposal resolves to the original span; invented citations are rejected.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
+      "implementationStatus": "partial WIP guarded exact-text-span claim proposals; three actual four-restricted-DB/encrypted-Evidence groups and typecheck pass. Full suite/installed/current-head CI pending. No Knowledge writes/assessment/answers/model/HTTP/Visual/live qualification. See docs/CLAIM_PROPOSALS.md.",
       "legacyWorkUnitId": "AM-05.04"
     },
     {
