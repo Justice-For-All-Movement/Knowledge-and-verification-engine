@@ -1792,3 +1792,16 @@ test("human-bound guarded construction requires the owning guard and method; emp
   assert.equal(credentials, 0);
   assert.deepEqual((await f.repo.loadEvidenceLinks(c)).state.records.at(-1)!.links, []);
 });
+test("human-bound guarded replay rechecks the credential before returning a legacy historical acknowledgement without another effect", async t => {
+  const f = await consentWriterFixture(t);
+  const original = await f.makeWriter().record(c, 1, f.command, "shared-profile-command");
+  const writer = new HumanConsentEvidenceLinksWriter(f.facade, f.service, f.credential, f.makeGuard());
+  Object.assign(f.identities[0]!.actor, {kind:"service"});
+  await assert.rejects(writer.record(c, 1, f.command, "shared-profile-command"), {code:"source_unavailable"});
+  Object.assign(f.identities[0]!.actor, {kind:"human"});
+  const replay = await writer.record(c, 1, f.command, "shared-profile-command");
+  assert.deepEqual(replay, original);
+  const rows = await f.facade.loadEvidenceLinks(c);
+  assert.equal(rows.revision, 2);
+  assert.equal(rows.state.records.length, 2);
+});

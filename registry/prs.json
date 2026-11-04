@@ -231,7 +231,8 @@
         12,
         13,
         14,
-        15
+        15,
+        19
       ],
       "dependsOn": [
         "AM-05-01"
@@ -272,8 +273,10 @@
       },
       "humanSourceWrites": {
         "docs": "docs/HUMAN_SOURCE_LINK_WRITES.md",
-        "status": "incomplete implementation checkpoint; qualification pending",
-        "newGroups": 4
+        "status": "four-group suite plus separate replay group passed locally; full/installed/current-head CI pending",
+        "newGroups": 5,
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/19",
+        "verification": "docs/human-source-writes-verification.json"
       }
     },
     {

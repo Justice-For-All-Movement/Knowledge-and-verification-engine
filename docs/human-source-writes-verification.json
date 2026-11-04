@@ -1,0 +1,44 @@
+{
+  "status": "incomplete PR19 qualification checkpoint",
+  "local": {
+    "fourGroupInvocation": {
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    },
+    "additionalReplayInvocation": {
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "normalNpmCi": "passed",
+    "full113Suite": "not claimed"
+  },
+  "installed": "running; no completed result claimed",
+  "ci": "actual current-head checks required before merge",
+  "review": [
+    "Explicit same-human capture method captured at construction; no legacy fallback",
+    "Current Identity/Consent before and after source capture; current credential required before historical cache response",
+    "Historical legacy-created record is not retroactively certified as human-bound",
+    "Separate stable SQL SDK/own databases/Identity/Consent pins/shared contracts and original task dependencies unchanged"
+  ],
+  "remaining": [
+    "Installed public-export and declaration checks",
+    "Actual full current-head CI and branch rules",
+    "Reader binding, protected HTTP/UI, host proofing/mapping/delegation/source-bytes/scanner/TCP/browser/live qualification"
+  ],
+  "sourceSha256": {
+    "src/source-links.ts": "5c13763e52983d30d81d1b78bd4c23767ecb9b054deefd37555d343b53e8b59f",
+    "src/consent-links.ts": "57c2608c4f8a0f75f2900fabe99c120d0a585f3ec4b91f53c765eb4efd8a55e5",
+    "tests/current-evidence.test.ts": "c23f414bb409d26b269937903fee87db7da9aad43a45f79fed65480c278069b9",
+    "package.json": "1f9319ce7ba2e6acba9c726e08f8135eb2a16ceb62e616f4dac39d8972e09c31",
+    "package-lock.json": "762e5dcff96c3bae9c1b93c8ac3d00a95769b3c95d27cc1e041adc977f278829",
+    "scripts/validate-pr-registry.mjs": "20cceb1bca8fd719a939935d6e4044e151196e105730cbf7536ba7c0128de4ad",
+    "docs/HUMAN_SOURCE_LINK_WRITES.md": "535879a89362fabe6929c9d2a646a05f1a3bcba93c6868a83e6b1ba08b22b0ca",
+    "docs/ARCHITECTURE.md": "9ce151107eb6ddabe3785fda6cffdcfe7d5c680005386708e452c620f9ddb10a",
+    "registry/prs.json": "8ec75a270a650bee4618d995a3ac81719dfbddb6b94026f5fed7c42e3536dcf5"
+  }
+}
