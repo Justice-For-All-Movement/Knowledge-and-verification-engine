@@ -1452,6 +1452,7 @@ test("consent-guarded review withholds actual source results after withdrawal du
   });
 });
 
+import { inspectClaimProposals } from "../src/claim-proposal-review.ts";
 import { ClaimProposalReader } from "../src/claim-proposals.ts";
 async function proposalFixture(t: test.TestContext) {
   const f = await consentWriterFixture(t);
@@ -1563,6 +1564,7 @@ test("claim proposals bind exact authenticated text spans and retain independent
   assert.equal(p.proposals[0]!.assessment, null);
   assert.equal(p.proposals[0]!.editorialApproval, null);
   assert.equal(p.visibility, "private");
+  assert.deepEqual(inspectClaimProposals(c,p),p);
   assert.equal(p.basis.linkRef.revision, 2);
   assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
   assert.deepEqual(await f.facade.load(c), knowledge);

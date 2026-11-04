@@ -41,3 +41,5 @@ CONSENT_LINK_WRITES.md documents mandatory opt-in current Identity/Consent check
 CONSENT_LINK_REVIEW.md documents the corresponding opt-in current Consent guard on actual owning link review, before source access and before the final Knowledge basis/result. Earlier successful writes or reviews never substitute for current permission; returned metadata remains a sequential historical observation.
 
 CLAIM_PROPOSALS.md documents mandatory current Consent-guarded exact-span private proposals, distinct from Knowledge revisions, verified findings and answers.
+
+CLAIM_PROPOSAL_REVIEW.md describes owning captured proposal-bundle validation, distinct from current guarded service observations and authentication.

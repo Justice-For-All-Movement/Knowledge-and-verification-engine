@@ -181,7 +181,8 @@ export class ClaimProposalReader {
         proposals,
       };
       invariant(
-        Buffer.byteLength(canonical(result)) <= 256 * 1024,
+        Buffer.byteLength(canonical({ ...result, digest: digest(result) })) <=
+          256 * 1024,
         "proposal_full",
         "Proposal response exceeds budget",
       );
