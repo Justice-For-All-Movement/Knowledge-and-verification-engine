@@ -14,7 +14,8 @@ import {
   KNOWLEDGE_KEY,
 } from "../src/repository.ts";
 import type { KnowledgeAppend } from "../src/repository.ts";
-import type { Context } from "../src/contracts.ts";
+import type { VerificationChecks } from "../src/verification-review.ts";
+import type { Context, Ref } from "../src/contracts.ts";
 // Intentionally refuses arbitrary or persistent database targets. CI owns this empty fixture only.
 const supplied = process.env.KVE_TEST_ADMIN_URL;
 assert.ok(
@@ -421,7 +422,25 @@ test(
   },
 );
 
-for (const mode of ["pairs", "links"] as const)
+function verificationInput(linkRef: Ref) {
+  const check = {
+    status: "unresolved" as const,
+    note: "No independent source/rights check is asserted by this fixture.",
+  };
+  const checks: VerificationChecks = {
+    authenticity: check,
+    sourceKnowledge: check,
+    independentSupport: check,
+    counterevidence: check,
+  };
+  return {
+    linkRef,
+    expectedRevision: 0,
+    checks,
+    rationale: "Fictional unresolved review observation",
+  };
+}
+for (const mode of ["pairs", "links", "verification"] as const)
   test(
     `${mode} history contenders and lost winning COMMIT acknowledgement preserve one edition`,
     { timeout: 20000 },
@@ -455,10 +474,26 @@ for (const mode of ["pairs", "links"] as const)
           rationale: "Fictional unresolved judgment",
         },
         links = { claim: left, expectedRevision: 0, links: [] };
+      const verification =
+        mode === "verification"
+          ? verificationInput(
+              (
+                await f.sa.recordEvidenceLinks(
+                  f.context,
+                  0,
+                  evidence,
+                  links,
+                  "citation-basis",
+                )
+              ).record,
+            )
+          : null;
       const write = (repo: KnowledgeRepository, id: string) =>
         mode === "pairs"
           ? repo.recordEntityIdentity(f.context, 0, pair, id)
-          : repo.recordEvidenceLinks(f.context, 0, evidence, links, id);
+          : mode === "links"
+            ? repo.recordEvidenceLinks(f.context, 0, evidence, links, id)
+            : repo.recordVerificationReview(f.context, 0, verification!, id);
       const locked = gate(),
         release = gate(),
         holding = held(f.a, locked, release);
@@ -504,7 +539,9 @@ for (const mode of ["pairs", "links"] as const)
         const snapshot =
           mode === "pairs"
             ? await repo.loadEntityIdentities(f.context)
-            : await repo.loadEvidenceLinks(f.context);
+            : mode === "links"
+              ? await repo.loadEvidenceLinks(f.context)
+              : await repo.loadVerificationReviews(f.context);
         assert.equal(snapshot.revision, 1);
         assert.equal(snapshot.state.records.length, 1);
         assert.equal(snapshot.knowledgeRevision, mode === "pairs" ? 2 : 1);
@@ -517,7 +554,9 @@ for (const mode of ["pairs", "links"] as const)
                 a.type ===
                 (mode === "pairs"
                   ? "knowledge.entity-identity.recorded"
-                  : "knowledge.evidence-links.recorded"),
+                  : mode === "links"
+                    ? "knowledge.evidence-links.recorded"
+                    : "knowledge.verification-review.recorded"),
             ).length,
             1,
           );
@@ -534,7 +573,9 @@ for (const mode of ["pairs", "links"] as const)
                 s ===
                 (mode === "pairs"
                   ? "knowledge.entity-identity.revised"
-                  : "knowledge.evidence-links.revised"),
+                  : mode === "links"
+                    ? "knowledge.evidence-links.revised"
+                    : "knowledge.verification-review.revised"),
             ).length,
             1,
           );
@@ -542,6 +583,111 @@ for (const mode of ["pairs", "links"] as const)
       } finally {
         release.resolve();
         await result;
+        await pending?.catch(() => {});
+      }
+    },
+  );
+
+for (const mode of ["claim", "links"] as const)
+  test(
+    `verification append observes committed ${mode} change after required independent lock observation`,
+    { timeout: 20000 },
+    async (t) => {
+      const f = await fixture(t, "knowledge-verification-" + mode),
+        evidence = createEvidenceState(f.context);
+      const original = await f.sa.append(f.context, 0, claim, "claim");
+      const command = {
+        claim: original.record,
+        expectedRevision: 0,
+        links: [],
+      };
+      const links = await f.sa.recordEvidenceLinks(
+          f.context,
+          0,
+          evidence,
+          command,
+          "links",
+        ),
+        input = verificationInput(links.record);
+      await f.sb.recordVerificationReview(
+        f.context,
+        0,
+        input,
+        "baseline-review",
+      );
+      const locked = gate(),
+        release = gate(),
+        writer = new KnowledgeRepository(held(f.a, locked, release), f.policy);
+      const writing =
+        mode === "claim"
+          ? writer.append(
+              f.context,
+              1,
+              { ...claim, expectedRevision: 1 },
+              "changed-claim",
+            )
+          : writer.recordEvidenceLinks(
+              f.context,
+              1,
+              evidence,
+              { ...command, expectedRevision: 1 },
+              "changed-links",
+            );
+      let pending: Promise<unknown> | undefined;
+      try {
+        await Promise.race([locked.promise, writing]);
+        pending = f.sb.recordVerificationReview(
+          f.context,
+          1,
+          { ...input, expectedRevision: 1 },
+          "stale-review",
+        );
+        const result = pending.then(
+          (value) => ({ value }),
+          (error) => ({ error }),
+        );
+        await observedWait(f.id);
+        release.resolve();
+        await writing;
+        const outcome = await result;
+        assert.ok("error" in outcome);
+        const code = mode === "claim" ? "stale_claim" : "stale_links";
+        assert.equal((outcome.error as { code: string }).code, code);
+        await f.b.close();
+        const fresh = f.connect("fresh"),
+          repo = new KnowledgeRepository(fresh, f.policy);
+        await assert.rejects(
+          repo.recordVerificationReview(
+            f.context,
+            1,
+            { ...input, expectedRevision: 1 },
+            "fresh-stale",
+          ),
+          { code },
+        );
+        const reviews = await repo.loadVerificationReviews(f.context);
+        assert.equal(reviews.revision, 1);
+        assert.equal(reviews.latest[0]!.basisStatus, "needs-review");
+        await scoped(fresh, f.context, async (tx) => {
+          const audits = await tx.audits();
+          assert.ok(verifyAudit(audits));
+          assert.equal(
+            audits.filter(
+              (x) => x.type === "knowledge.verification-review.recorded",
+            ).length,
+            1,
+          );
+          assert.equal(
+            audits.filter(
+              (x) => x.type === "knowledge.verification-review.append_checked",
+            ).length,
+            1,
+            "Denied checked appends roll back",
+          );
+        });
+      } finally {
+        release.resolve();
+        await writing;
         await pending?.catch(() => {});
       }
     },

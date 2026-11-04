@@ -1,0 +1,72 @@
+{
+  "status": "PR21 qualification checkpoint; final documentation-head checks and branch rules required",
+  "local": {
+    "focusedGroups": 8,
+    "pass": 8,
+    "fail": 0,
+    "skipped": 0,
+    "normalNpmCi": "passed",
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "fullSuite": {
+      "tests": 127,
+      "pass": 127,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "installed": {
+    "focusedGroups": 8,
+    "pass": 8,
+    "fail": 0,
+    "skipped": 0,
+    "normalInstall": "passed",
+    "declarations": "passed",
+    "bothRuntimeModulesByteMatch": true,
+    "fullSuite": "not claimed"
+  },
+  "ci": {
+    "ordinaryExpandedHead": "in progress at checkpoint; final documentation-head checks required",
+    "newTcpScenarios": "passed in the named run",
+    "merge": "requires actual current-head checks and branch rules"
+  },
+  "review": [
+    "Owning checked lock before actual current histories and cached acknowledgements",
+    "Immutable storage/logical CAS, historical refs, retained contrary IDs and null tracks",
+    "Atomic review/audit/outbox and unknown lost COMMIT acknowledgement",
+    "Current actual Identity on every optional facade method; own DBs and SDK pins unchanged"
+  ],
+  "remaining": [
+    "Installed export qualification/source review/current-head CI and branch rules",
+    "Current source/Consent/authenticated interfaces/full verification workflow/correction impact/browser/AT/live",
+    "Host proofing/mapping/clock/driver/CPU/heap and later-use current permission"
+  ],
+  "sourceSha256": {
+    "src/repository.ts": "5ee5b0b1553952d21b8237bff8d83193525efe52dd0894a78a246c38c6a9a9bd",
+    "src/identity-repository.ts": "837820225cc454ce94eaac65c4248f00adc7de177e14d94199e6fe889b503b06",
+    "tests/verification-repository.test.ts": "1b1c85066399b8fa25194f6e9b8511fd6a76c3501a806962674429db2fba85d5",
+    "docs/VERIFICATION_REPOSITORY.md": "18c92109512059478aafa2939d0db72105be6b09e4f73547d13e303c8d9203f0",
+    "docs/ARCHITECTURE.md": "b35515e8588bb75b0603c05136f86de7b25e721ddcee2be926f0653f2276a217",
+    "registry/prs.json": "2bf2f63cb64d2673b86648de5641458579c9ad00dc4e8f1c517503fdaf393026",
+    "integration/postgres-knowledge.test.ts": "b70737ed7c1d825723c31b7e18853febfba330e2918c14fc4df14a8a2b8c35ce",
+    "docs/POSTGRES_TESTS.md": "8f09fb5b6ed6f6aa3e057c8dff35354e30d3daf810fc57dd38e82dc7a72e210e"
+  },
+  "network": {
+    "newScenarios": 3,
+    "priorScenariosRetained": 7,
+    "strictCompile": "passed",
+    "localExecution": "unavailable; no claim",
+    "ci": {
+      "source": "5832a1c566331a58a94d256e756d06a826559038",
+      "run": 41933074302,
+      "postgres": 126934599383,
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0,
+      "rawLogs": "inspected"
+    },
+    "qualifiedScope": "Verification contender/lost winning COMMIT/fresh pool and observed-wait claim/citation staleness; seven accepted prior scenarios retained"
+  }
+}

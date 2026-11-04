@@ -49,3 +49,5 @@ VERIFICATION_REVIEW.md documents private unresolved human observations tied to e
 HUMAN_SOURCE_LINK_WRITES.md documents explicit same-human credential binding plus mandatory current Identity/Consent for private source-backed writes. Legacy writers/readers retain their own profiles.
 
 HUMAN_SOURCE_LINK_REVIEW.md documents opt-in same-human owning review and its protected proposal-reader composition, retaining mandatory current Identity/Consent and legacy defaults.
+
+VERIFICATION_REPOSITORY.md documents partial own-DB unresolved human observation history and optional actual current Identity methods; earlier pure-only persistence-pending notes are historical. Durability does not attest source checks or current Evidence/Consent permission.

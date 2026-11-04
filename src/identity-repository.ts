@@ -1,3 +1,4 @@
+import type { VerificationReviewInput } from "./verification-review.ts";
 import type { EvidenceState } from "@accountability/evidence";
 import type { EvidenceLinksCommand } from "./evidence-links.ts";
 import type { EntityIdentityInput } from "./entity-identity.ts";
@@ -10,6 +11,8 @@ export const KNOWLEDGE_RESOURCE_ID = digest({
 });
 /** Explicit opt-in; host authenticates human kind/id. Current stored roles replace incoming roles. */
 export class IdentityKnowledgeRepository {
+  readonly #verification: KnowledgeRepository["loadVerificationReviews"];
+  readonly #recordVerification: KnowledgeRepository["recordVerificationReview"];
   readonly #resolve: MembershipRegistry["resolveResource"];
   readonly #load: KnowledgeRepository["load"];
   readonly #links: KnowledgeRepository["loadEvidenceLinks"];
@@ -28,6 +31,9 @@ export class IdentityKnowledgeRepository {
     policy: Scope & Readonly<{ purpose: string }>,
     timeoutMs = 10000,
   ) {
+    this.#verification = repository.loadVerificationReviews.bind(repository);
+    this.#recordVerification =
+      repository.recordVerificationReview.bind(repository);
     this.#resolve = membership.resolveResource.bind(membership);
     this.#load = repository.load.bind(repository);
     this.#links = repository.loadEvidenceLinks.bind(repository);
@@ -197,6 +203,24 @@ export class IdentityKnowledgeRepository {
       q,
       commandId,
       admit,
+    );
+  }
+  async loadVerificationReviews(context: Context, signal?: AbortSignal) {
+    return this.#verification(await this.#context(context, signal));
+  }
+  async recordVerificationReview(
+    context: Context,
+    expectedStorageRevision: number,
+    input: VerificationReviewInput,
+    commandId: string,
+    signal?: AbortSignal,
+  ) {
+    const q = structuredClone(input);
+    return this.#recordVerification(
+      await this.#context(context, signal),
+      expectedStorageRevision,
+      q,
+      commandId,
     );
   }
 }

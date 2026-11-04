@@ -361,7 +361,8 @@
       "origin": "original",
       "prs": [],
       "contributingPrs": [
-        18
+        18,
+        21
       ],
       "dependsOn": [
         "AM-05-01",
@@ -378,7 +379,7 @@
         "A contradicted or unresolved assertion cannot silently become a verified finding.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial pure unresolved human review history; full107 local+installed compiled public-export suites pass, plus seven expanded focused groups in both environments, typecheck/build/registry and installed declarations. Expanded sourceac797a9 CI41906197243/check126841384452 passed108/postgres126841384025 passed7priorPG17; zero skips/raw logs inspected. Final documentation-head CI required before merge. No single full108 local/installed invocation claimed. Exact current claim/link CAS, preserved historical contrary IDs and four check notes never become findings/approvals. Owning SQL/current Identity-Consent/source proof and complete workflow acceptance pending.",
+      "implementationStatus": "partial pure and owning SQL unresolved human review history, with actual current Identity facade on every read/write/replay. PR18 pure contract accepted; PR21 adds immutable own-DB history, storage/logical CAS, exact current own claim/link admission, current history validation before cached original acknowledgement, atomic audit/outbox, coherent latest captured-basis status. All127 local/typecheck/build/registry and eight installed public-export groups/declarations/runtime bytes pass. Source5832a1c CI41933074302/postgres126934599383 passes10 actual PG17 scenarios (7prior+3new), raw head/logs inspected, zero skips; ordinary/final-head CI pending. No full127 installed claim. Current source/Consent proof, protected interfaces/full workflow/full correction impact and original cross-milestone/shared E07/E08 acceptance remain pending. Observations never become findings/answers/approvals.",
       "legacyWorkUnitId": "AM-05.05",
       "verificationReview": {
         "docs": "docs/VERIFICATION_REVIEW.md",
@@ -386,6 +387,12 @@
         "focusedTests": 7,
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/18",
         "verification": "docs/verification-review-verification.json"
+      },
+      "durableVerification": {
+        "docs": "docs/VERIFICATION_REPOSITORY.md",
+        "verification": "docs/verification-repository-verification.json",
+        "status": "Full127 local suite plus eight installed public-export groups/declarations/runtime bytes pass. Source5832a1c networkCI41933074302/postgres126934599383 passes10actualPG17 (7prior+3new). Ordinary/final documentation-head checks required; unit remains partial.",
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/21"
       }
     },
     {
