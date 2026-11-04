@@ -75,7 +75,7 @@
     "docs"
   ],
   "dependencies": {
-    "@accountability/evidence": "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#f13686e888c7539b86564c3709608ef5cf2ccac2",
+    "@accountability/evidence": "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#2745d933adf11177d8496c8d1ce61b26038d1746",
     "@accountability/evidence-sql": "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#dce7105a70b42d77afe4cd48d34723331447037c",
     "@accountability/identity-policy": "git+https://github.com/neophilism/Identity-Authorization-and-Policy-Engine.git#763060ddc840979b56483afd830f78679a2369b0",
     "@accountability/consent-rights": "git+https://github.com/neophilism/Consent-rights-and-use-decisions-engine.git#cd4d35e3247aacae96c0dae7ba416125f73dc383"

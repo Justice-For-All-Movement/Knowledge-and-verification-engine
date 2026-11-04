@@ -17,7 +17,7 @@ import {
 export class SourceEvidenceLinksWriter {
   readonly #load: IdentityKnowledgeRepository["load"];
   readonly #record: IdentityKnowledgeRepository["recordCapturedEvidenceLinks"];
-  readonly #capture: EvidenceService["captureSelectorLinks"];
+  readonly #capture: EvidenceService["captureSelectorLinksForHuman"];
   readonly #credential: EvidenceCredential;
   readonly #timeout: number;
   readonly #authorize: CurrentEvidenceUse["authorize"] | undefined;
@@ -27,6 +27,7 @@ export class SourceEvidenceLinksWriter {
     credential: EvidenceCredential,
     timeoutMs = 10000,
     permissions?: CurrentEvidenceUse,
+    captureProfile: "legacy" | "same-human" = "legacy",
   ) {
     invariant(
       typeof credential === "function" &&
@@ -38,7 +39,16 @@ export class SourceEvidenceLinksWriter {
     );
     this.#load = repository.load.bind(repository);
     this.#record = repository.recordCapturedEvidenceLinks.bind(repository);
-    this.#capture = evidence.captureSelectorLinks.bind(evidence);
+    invariant(captureProfile === "legacy" || captureProfile === "same-human",
+      "invalid_policy", "Explicit source capture profile required");
+    if (captureProfile === "same-human") {
+      invariant(typeof evidence.captureSelectorLinksForHuman === "function",
+        "invalid_policy", "Human-bound owning Evidence API required");
+      this.#capture = evidence.captureSelectorLinksForHuman.bind(evidence);
+    } else {
+      const legacy = evidence.captureSelectorLinks.bind(evidence);
+      this.#capture = (request, selectors, _humanId) => legacy(request, selectors);
+    }
     this.#credential = credential;
     this.#timeout = timeoutMs;
     this.#authorize = permissions?.authorize.bind(permissions);
@@ -112,6 +122,7 @@ export class SourceEvidenceLinksWriter {
                 requestId: `knowledge:${digest({ request: c.requestId, commandId, command: q })}`,
               },
               q.links.map((l) => l.selector),
+              principal.actor.id,
             ),
           );
           gate();
