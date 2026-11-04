@@ -47,6 +47,10 @@
     "./claim-proposal-review": {
       "types": "./dist/claim-proposal-review.d.ts",
       "default": "./dist/claim-proposal-review.js"
+    },
+    "./verification-review": {
+      "types": "./dist/verification-review.d.ts",
+      "default": "./dist/verification-review.js"
     }
   },
   "engines": {
