@@ -299,3 +299,18 @@ export class ConsentEvidenceKnowledgeReview extends CurrentEvidenceKnowledgeRevi
     super(repository, evidence, credential, timeoutMs, permissions);
   }
 }
+
+/** Explicit same-human credential binding plus mandatory current owning use checks. */
+export class HumanConsentEvidenceLinksWriter extends SourceEvidenceLinksWriter {
+  constructor(
+    repository: IdentityKnowledgeRepository,
+    evidence: EvidenceService,
+    credential: EvidenceCredential,
+    permissions: CurrentEvidenceUse,
+    timeoutMs = 10000,
+  ) {
+    invariant(permissions instanceof CurrentEvidenceUse, "invalid_policy",
+      "Current owning permission guard required");
+    super(repository, evidence, credential, timeoutMs, permissions, "same-human");
+  }
+}

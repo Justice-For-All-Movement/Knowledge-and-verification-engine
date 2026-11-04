@@ -44,7 +44,7 @@ console.log(
 
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
-const evidencePin = "f13686e888c7539b86564c3709608ef5cf2ccac2";
+const evidencePin = "2745d933adf11177d8496c8d1ce61b26038d1746";
 assert.equal(
   pkg.dependencies["@accountability/evidence"],
   "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#" +

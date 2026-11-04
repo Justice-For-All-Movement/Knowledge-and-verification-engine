@@ -45,3 +45,5 @@ CLAIM_PROPOSALS.md documents mandatory current Consent-guarded exact-span privat
 CLAIM_PROPOSAL_REVIEW.md describes owning captured proposal-bundle validation, distinct from current guarded service observations and authentication.
 
 VERIFICATION_REVIEW.md documents private unresolved human observations tied to exact captured claim/citation editions, distinct from authenticated current source review, findings or approvals.
+
+HUMAN_SOURCE_LINK_WRITES.md documents explicit same-human credential binding plus mandatory current Identity/Consent for private source-backed writes. Legacy writers/readers retain their own profiles.

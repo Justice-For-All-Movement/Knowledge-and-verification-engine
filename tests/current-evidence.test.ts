@@ -1735,3 +1735,60 @@ test("complete proposal response budget includes its digest at the exact UTF8 bo
   assert.equal(Buffer.byteLength(canonical(accepted)), 256 * 1024);
   assert.deepEqual(inspectClaimProposals(c, accepted), accepted);
 });
+
+import { HumanConsentEvidenceLinksWriter } from "../src/consent-links.ts";
+test("human-bound guarded writes use the actual same human Evidence principal and never the legacy capture method", async t => {
+  const f = await consentWriterFixture(t);
+  const writer = new HumanConsentEvidenceLinksWriter(f.facade, f.service, f.credential, f.makeGuard());
+  Object.assign(f.service, { captureSelectorLinks: async () => { throw Error("legacy capture forbidden"); } });
+  const before = await scoped(f.consentDb, c, tx => tx.audits());
+  const ack = await writer.record({ ...c, actor: { ...c.actor, roles: ["forged"] } }, 1, f.command, "human-capture");
+  assert.equal(ack.record.revision, 2);
+  const rows = await f.facade.loadEvidenceLinks(c);
+  assert.deepEqual(rows.state.records.at(-1)!.links.map(x => x.relation), ["supports", "challenges"]);
+  const decisions = (await scoped(f.consentDb, c, tx => tx.audits())).slice(before.length).filter(x => x.type === "permission.evaluated");
+  assert.equal(decisions.length, 2);
+  assert.equal(JSON.stringify(rows).includes("token"), false);
+  assert.equal(f.signal()!.aborted, true);
+});
+test("human-bound guarded writes deny another human and same-ID service or agent without a Knowledge effect or legacy fallback", async t => {
+  const f = await consentWriterFixture(t);
+  let legacy = 0;
+  Object.assign(f.service, { captureSelectorLinks: async () => { legacy++; throw Error("legacy fallback"); } });
+  const writer = new HumanConsentEvidenceLinksWriter(f.facade, f.service, f.credential, f.makeGuard());
+  for (const actor of [{id:"different",kind:"human"}, {id:"owner",kind:"service"}, {id:"owner",kind:"agent"}]) {
+    Object.assign(f.identities[0]!.actor, actor);
+    await assert.rejects(writer.record(c, 1, f.command, "mismatch-" + actor.kind), {code:"source_unavailable",message:"Current Evidence capture unavailable"});
+    assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  }
+  assert.equal(legacy, 0);
+  const audits = await scoped(f.knowledge, c, tx => tx.audits());
+  assert.equal(audits.some(x => x.type === "knowledge.evidence_links.recorded"), false);
+});
+test("human-bound guarded writes still withhold a source result after actual consent withdrawal during capture", async t => {
+  const f = await consentWriterFixture(t);
+  const capture = f.service.captureSelectorLinksForHuman.bind(f.service);
+  let expectedHuman: string | undefined;
+  const port = { captureSelectorLinksForHuman: async (...args: Parameters<typeof capture>) => {
+    expectedHuman = args[2];
+    const result = await capture(...args);
+    await f.permissions.withdraw(c, "consent", "consent", 1, "withdraw-human-capture");
+    return result;
+  }} as EvidenceService;
+  const writer = new HumanConsentEvidenceLinksWriter(f.facade, port, f.credential, f.makeGuard());
+  await assert.rejects(writer.record(c, 1, f.command, "withdrawn-human"), {code:"use_denied"});
+  assert.equal(expectedHuman, "owner");
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  assert.equal(f.signal()!.aborted, true);
+});
+test("human-bound guarded construction requires the owning guard and method; empty links never request credentials", async t => {
+  const f = await consentWriterFixture(t);
+  assert.throws(() => new HumanConsentEvidenceLinksWriter(f.facade, f.service, f.credential, undefined as any), {code:"invalid_policy"});
+  assert.throws(() => new HumanConsentEvidenceLinksWriter(f.facade, {} as EvidenceService, f.credential, f.makeGuard()), {code:"invalid_policy"});
+  let credentials = 0;
+  const writer = new HumanConsentEvidenceLinksWriter(f.facade, f.service, async () => { credentials++; throw Error("not for empty links"); }, f.makeGuard());
+  const ack = await writer.record(c, 1, { ...f.command, links: [] }, "human-empty");
+  assert.equal(ack.record.revision, 2);
+  assert.equal(credentials, 0);
+  assert.deepEqual((await f.repo.loadEvidenceLinks(c)).state.records.at(-1)!.links, []);
+});

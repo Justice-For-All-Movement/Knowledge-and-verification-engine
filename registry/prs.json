@@ -247,7 +247,7 @@
         "Copied reports cannot inflate corroboration and unsupported links fail validation.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial_current_owning_consent_guarded_link_writes_and_review; PR14 merged3cb7b1da after final source0fb1a71 CI41854960895 passed88 plus seven prior PostgreSQL17 groups. PR15 adds mandatory current-use guard to actual stored link review before source credentials and after actual Evidence observations/final current Knowledge basis check. All90 local/installed compiled public-export tests/typecheck/build/registry pass; two new actual restricted four-DB/encrypted Evidence groups; initial sourcec946ff2 CI41855705835/check126663620687 passed90 and postgres126663619993 passed seven EXISTING actual PostgreSQL17 groups, raw head/logs inspected, zero skips. Final-head CI required. Sequential observations NOT permanent permission or distributed revocation fence; no live qualification/full AM-05.02 acceptance.",
+      "implementationStatus": "partial_current_owning_consent_guarded_link_writes_and_review; PR14 merged3cb7b1da after final source0fb1a71 CI41854960895 passed88 plus seven prior PostgreSQL17 groups. PR15 adds mandatory current-use guard to actual stored link review before source credentials and after actual Evidence observations/final current Knowledge basis check. All90 local/installed compiled public-export tests/typecheck/build/registry pass; two new actual restricted four-DB/encrypted Evidence groups; initial sourcec946ff2 CI41855705835/check126663620687 passed90 and postgres126663619993 passed seven EXISTING actual PostgreSQL17 groups, raw head/logs inspected, zero skips. Final-head CI required. Sequential observations NOT permanent permission or distributed revocation fence; no live qualification/full AM-05.02 acceptance. New explicit HumanConsentEvidenceLinksWriter implementation checkpoint: Evidence2745d933 human credential principal binding plus mandatory existing current Identity/Consent; local/installed/current-head qualification pending, legacy profiles unchanged.",
       "implementationEvidence": "PR2; docs/EVIDENCE_LINKS.md and docs/evidence-links-verification.json. 23 local tests/typecheck/build/registry; all23 installed compiled exports/JS match. Eleven new actual pinned domain groups, prior12 preserved. Initial6fa03c72 CI40803447014/check123216699192 success20/logs inspected. Current authenticated Evidence snapshot transport, host Identity/consent/rights, durable own-DB history and UI remain pending; no truth/authentication/network/live claim. Expanded source01dcb46 CI40803800264/check123217829394 SUCCESS23/clean npm ci/typecheck/build/registry; logs inspected. Final documentation head requires current-head acceptance; direct GitHub merge state supersedes this timestamped checkpoint. PR8 EVIDENCE_LINKS_REPOSITORY.md and evidence-links-repository-verification.json supersede old persistence-pending statements: own Knowledge DB link history is partial implemented; authenticated current-source delivery, consent/rights integration and visual/live acceptance remain pending.",
       "legacyWorkUnitId": "AM-05.02",
       "remainingWork": [
@@ -269,6 +269,11 @@
         "documentation": "docs/CONSENT_LINK_REVIEW.md",
         "status": "All90 local/installed/typecheck/build/registry and initial source90+7 CI pass; final-head checks required; partial AM-05.02",
         "verification": "docs/consent-link-review-verification.json"
+      },
+      "humanSourceWrites": {
+        "docs": "docs/HUMAN_SOURCE_LINK_WRITES.md",
+        "status": "incomplete implementation checkpoint; qualification pending",
+        "newGroups": 4
       }
     },
     {
