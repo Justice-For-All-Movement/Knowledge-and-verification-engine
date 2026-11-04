@@ -361,7 +361,8 @@
       "origin": "original",
       "prs": [],
       "contributingPrs": [
-        18
+        18,
+        21
       ],
       "dependsOn": [
         "AM-05-01",
@@ -390,7 +391,8 @@
       "durableVerification": {
         "docs": "docs/VERIFICATION_REPOSITORY.md",
         "verification": "docs/verification-repository-verification.json",
-        "status": "Incomplete WIP: owning SQL/Identity implementation and eight restricted-migration groups/typecheck/build/registry passed. Installed/current-head CI pending; unit remains partial."
+        "status": "Eight actual restricted-migration local+installed public-export groups/declarations/runtime bytes pass; full local/CI pending. Three new actual PG17 scenarios added but unqualified pending CI; seven prior retained. Unit remains partial.",
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/21"
       }
     },
     {
