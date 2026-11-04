@@ -386,6 +386,11 @@
         "focusedTests": 7,
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/18",
         "verification": "docs/verification-review-verification.json"
+      },
+      "durableVerification": {
+        "docs": "docs/VERIFICATION_REPOSITORY.md",
+        "verification": "docs/verification-repository-verification.json",
+        "status": "Incomplete WIP: owning SQL/Identity implementation and eight restricted-migration groups/typecheck/build/registry passed. Installed/current-head CI pending; unit remains partial."
       }
     },
     {

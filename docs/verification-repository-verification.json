@@ -1,0 +1,36 @@
+{
+  "status": "Incomplete WIP; first durable implementation checkpoint",
+  "local": {
+    "focusedGroups": 8,
+    "pass": 8,
+    "fail": 0,
+    "skipped": 0,
+    "normalNpmCi": "passed",
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "fullSuite": "pending"
+  },
+  "installed": "pending",
+  "ci": "pending",
+  "review": [
+    "Owning checked lock before actual current histories and cached acknowledgements",
+    "Immutable storage/logical CAS, historical refs, retained contrary IDs and null tracks",
+    "Atomic review/audit/outbox and unknown lost COMMIT acknowledgement",
+    "Current actual Identity on every optional facade method; own DBs and SDK pins unchanged"
+  ],
+  "remaining": [
+    "Installed export qualification/source review/current-head CI and branch rules",
+    "Additional independent TCP verification-specific contention qualification",
+    "Current source/Consent/authenticated interfaces/full verification workflow/correction impact/browser/AT/live",
+    "Host proofing/mapping/clock/driver/CPU/heap and later-use current permission"
+  ],
+  "sourceSha256": {
+    "src/repository.ts": "5ee5b0b1553952d21b8237bff8d83193525efe52dd0894a78a246c38c6a9a9bd",
+    "src/identity-repository.ts": "837820225cc454ce94eaac65c4248f00adc7de177e14d94199e6fe889b503b06",
+    "tests/verification-repository.test.ts": "1b1c85066399b8fa25194f6e9b8511fd6a76c3501a806962674429db2fba85d5",
+    "docs/VERIFICATION_REPOSITORY.md": "3c438176b97a276c99421384650e4f1957d1337738cc28fb746333a42bf7eb6e",
+    "docs/ARCHITECTURE.md": "b35515e8588bb75b0603c05136f86de7b25e721ddcee2be926f0653f2276a217",
+    "registry/prs.json": "5db8ab9e68a35967084d2970d6b0476c8d8b8a3b6524dcb5d20c571e1419623d"
+  }
+}

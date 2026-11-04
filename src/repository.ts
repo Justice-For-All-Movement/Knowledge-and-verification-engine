@@ -1,3 +1,12 @@
+import {
+  createVerificationReviewState,
+  inspectVerificationReviews,
+  recordVerificationReview as appendVerificationReview,
+} from "./verification-review.ts";
+import type {
+  VerificationReviewState,
+  VerificationReviewInput,
+} from "./verification-review.ts";
 import { selectCurrentEvidenceLinks } from "./evidence-links.ts";
 import type { EvidenceState } from "@accountability/evidence";
 import {
@@ -39,6 +48,11 @@ import {
   reviseKnowledge,
 } from "./index.ts";
 import type { KnowledgeState, KnowledgeValue } from "./index.ts";
+export const VERIFICATION_REVIEWS_KIND =
+  "knowledge-verification-review-history";
+export const VERIFICATION_REVIEWS_KEY = digest({
+  aggregate: VERIFICATION_REVIEWS_KIND,
+});
 export const EVIDENCE_LINKS_KIND = "knowledge-evidence-links-history";
 export const EVIDENCE_LINKS_KEY = digest({ aggregate: EVIDENCE_LINKS_KIND });
 export const KNOWLEDGE_KIND = "knowledge-history";
@@ -480,6 +494,123 @@ export class KnowledgeRepository {
             }),
           );
           await tx.enqueue("knowledge.evidence-links.revised", json(result));
+          return json(result);
+        },
+      )) as KnowledgeAcknowledgement;
+    });
+  }
+  async #verification(
+    tx: UnitOfWork,
+    c: Context,
+    knowledge: KnowledgeState,
+    links: EvidenceLinksState,
+  ) {
+    const stored = await tx.get<VerificationReviewState>(
+      VERIFICATION_REVIEWS_KIND,
+      VERIFICATION_REVIEWS_KEY,
+    );
+    const state = stored?.value ?? createVerificationReviewState(c);
+    requireScope(c, state);
+    const observed = inspectVerificationReviews(c, knowledge, links, state);
+    invariant(
+      (stored?.revision ?? 0) === state.records.length,
+      "invalid_review",
+      "Storage and verification history sequence mismatch",
+    );
+    return { revision: stored?.revision ?? 0, state, observed };
+  }
+  /** Own histories are read together after the owning project lock. Source/rights truth is not asserted. */
+  async loadVerificationReviews(context: Context) {
+    const c = this.#context(context);
+    return scoped(this.#db, c, async (tx) => {
+      await tx.audit("knowledge.verification-review.read_checked", {});
+      const knowledge = await this.#load(tx, c),
+        links = await this.#links(tx, c),
+        reviews = await this.#verification(tx, c, knowledge.state, links.state);
+      return structuredClone({
+        revision: reviews.revision,
+        state: reviews.state,
+        knowledgeRevision: knowledge.revision,
+        linksRevision: links.revision,
+        latest: reviews.observed.latest.map(({ record, basisStatus }) => ({
+          ref: record.ref,
+          basisStatus,
+        })),
+      });
+    });
+  }
+  async recordVerificationReview(
+    context: Context,
+    expectedStorageRevision: number,
+    input: VerificationReviewInput,
+    commandId: string,
+  ): Promise<KnowledgeAcknowledgement> {
+    const c = this.#context(context),
+      q = structuredClone(input);
+    nonempty(commandId, "Command", 128);
+    invariant(
+      Number.isSafeInteger(expectedStorageRevision) &&
+        expectedStorageRevision >= 0,
+      "invalid_revision",
+      "Expected verification storage revision required",
+    );
+    return scoped(this.#db, c, async (tx) => {
+      // The audit obtains the same owning lock as claim/citation writers BEFORE reads or cached responses.
+      await tx.audit("knowledge.verification-review.append_checked", {});
+      const knowledge = await this.#load(tx, c),
+        links = await this.#links(tx, c),
+        reviews = await this.#verification(tx, c, knowledge.state, links.state);
+      return (await tx.idempotent(
+        commandId,
+        json({
+          operation: "verification-review",
+          actorKind: c.actor.kind,
+          actorId: c.actor.id,
+          purpose: c.purpose,
+          expectedStorageRevision,
+          input: q,
+        }),
+        async () => {
+          invariant(
+            reviews.revision === expectedStorageRevision,
+            "revision_conflict",
+            "Verification storage edition changed",
+          );
+          const state = appendVerificationReview(
+            c,
+            knowledge.state,
+            links.state,
+            reviews.state,
+            q,
+          );
+          const stored = await tx.put(
+            VERIFICATION_REVIEWS_KIND,
+            VERIFICATION_REVIEWS_KEY,
+            reviews.revision,
+            state,
+          );
+          const result = {
+            storage: {
+              tenantId: c.tenantId,
+              projectId: c.projectId,
+              kind: VERIFICATION_REVIEWS_KIND,
+              id: VERIFICATION_REVIEWS_KEY,
+              revision: stored.revision,
+            },
+            record: state.records.at(-1)!.ref,
+          };
+          await tx.audit(
+            "knowledge.verification-review.recorded",
+            json({
+              ...result,
+              knowledgeRevision: knowledge.revision,
+              linksRevision: links.revision,
+            }),
+          );
+          await tx.enqueue(
+            "knowledge.verification-review.revised",
+            json(result),
+          );
           return json(result);
         },
       )) as KnowledgeAcknowledgement;
