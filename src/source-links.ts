@@ -1,3 +1,4 @@
+import type { CurrentEvidenceUse } from "./consent-links.ts";
 import type {
   EvidenceService,
   SelectorLinkCapture,
@@ -19,11 +20,13 @@ export class SourceEvidenceLinksWriter {
   readonly #capture: EvidenceService["captureSelectorLinks"];
   readonly #credential: EvidenceCredential;
   readonly #timeout: number;
+  readonly #authorize: CurrentEvidenceUse["authorize"] | undefined;
   constructor(
     repository: IdentityKnowledgeRepository,
     evidence: EvidenceService,
     credential: EvidenceCredential,
     timeoutMs = 10000,
+    permissions?: CurrentEvidenceUse,
   ) {
     invariant(
       typeof credential === "function" &&
@@ -38,6 +41,7 @@ export class SourceEvidenceLinksWriter {
     this.#capture = evidence.captureSelectorLinks.bind(evidence);
     this.#credential = credential;
     this.#timeout = timeoutMs;
+    this.#authorize = permissions?.authorize.bind(permissions);
   }
   async record(
     context: Context,
@@ -71,6 +75,8 @@ export class SourceEvidenceLinksWriter {
     try {
       gate();
       await this.#load(principal, owned.signal);
+      gate();
+      await this.#authorize?.(principal, q, owned.signal);
       gate();
       let capture: SelectorLinkCapture | null = null;
       if (q.links.length) {
@@ -118,6 +124,8 @@ export class SourceEvidenceLinksWriter {
         }
       }
       capturedEvidenceLinks(c, q, capture);
+      gate();
+      await this.#authorize?.(principal, q, owned.signal);
       gate();
       // Facade freshly resolves current Identity, then owning SQL reads current claims/links under its project lock.
       // Once SQL begins, preserve its acknowledged result even after cancellation; unknown acknowledgement is not rollback.

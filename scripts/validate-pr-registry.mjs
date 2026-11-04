@@ -73,3 +73,9 @@ console.log("Separate stable persistence SDK pinned for Knowledge owning DB");
 assert.equal(pkg.dependencies["@accountability/identity-policy"],"git+https://github.com/neophilism/Identity-Authorization-and-Policy-Engine.git#763060ddc840979b56483afd830f78679a2369b0");
 assert(lock.packages["node_modules/@accountability/identity-policy"].resolved.endsWith("#763060ddc840979b56483afd830f78679a2369b0"));
 console.log("Accepted Identity resource policy SDK pinned");
+
+const consentPin = "cd4d35e3247aacae96c0dae7ba416125f73dc383";
+assert.equal(pkg.dependencies["@accountability/consent-rights"],
+  "git+https://github.com/neophilism/Consent-rights-and-use-decisions-engine.git#" + consentPin);
+assert(lock.packages["node_modules/@accountability/consent-rights"].resolved.endsWith("#" + consentPin));
+console.log("Accepted current-time Consent SDK pinned separately from Evidence persistence");

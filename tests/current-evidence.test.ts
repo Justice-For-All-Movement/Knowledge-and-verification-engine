@@ -946,3 +946,421 @@ test("source-backed writer bounds credential cancellation and source admission w
   assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
   assert.equal(signal!.aborted, true);
 });
+
+import { PermissionRegistry } from "@accountability/consent-rights/registry";
+import {
+  CurrentEvidenceUse,
+  ConsentEvidenceLinksWriter,
+  evidenceUseResourceId,
+} from "../src/consent-links.ts";
+async function consentWriterFixture(t: test.TestContext) {
+  const f = await sourceWriterFixture(t),
+    consentDb = await f.database("consent_login");
+  const registryPolicy = {
+    tenantId: c.tenantId,
+    projectId: c.projectId,
+    managerIds: ["owner"],
+    participantActors: {},
+  };
+  const permissions = new PermissionRegistry(consentDb, registryPolicy);
+  const resource = {
+    ref: f.source.ref,
+    digest: f.selector.sha256,
+    requiredConsentSubjects: ["subject"],
+  };
+  await permissions.registerResource(c, resource, 0);
+  const terms = {
+    resource: { ref: resource.ref, digest: resource.digest },
+    actions: ["metadata-citation" as const],
+    purposes: [c.purpose],
+    audiences: ["private"],
+    validFrom: c.now,
+    expiresAt: "2026-02-01T00:00:00Z",
+    evidence: {
+      ...resource.ref,
+      kind: "permission-statement",
+      id: "fictional-statement",
+    },
+  };
+  await permissions.grantRights(
+    c,
+    {
+      ...terms,
+      id: "rights",
+      holderId: "fictional-owner",
+      attribution: null,
+      noDerivatives: false,
+    },
+    "rights",
+  );
+  await permissions.recordConsent(
+    c,
+    { ...terms, id: "consent", subjectId: "subject" },
+    "consent",
+  );
+  const usePolicy = {
+    ...f.policy,
+    resourceId: evidenceUseResourceId(resource.ref),
+  };
+  await f.membership.setResourcePolicy(c, 1, usePolicy, "use-policy");
+  const config = {
+    ...f.fixed,
+    bindings: [
+      {
+        resource: terms.resource,
+        rights: ["rights"],
+        consents: ["consent"],
+        attribution: null,
+      },
+    ],
+  };
+  const time = { now: c.now };
+  const makeGuard = (registry = permissions, timeoutMs = 10000) =>
+    new CurrentEvidenceUse(
+      f.membership,
+      registry,
+      config,
+      () => time.now,
+      timeoutMs,
+    );
+  const makeWriter = (
+    guard = makeGuard(),
+    evidence = f.service,
+    facade = f.facade,
+  ) => new ConsentEvidenceLinksWriter(facade, evidence, f.credential, guard);
+  return {
+    ...f,
+    consentDb,
+    permissions,
+    registryPolicy,
+    resource,
+    terms,
+    usePolicy,
+    config,
+    time,
+    makeGuard,
+    makeWriter,
+  };
+}
+
+test("consent-guarded source writes use actual four owning databases and private exact current decisions before and after capture", async (t) => {
+  const f = await consentWriterFixture(t),
+    guard = f.makeGuard();
+  // Construction captures fixed mappings, including original permission IDs.
+  f.config.bindings[0]!.rights.length = 0;
+  const before = await scoped(f.consentDb, c, (tx) => tx.audits());
+  const ack = await f
+    .makeWriter(guard)
+    .record(
+      { ...c, actor: { ...c.actor, roles: ["forged"] } },
+      1,
+      f.command,
+      "consent-backed",
+    );
+  assert.equal(ack.record.revision, 2);
+  const rows = await f.facade.loadEvidenceLinks(c);
+  assert.equal(rows.state.records.at(-1)?.visibility, "private");
+  const audits = await scoped(f.consentDb, c, (tx) => tx.audits());
+  const decisions = audits
+    .slice(before.length)
+    .filter((a) => a.type === "permission.evaluated");
+  assert.equal(
+    decisions.length,
+    2,
+    "Same resource/action deduplicates within each of two observations",
+  );
+  assert.ok(
+    decisions.every(
+      (a) => (a.payload as { allowed: boolean }).allowed === true,
+    ),
+  );
+  for (const db of [f.identity, f.knowledge, f.evidence])
+    await scoped(db, c, async (tx) => {
+      assert.equal((await tx.list("consent")).length, 0);
+      assert.equal((await tx.list("rights-grant")).length, 0);
+    });
+  await scoped(f.consentDb, c, async (tx) => {
+    assert.equal(await tx.get(KNOWLEDGE_KIND, KNOWLEDGE_KEY), null);
+    assert.equal(await tx.get("evidence.aggregate", "project"), null);
+  });
+  assert.equal(JSON.stringify(rows).includes("fictional-owner"), false);
+  assert.equal(f.signal()!.aborted, true);
+});
+
+test("literal text requires reproduction permission even for support links; metadata citation cannot silently authorize it", async (t) => {
+  const f = await consentWriterFixture(t);
+  // Owning test fixture selects the real scanner-produced ID; authenticated service reads its representation.
+  const stored = await scoped(f.evidence, c, (tx) =>
+    tx.get<{ domain: EvidenceState }>("evidence.aggregate", "project"),
+  );
+  const representation = await f.service.representation(
+    f.req,
+    f.source.ref,
+    stored!.value.domain.representations[0]!.id,
+  );
+  const selector = {
+    kind: "text" as const,
+    evidence: f.source.ref,
+    sha256: f.selector.sha256,
+    representationId: representation.id,
+    representationDigest: representation.digest,
+    page: null,
+    start: 0,
+    end: 7,
+    quote: "Neutral",
+  };
+  const command = {
+    ...f.command,
+    links: [{ id: "literal-support", relation: "supports" as const, selector }],
+  };
+  await assert.rejects(
+    f.makeWriter().record(c, 1, command, "metadata-only-text"),
+    { code: "use_denied" },
+  );
+  assert.equal(
+    f.signal(),
+    undefined,
+    "No source credentials released after denied preflight",
+  );
+  const terms = { ...f.terms, actions: ["reproduce" as const] };
+  await f.permissions.grantRights(
+    c,
+    {
+      ...terms,
+      id: "reproduce",
+      holderId: "fictional-owner",
+      attribution: null,
+      noDerivatives: false,
+    },
+    "reproduce-rights",
+  );
+  await f.permissions.recordConsent(
+    c,
+    { ...terms, id: "reproduce", subjectId: "subject" },
+    "reproduce-consent",
+  );
+  f.config.bindings[0]!.rights.push("reproduce");
+  f.config.bindings[0]!.consents.push("reproduce");
+  const ack = await f.makeWriter().record(c, 1, command, "literal-copy");
+  assert.equal(ack.record.revision, 2);
+  assert.equal(
+    (await f.facade.loadEvidenceLinks(c)).state.records.at(-1)?.links[0]
+      ?.selector.kind,
+    "text",
+  );
+});
+
+test("explicit current Identity resource policy and current Consent withdrawal during actual capture deny before Knowledge write", async (t) => {
+  const f = await consentWriterFixture(t);
+  await f.membership.setResourcePolicy(
+    c,
+    2,
+    { ...f.usePolicy, memberIds: [] },
+    "deny-use",
+  );
+  await assert.rejects(
+    f.makeWriter().record(c, 1, f.command, "denied-resource"),
+    { code: "use_unavailable" },
+  );
+  assert.equal(f.signal(), undefined);
+  await f.membership.setResourcePolicy(c, 3, f.usePolicy, "restore-use");
+  const capture = f.service.captureSelectorLinks.bind(f.service);
+  const source = {
+    captureSelectorLinks: async (...args: Parameters<typeof capture>) => {
+      const result = await capture(...args);
+      await f.permissions.withdraw(
+        c,
+        "consent",
+        "consent",
+        1,
+        "withdraw-during-capture",
+      );
+      return result;
+    },
+  } as EvidenceService;
+  await assert.rejects(
+    f.makeWriter(undefined, source).record(c, 1, f.command, "withdrawn-source"),
+    { code: "use_denied" },
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  assert.equal(f.signal()!.aborted, true);
+});
+
+test("guarded historical replay requires fresh current rights and lost actual Knowledge COMMIT remains unknown", async (t) => {
+  const f = await consentWriterFixture(t);
+  let lose = true;
+  const db: Database = {
+    close: async () => {},
+    transaction: async (fn) => {
+      let wrote = false;
+      const value = await f.knowledge.transaction((tx) =>
+        fn({
+          query: async <T>(sql: string, values?: unknown[]) => {
+            const r = await tx.query<T>(sql, values);
+            if (sql.startsWith("INSERT INTO public.evidence_outbox"))
+              wrote = true;
+            return r;
+          },
+        }),
+      );
+      if (wrote && lose) {
+        lose = false;
+        throw Error("lost actual guarded Knowledge COMMIT");
+      }
+      return value;
+    },
+  };
+  const repo = new KnowledgeRepository(db, { ...f.fixed, humanIds: ["owner"] });
+  const facade = new IdentityKnowledgeRepository(repo, f.membership, f.fixed);
+  await assert.rejects(
+    f
+      .makeWriter(undefined, f.service, facade)
+      .record(c, 1, f.command, "lost-guarded"),
+    /lost actual guarded Knowledge COMMIT/,
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 2);
+  const historical = await f
+    .makeWriter()
+    .record(c, 1, f.command, "lost-guarded");
+  assert.equal(historical.record.revision, 2);
+  await f.permissions.withdraw(
+    c,
+    "rights-grant",
+    "rights",
+    1,
+    "withdraw-rights",
+  );
+  await assert.rejects(f.makeWriter().record(c, 1, f.command, "lost-guarded"), {
+    code: "use_denied",
+  });
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 2);
+});
+
+test("exact mapping, purpose, digest and foreign selector fail closed before credentials; expiry and empty sets stay explicit", async (t) => {
+  const f = await consentWriterFixture(t);
+  assert.throws(
+    () =>
+      new CurrentEvidenceUse(
+        f.membership,
+        f.permissions,
+        {
+          ...f.config,
+          bindings: [
+            { ...f.config.bindings[0]!, attribution: "Required credit" },
+          ],
+        } as never,
+        () => c.now,
+      ),
+    { code: "invalid_policy" },
+  );
+  const missing = new CurrentEvidenceUse(
+    f.membership,
+    f.permissions,
+    { ...f.fixed, bindings: [] },
+    () => c.now,
+  );
+  await assert.rejects(
+    f.makeWriter(missing).record(c, 1, f.command, "missing-map"),
+    { code: "use_denied" },
+  );
+  const changed = new CurrentEvidenceUse(
+    f.membership,
+    f.permissions,
+    {
+      ...f.config,
+      bindings: [
+        {
+          ...f.config.bindings[0]!,
+          resource: { ...f.terms.resource, digest: "0".repeat(64) },
+        },
+      ],
+    },
+    () => c.now,
+  );
+  await assert.rejects(
+    f.makeWriter(changed).record(c, 1, f.command, "wrong-hash"),
+    { code: "use_denied" },
+  );
+  await assert.rejects(
+    f
+      .makeWriter()
+      .record(
+        c,
+        1,
+        {
+          ...f.command,
+          links: [
+            {
+              ...f.command.links[0]!,
+              selector: {
+                ...f.selector,
+                evidence: { ...f.source.ref, tenantId: "foreign" },
+              },
+            },
+          ],
+        },
+        "foreign",
+      ),
+  );
+  await assert.rejects(
+    f
+      .makeWriter()
+      .record({ ...c, purpose: "other" }, 1, f.command, "other-purpose"),
+  );
+  assert.equal(f.signal(), undefined);
+  f.time.now = f.terms.expiresAt;
+  await assert.rejects(f.makeWriter().record(c, 1, f.command, "expired"), {
+    code: "use_denied",
+  });
+  const before = await scoped(f.consentDb, c, (tx) => tx.audits());
+  const empty = await f
+    .makeWriter(missing)
+    .record(c, 1, { ...f.command, links: [] }, "empty-without-source-use");
+  assert.equal(empty.record.revision, 2);
+  assert.equal(f.signal(), undefined);
+  assert.deepEqual(await scoped(f.consentDb, c, (tx) => tx.audits()), before);
+});
+
+test("lost or late begun Consent SQL and cancellation cannot become permission or reach Knowledge writes", async (t) => {
+  const f = await consentWriterFixture(t);
+  let lose = true,
+    block = false;
+  const db: Database = {
+    close: async () => {},
+    transaction: async (fn) => {
+      const value = await f.consentDb.transaction(fn);
+      if (lose) {
+        lose = false;
+        throw Error("private lost Consent read COMMIT diagnostic");
+      }
+      if (block) {
+        const until = performance.now() + 1300;
+        while (performance.now() < until) {}
+      }
+      return value;
+    },
+  };
+  const registry = new PermissionRegistry(db, f.registryPolicy);
+  await assert.rejects(
+    f.makeWriter(f.makeGuard(registry)).record(c, 1, f.command, "lost-consent"),
+    {
+      code: "use_unavailable",
+      message: "Current evidence use observation unavailable",
+    },
+  );
+  block = true;
+  await assert.rejects(
+    f
+      .makeWriter(f.makeGuard(registry, 1000))
+      .record(c, 1, f.command, "late-consent"),
+    { code: "use_unavailable" },
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+  assert.equal(f.signal(), undefined);
+  const aborted = new AbortController();
+  aborted.abort();
+  await assert.rejects(
+    f.makeWriter().record(c, 1, f.command, "cancelled", aborted.signal),
+  );
+  assert.equal((await f.repo.loadEvidenceLinks(c)).revision, 1);
+});
