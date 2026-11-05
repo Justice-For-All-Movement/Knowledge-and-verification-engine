@@ -2417,3 +2417,41 @@ test("current verification reader awaits lost owning read COMMIT and sanitizes d
   await assert.rejects(reader.read(c, ack.record), { code: "verification_unavailable", message: "Current verification read unavailable" });
   assert.deepEqual((await reader.read(c, ack.record)).record.ref, ack.record);
 });
+
+test("current verification reader rejects a selected record superseded during owning source observation", async t => {
+  const f = await consentWriterFixture(t), q = verificationInput(f);
+  const ack = await f.repo.recordVerificationReview(c, 0, q, "review");
+  const actual = f.service.reviewSelectorsForHuman.bind(f.service);
+  const service = { reviewSelectorsForHuman: async (...args: Parameters<typeof actual>) => {
+    const result = await actual(...args);
+    await f.repo.recordVerificationReview(c, 1, { ...q, expectedRevision: 1, rationale: "Changed while observed" }, "supersede");
+    return result;
+  } } as EvidenceService;
+  await assert.rejects(verificationReader(f, service).read(c, ack.record), { code: "verification_unavailable" });
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 2);
+});
+
+test("current verification reader denies blocked-JS final owning admission and captures mandatory owning methods", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "review");
+  const transaction = f.knowledge.transaction.bind(f.knowledge);
+  let reads = 0;
+  Object.assign(f.knowledge, { transaction: <T>(fn: Parameters<Database["transaction"]>[0]): Promise<T> => transaction(query => fn({
+    query: async <R>(sql: string, values?: unknown[]) => {
+      const result = await query.query<R>(sql, values);
+      if (sql.includes("SELECT") && values?.includes(VERIFICATION_REVIEWS_KIND) && ++reads === 2) {
+        const until = performance.now() + 1300;
+        while (performance.now() < until) {}
+      }
+      return result;
+    }
+  })) as Promise<T> });
+  const review = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, f.makeGuard());
+  const reader = new CurrentVerificationReviewReader(f.facade, review, 1000);
+  Object.assign(review, { review: async () => { throw Error("Instance replacement used"); } });
+  await assert.rejects(reader.read(c, ack.record), { code: "verification_unavailable" });
+  assert.equal(reads, 2);
+  assert.deepEqual((await new CurrentVerificationReviewReader(f.facade, review).read(c, ack.record)).record.ref, ack.record);
+  assert.throws(() => new CurrentVerificationReviewReader(f.facade, {} as never), { code: "invalid_policy" });
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 1);
+});

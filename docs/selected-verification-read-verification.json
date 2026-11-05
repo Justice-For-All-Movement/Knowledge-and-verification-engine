@@ -1,0 +1,43 @@
+{
+  "status": "Explicitly incomplete PR23 WIP",
+  "localOwning": {
+    "pass": 11,
+    "fail": 0,
+    "skipped": 0
+  },
+  "localInitialComposed": {
+    "pass": 4,
+    "fail": 0,
+    "skipped": 0
+  },
+  "installedInitialTargeted": {
+    "pass": 8,
+    "fail": 0,
+    "skipped": 0
+  },
+  "expandedLocal": {
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0
+  },
+  "broaderSuite": "executing",
+  "ci": "pending",
+  "remaining": [
+    "expanded installed groups/declarations/module bytes/source review/current-head CI",
+    "cross-configuration/full response budget/network qualification",
+    "protected HTTP/UI/full workflow/correction/shared gates/host proofing-delegation-rights/browserATlive"
+  ],
+  "sourceSha256": {
+    "src/repository.ts": "7e071e9b6f79223015bfb4c8473a0083278415fa236fa957686a7d3e670b652d",
+    "src/identity-repository.ts": "0466a0241af8c07eb2c5052eee138070a35ad8f958c47187b9d960f52911772a",
+    "src/verification-reader.ts": "f5d07a2022a561093ad1afd2c11e297c2d35d771d952995e18292ceb510a37af",
+    "tests/verification-repository.test.ts": "902380e66797fc58761628e1e6cac9d68f67d2ddbc6dbc43129644928c115bcc",
+    "tests/current-evidence.test.ts": "258a4a51aa3b8e2b83f82878d4b1674cb77dc3abd7f21b06ed9ed98ac677e63d",
+    "package.json": "a5e09348395dade8bb3a5f7e3b5d3fe62bb4a61a8f5b5d2c1e3da06c11c2557a",
+    "docs/SELECTED_VERIFICATION_READ.md": "81f70cd3bd45d599dae9007857b66d226c38d12102e96cf84f5c8719dccf45ec",
+    "docs/ARCHITECTURE.md": "ce6e4e555c37259a1293682654aedbdcf377f2649698786f00c86a749ed7dfbf",
+    "registry/prs.json": "31b58d7f763c7799f45f922d3cbd098d537be29a10a4d6746efd16e9991bf718"
+  },
+  "publicDeclarations": "passed",
+  "runtimeModules": "All three byte-match installed compiled exports"
+}

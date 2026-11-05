@@ -404,7 +404,7 @@
       },
       "selectedVerificationRead": {
         "docs": "docs/SELECTED_VERIFICATION_READ.md",
-        "status": "Incomplete WIP: selected owning read/current Identity plus mandatory current human Source/Consent reader composition. Eleven owning local groups pass; four composed groups and broader/installed/current-head checks pending. No protected HTTP/UI or full workflow acceptance.",
+        "status": "Incomplete WIP PR23: eleven local owning groups and four initial composed local groups pass; eight installed targeted groups pass. All6 composed local groups now pass, including supersession during source observation and blocked-JS final admission. Strict installed declarations and three runtime modules match. Broader/current-head CI/source review and expanded installed qualification remain pending. No HTTP/UI/full workflow acceptance.",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/23"
       }
     },
