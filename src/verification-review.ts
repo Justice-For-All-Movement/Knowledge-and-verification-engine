@@ -161,19 +161,7 @@ function validateState(s: VerificationReviewState) {
       s,
     );
     nonempty(r.rationale, "Rationale", 4000);
-    exact(r.checks, axes);
-    for (const axis of axes) {
-      const check = r.checks[axis];
-      exact(check, ["status", "note"]);
-      invariant(
-        ["unreviewed", "unresolved", "concern", "reviewed"].includes(
-          check.status,
-        ),
-        "invalid_review",
-        "Explicit review observation required",
-      );
-      nonempty(check.note, "Review note", 4000);
-    }
+    validateChecks(r.checks);
     invariant(
       Array.isArray(r.challengeLinkIds) &&
         r.challengeLinkIds.length <= 64 &&
@@ -195,6 +183,40 @@ function validateState(s: VerificationReviewState) {
     );
     latest.set(r.ref.id, r);
   }
+}
+function validateChecks(checks: VerificationChecks) {
+  exact(checks, axes);
+  for (const axis of axes) {
+    const check = checks[axis];
+    exact(check, ["status", "note"]);
+    invariant(
+      ["unreviewed", "unresolved", "concern", "reviewed"].includes(
+        check.status,
+      ),
+      "invalid_review",
+      "Explicit review observation required",
+    );
+    nonempty(check.note, "Review note", 4000);
+  }
+}
+/** Strict detached input data only; this function does not authenticate or authorize a reviewer. */
+export function captureVerificationReviewInput(
+  scope: Scope,
+  input: VerificationReviewInput,
+): VerificationReviewInput {
+  const q = copyJson(input) as unknown as VerificationReviewInput;
+  exact(q, ["linkRef", "expectedRevision", "checks", "rationale"]);
+  typedRef(q.linkRef, scope, "knowledge-evidence-links");
+  invariant(
+    Number.isSafeInteger(q.expectedRevision) &&
+      q.expectedRevision >= 0 &&
+      q.expectedRevision < Number.MAX_SAFE_INTEGER,
+    "invalid_revision",
+    "Safe expected review revision required",
+  );
+  validateChecks(q.checks);
+  nonempty(q.rationale, "Rationale", 4000);
+  return q;
 }
 /** Pure host-context admission; no authentication, source observation or persistence. */
 export function createVerificationReviewState(
@@ -221,17 +243,9 @@ export function recordVerificationReview(
 ): VerificationReviewState {
   const c = structuredClone(context),
     s = copyJson(state) as unknown as VerificationReviewState,
-    q = copyJson(input) as unknown as VerificationReviewInput;
+    q = captureVerificationReviewInput(c, input);
   authorize(c, s);
   validateState(s);
-  exact(q, ["linkRef", "expectedRevision", "checks", "rationale"]);
-  invariant(
-    Number.isSafeInteger(q.expectedRevision) &&
-      q.expectedRevision >= 0 &&
-      q.expectedRevision < Number.MAX_SAFE_INTEGER,
-    "invalid_revision",
-    "Safe expected review revision required",
-  );
   // Validate preserved observations against every available exact historical citation edition before appending.
   inspectVerificationReviews(c, knowledge, links, s);
   const selected = selectCurrentEvidenceLinks(c, knowledge, links, q.linkRef);

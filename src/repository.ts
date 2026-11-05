@@ -68,8 +68,28 @@ export type KnowledgeSnapshot = Readonly<{
   revision: number;
   state: KnowledgeState;
 }>;
+export type VerificationWriteBasis = Readonly<{
+  knowledgeRevision: number;
+  linksRevision: number;
+  revision: EvidenceLinksState["records"][number];
+}>;
+export type VerificationAdmission = (basis: VerificationWriteBasis) => void;
 export type KnowledgeAcknowledgement = Readonly<{ storage: Ref; record: Ref }>;
 const json = (v: unknown): Json => JSON.parse(canonical(v));
+function admitVerification(
+  admission: VerificationAdmission,
+  basis: VerificationWriteBasis,
+) {
+  const result: unknown = admission(structuredClone(basis));
+  // A callback is synchronous admission, never an asynchronous permission service. Observe native rejections
+  // without awaiting or accepting them; external callback effects cannot be undone by this repository.
+  if (result instanceof Promise) void result.catch(() => {});
+  invariant(
+    result === undefined,
+    "invalid_policy",
+    "Synchronous void verification admission required",
+  );
+}
 /** Host-authenticated human research facade over its OWN operational database. */
 export class KnowledgeRepository {
   readonly #db: Database;
@@ -544,9 +564,11 @@ export class KnowledgeRepository {
     expectedStorageRevision: number,
     input: VerificationReviewInput,
     commandId: string,
+    admit?: VerificationAdmission,
   ): Promise<KnowledgeAcknowledgement> {
     const c = this.#context(context),
-      q = structuredClone(input);
+      q = structuredClone(input),
+      admission = admit;
     nonempty(commandId, "Command", 128);
     invariant(
       Number.isSafeInteger(expectedStorageRevision) &&
@@ -560,6 +582,19 @@ export class KnowledgeRepository {
       const knowledge = await this.#load(tx, c),
         links = await this.#links(tx, c),
         reviews = await this.#verification(tx, c, knowledge.state, links.state);
+      const basis = admission
+        ? {
+            knowledgeRevision: knowledge.revision,
+            linksRevision: links.revision,
+            revision: selectCurrentEvidenceLinks(
+              c,
+              knowledge.state,
+              links.state,
+              q.linkRef,
+            ),
+          }
+        : undefined;
+      if (admission) admitVerification(admission, basis!);
       return (await tx.idempotent(
         commandId,
         json({
@@ -583,6 +618,7 @@ export class KnowledgeRepository {
             reviews.state,
             q,
           );
+          if (admission) admitVerification(admission, basis!);
           const stored = await tx.put(
             VERIFICATION_REVIEWS_KIND,
             VERIFICATION_REVIEWS_KEY,

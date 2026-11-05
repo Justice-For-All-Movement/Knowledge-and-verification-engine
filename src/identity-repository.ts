@@ -1,3 +1,4 @@
+import type { VerificationAdmission } from "./repository.ts";
 import type { VerificationReviewInput } from "./verification-review.ts";
 import type { EvidenceState } from "@accountability/evidence";
 import type { EvidenceLinksCommand } from "./evidence-links.ts";
@@ -214,13 +215,16 @@ export class IdentityKnowledgeRepository {
     input: VerificationReviewInput,
     commandId: string,
     signal?: AbortSignal,
+    admit?: VerificationAdmission,
   ) {
-    const q = structuredClone(input);
+    const q = structuredClone(input),
+      admission = admit;
     return this.#recordVerification(
       await this.#context(context, signal),
       expectedStorageRevision,
       q,
       commandId,
+      admission,
     );
   }
 }
