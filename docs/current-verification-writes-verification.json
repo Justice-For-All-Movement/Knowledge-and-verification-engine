@@ -1,5 +1,5 @@
 {
-  "status": "PR22 incomplete expanded WIP; exact cross-configuration basis fix under qualification",
+  "status": "PR22 expanded qualification checkpoint; final sync admission/export/full CI pending",
   "local": {
     "focusedGroups": 7,
     "pass": 7,
@@ -9,16 +9,33 @@
     "typecheck": "passed",
     "build": "passed",
     "registry": "passed",
-    "fullSuite": "pending",
+    "fullSuite": "Initial134 passed before basis fix; expanded135 in progress; no full136 local claim",
     "additionalFixedRegression": {
       "pass": 1,
       "fail": 0,
       "skipped": 0,
       "description": "Actual fifth restricted Knowledge DB with colliding scoped refs and a different source lacking Consent binding"
     },
-    "expandedEightInvocation": "in progress"
+    "expandedEightInvocation": {
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    "syncAdmissionInvocation": {
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    }
   },
-  "installed": "initial7 groups passed; fixed eighth/basis callback still pending",
+  "installed": {
+    "expandedEightGroups": 8,
+    "pass": 8,
+    "fail": 0,
+    "skipped": 0,
+    "declarations": "passed for expanded8",
+    "fullSuite": "not claimed",
+    "finalNine": "pending"
+  },
   "ci": "pending",
   "review": [
     "Mandatory actual same-human guarded review and current Identity instances/prototype binding",
@@ -27,7 +44,8 @@
     "Captured under-lock cancellation/deadline callback before cache and immediately before put; legacy fingerprints unchanged",
     "Acknowledged SQL stays acknowledged; lost/failed own phase remains conservatively unknown, no automatic retry",
     "Stored unresolved/null-track/contrary history unchanged; no source authentication/work/finding attestation",
-    "Complete reviewed storage/selected citation basis must equal actual locked writer basis; scoped refs alone are insufficient"
+    "Complete reviewed storage/selected citation basis must equal actual locked writer basis; scoped refs alone are insufficient",
+    "Admission callback must synchronously return undefined; promise/value outcomes fail closed for new/cached paths, native rejections observed"
   ],
   "remaining": [
     "Installed public exports/full suite/current-head CI/branch rules",
@@ -37,13 +55,13 @@
   "sourceSha256": {
     "src/verification-writer.ts": "b5638894957978d78a68fd7ce8bbf16fa97e7fcdba8183d7efd536de5f833129",
     "src/verification-review.ts": "cb0659b2cc356737a810a62d8cf5cc271ad81e70cd585331ea74e92f1bd1c75b",
-    "src/repository.ts": "3185604bba607eedfbf6486d122ab4c73109413e09e5d3fcc8917de30fe8aae2",
+    "src/repository.ts": "170db7fd23309f05a98a2ef2ba65d33463dfa2372a60b0260aec3b88bb887abd",
     "src/identity-repository.ts": "3813b4ff1986fc46745185ea44adc3ed09cf65b100bb60c2a96800faf5bdbd5c",
-    "tests/current-evidence.test.ts": "22cc6912741cf44d7014cea7cc5798efa35c43db45eda9020031f06b75c89724",
+    "tests/current-evidence.test.ts": "27c3112b5a38514013a9c62f0e5a9199336442ad0127d0f6cb9d330277a76a0a",
     "package.json": "47926c1c299aaa7427aa72c6d551c7a3f362fc7a5c03ae8ac7713a6330c839a8",
-    "docs/CURRENT_VERIFICATION_WRITES.md": "1d216d539ee56cf3da62b81fe540a8857dfdcb4981a2a3bb2e48be416f662f9f",
+    "docs/CURRENT_VERIFICATION_WRITES.md": "993a5f1075930111f11836c51f7f771733c4455a26aebf78df9ce1b28a3e7361",
     "docs/ARCHITECTURE.md": "8e6ddd4b1072ef6b544528e8eb7423bedd52da5c3ff12c50b627832129167ba2",
-    "registry/prs.json": "f5e98692c319967e9951b973dc891e95400f3d36c34d83fce636da7be4f444e7"
+    "registry/prs.json": "ade7e57824df0ba2ecf873d71f377ae732d25764015275727645d4410427b3e2"
   },
   "reproduction": {
     "preFixSource": "0f7b5dda30f6c402e711428415e43d92c2614abf",

@@ -76,6 +76,20 @@ export type VerificationWriteBasis = Readonly<{
 export type VerificationAdmission = (basis: VerificationWriteBasis) => void;
 export type KnowledgeAcknowledgement = Readonly<{ storage: Ref; record: Ref }>;
 const json = (v: unknown): Json => JSON.parse(canonical(v));
+function admitVerification(
+  admission: VerificationAdmission,
+  basis: VerificationWriteBasis,
+) {
+  const result: unknown = admission(structuredClone(basis));
+  // A callback is synchronous admission, never an asynchronous permission service. Observe native rejections
+  // without awaiting or accepting them; external callback effects cannot be undone by this repository.
+  if (result instanceof Promise) void result.catch(() => {});
+  invariant(
+    result === undefined,
+    "invalid_policy",
+    "Synchronous void verification admission required",
+  );
+}
 /** Host-authenticated human research facade over its OWN operational database. */
 export class KnowledgeRepository {
   readonly #db: Database;
@@ -580,7 +594,7 @@ export class KnowledgeRepository {
             ),
           }
         : undefined;
-      if (admission) admission(structuredClone(basis!));
+      if (admission) admitVerification(admission, basis!);
       return (await tx.idempotent(
         commandId,
         json({
@@ -604,7 +618,7 @@ export class KnowledgeRepository {
             reviews.state,
             q,
           );
-          if (admission) admission(structuredClone(basis!));
+          if (admission) admitVerification(admission, basis!);
           const stored = await tx.put(
             VERIFICATION_REVIEWS_KIND,
             VERIFICATION_REVIEWS_KEY,

@@ -398,7 +398,7 @@
       "currentVerificationWrites": {
         "docs": "docs/CURRENT_VERIFICATION_WRITES.md",
         "verification": "docs/current-verification-writes-verification.json",
-        "status": "Incomplete WIP: seven initial actual four-DB groups plus a fixed fifth-DB cross-configuration regression passed separately; complete source-basis comparison under writer lock added after reproduced unmerged gap. Expanded local/installed/full/current-head CI pending.",
+        "status": "Incomplete WIP: eight expanded actual 4/5-DB encrypted fixture groups pass local+installed; ninth synchronous admission group passes locally. Complete actual locked writer basis fixes reproduced unmerged misconfiguration gap. Full135 local in progress; final9 installed/current-head CI pending. Unit remains partial.",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/22"
       }
     },
