@@ -1,5 +1,5 @@
 {
-  "status": "Explicitly incomplete PR23 WIP",
+  "status": "Partial AM-05-05 implemented; source head qualified; final documentation-head CI required",
   "localOwning": {
     "pass": 11,
     "fail": 0,
@@ -20,11 +20,21 @@
     "fail": 0,
     "skipped": 0
   },
-  "broaderSuite": "Initial139:138 pass/1 missing scratch integration fixture; fixture restored, targeted/current146 rerun pending",
-  "ci": "pending",
+  "broaderSuite": "Initial139:138 pass/one omitted scratch integration fixture; restored and targeted unsafe-fixture passed. Full146 subsequent local log unavailable; no complete146 local/installed claim.",
+  "ci": {
+    "source": "a3cd698dde57e1fca05980c9618f8c94454a6c1a",
+    "run": 41945087514,
+    "check": 126975184478,
+    "ordinary": 146,
+    "postgres": 126975184230,
+    "existingNetworkGroups": 10,
+    "fail": 0,
+    "skipped": 0,
+    "rawLogs": "Exact head and both footers inspected",
+    "finalDocumentationHead": "required before merge"
+  },
   "remaining": [
-    "expanded installed groups/declarations/module bytes/source review/current-head CI",
-    "cross-configuration/full response budget/network qualification",
+    "comprehensive capacity/response-boundary/new reader network qualification",
     "protected HTTP/UI/full workflow/correction/shared gates/host proofing-delegation-rights/browserATlive"
   ],
   "sourceSha256": {
@@ -34,9 +44,9 @@
     "tests/verification-repository.test.ts": "902380e66797fc58761628e1e6cac9d68f67d2ddbc6dbc43129644928c115bcc",
     "tests/current-evidence.test.ts": "3788bfff17201b9b5040c7363a3517a24896ea06c3ce46c87934c28882adc8c6",
     "package.json": "a5e09348395dade8bb3a5f7e3b5d3fe62bb4a61a8f5b5d2c1e3da06c11c2557a",
-    "docs/SELECTED_VERIFICATION_READ.md": "73e8e3050f7d7e46d92f9c3293ce7aceb15a083a01f4326782aef53f043f21b3",
+    "docs/SELECTED_VERIFICATION_READ.md": "fb36e98de5e99bc76834be2140a0f67453adde681b4e8cfff4f6db4ad9a217ea",
     "docs/ARCHITECTURE.md": "ce6e4e555c37259a1293682654aedbdcf377f2649698786f00c86a749ed7dfbf",
-    "registry/prs.json": "dc6e08d4f3f8778c60adf882adff24d4cb6cf55517915be1930df36a5b3ccc93"
+    "registry/prs.json": "c06ce167db979a80e411ee2101b7960b8176a68fcc072e0de1cee421f8abe293"
   },
   "publicDeclarations": "passed",
   "runtimeModules": "All three byte-match installed compiled exports",
@@ -50,5 +60,6 @@
     "installedPass": 1,
     "fail": 0,
     "skipped": 0
-  }
+  },
+  "sourceReview": "Mandatory owning guards, role stripping, lock/basis/selection, minimal output, deadlines/cancellation/unknown reads/private unresolved defaults reviewed; no unresolved runtime finding"
 }
