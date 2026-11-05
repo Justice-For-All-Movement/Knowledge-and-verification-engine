@@ -393,6 +393,11 @@
         "verification": "docs/verification-repository-verification.json",
         "status": "Full127 local suite plus eight installed public-export groups/declarations/runtime bytes pass. Source5832a1c networkCI41933074302/postgres126934599383 passes10actualPG17 (7prior+3new). Ordinary/final documentation-head checks required; unit remains partial.",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/21"
+      },
+      "currentVerificationWrites": {
+        "docs": "docs/CURRENT_VERIFICATION_WRITES.md",
+        "verification": "docs/current-verification-writes-verification.json",
+        "status": "Incomplete WIP: seven actual four-restricted-DB/encrypted-root groups and normal npm ci/typecheck/build/registry pass; installed/full/current-head CI pending; unit remains partial."
       }
     },
     {

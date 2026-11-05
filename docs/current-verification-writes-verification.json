@@ -1,0 +1,40 @@
+{
+  "status": "Incomplete WIP; tested first implementation checkpoint",
+  "local": {
+    "focusedGroups": 7,
+    "pass": 7,
+    "fail": 0,
+    "skipped": 0,
+    "normalNpmCi": "passed",
+    "typecheck": "passed",
+    "build": "passed",
+    "registry": "passed",
+    "fullSuite": "pending"
+  },
+  "installed": "pending",
+  "ci": "pending",
+  "review": [
+    "Mandatory actual same-human guarded review and current Identity instances/prototype binding",
+    "Detached exact preflight before credentials/SQL; same input profiles reused by pure recorder",
+    "Fresh source-use admission before current Identity/owning basis/CAS; no external calls from Knowledge transaction",
+    "Captured under-lock cancellation/deadline callback before cache and immediately before put; legacy fingerprints unchanged",
+    "Acknowledged SQL stays acknowledged; lost/failed own phase remains conservatively unknown, no automatic retry",
+    "Stored unresolved/null-track/contrary history unchanged; no source authentication/work/finding attestation"
+  ],
+  "remaining": [
+    "Installed public exports/full suite/current-head CI/branch rules",
+    "Host proofing/mapping/delegation/current rights and driver/CPU/heap bounds",
+    "Protected HTTP/UI/full verification/correction workflow/original shared dependencies/browser/AT/live"
+  ],
+  "sourceSha256": {
+    "src/verification-writer.ts": "877f5788b4c2444468b6d94759e1811f937c574e8535da1c39fd308960a99fb1",
+    "src/verification-review.ts": "cb0659b2cc356737a810a62d8cf5cc271ad81e70cd585331ea74e92f1bd1c75b",
+    "src/repository.ts": "3fe8237588465c04bbc93c75f854c588089647e4e2937e3fe851c76a68642383",
+    "src/identity-repository.ts": "96c2d07b341531b5352960c23040a19cac005b95195debffca15190335c916a2",
+    "tests/current-evidence.test.ts": "3d43f36e4d1b4ec0fb9c66c33648913ee2f3f5e8b7c3bc717d1f12f4734dd7b9",
+    "package.json": "47926c1c299aaa7427aa72c6d551c7a3f362fc7a5c03ae8ac7713a6330c839a8",
+    "docs/CURRENT_VERIFICATION_WRITES.md": "b62577948a6b486392afaf44c253d500ea73445db613c5efdd2baca8485a6a25",
+    "docs/ARCHITECTURE.md": "8e6ddd4b1072ef6b544528e8eb7423bedd52da5c3ff12c50b627832129167ba2",
+    "registry/prs.json": "e467f31b55e35edc874af0fa3651a9a7b42e123e887878e7350870087953d41f"
+  }
+}

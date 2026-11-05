@@ -51,6 +51,10 @@
     "./verification-review": {
       "types": "./dist/verification-review.d.ts",
       "default": "./dist/verification-review.js"
+    },
+    "./verification-writer": {
+      "types": "./dist/verification-writer.d.ts",
+      "default": "./dist/verification-writer.js"
     }
   },
   "engines": {

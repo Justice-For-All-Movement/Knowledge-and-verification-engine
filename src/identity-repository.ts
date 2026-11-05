@@ -214,13 +214,16 @@ export class IdentityKnowledgeRepository {
     input: VerificationReviewInput,
     commandId: string,
     signal?: AbortSignal,
+    admit?: () => void,
   ) {
-    const q = structuredClone(input);
+    const q = structuredClone(input),
+      admission = admit;
     return this.#recordVerification(
       await this.#context(context, signal),
       expectedStorageRevision,
       q,
       commandId,
+      admission,
     );
   }
 }

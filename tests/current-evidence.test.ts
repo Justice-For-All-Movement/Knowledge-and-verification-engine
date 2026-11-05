@@ -1933,3 +1933,338 @@ test("human-bound review awaits lost or cancelled actual Evidence SQL and never 
   assert.equal(f.signal()!.aborted, true);
   assert.deepEqual(await f.facade.loadEvidenceLinks(c), before);
 });
+
+import { CurrentVerificationReviewWriter } from "../src/verification-writer.ts";
+import { captureVerificationReviewInput } from "../src/verification-review.ts";
+import { VERIFICATION_REVIEWS_KIND } from "../src/repository.ts";
+function verificationInput(
+  f: Awaited<ReturnType<typeof consentWriterFixture>>,
+) {
+  const check = {
+    status: "reviewed" as const,
+    note: "A fictional human assertion, not independent proof",
+  };
+  return {
+    linkRef: f.link.record,
+    expectedRevision: 0,
+    checks: {
+      authenticity: check,
+      sourceKnowledge: check,
+      independentSupport: check,
+      counterevidence: check,
+    },
+    rationale: "Unresolved fictional verification observation",
+  };
+}
+function verificationWriter(
+  f: Awaited<ReturnType<typeof consentWriterFixture>>,
+  timeout = 10000,
+  service = f.service,
+) {
+  return new CurrentVerificationReviewWriter(
+    f.facade,
+    new HumanConsentEvidenceKnowledgeReview(
+      f.facade,
+      service,
+      f.credential,
+      f.makeGuard(),
+    ),
+    timeout,
+  );
+}
+
+test("current verification writer composes actual same-human source Consent and Identity before an unresolved own-DB record", async (t) => {
+  const f = await consentWriterFixture(t),
+    q = verificationInput(f),
+    review = new HumanConsentEvidenceKnowledgeReview(
+      f.facade,
+      f.service,
+      f.credential,
+      f.makeGuard(),
+    );
+  Object.assign(review, {
+    review: async () => {
+      throw Error("must use owning implementation");
+    },
+  });
+  Object.assign(f.facade, {
+    recordVerificationReview: async () => {
+      throw Error("must use owning implementation");
+    },
+  });
+  const writer = new CurrentVerificationReviewWriter(f.facade, review),
+    claims = await f.facade.load(c),
+    links = await f.facade.loadEvidenceLinks(c);
+  const ack = await writer.record(
+    { ...c, actor: { ...c.actor, roles: ["forged"] } },
+    0,
+    q,
+    "current-verification",
+  );
+  assert.equal(ack.storage.kind, VERIFICATION_REVIEWS_KIND);
+  const rows = await f.facade.loadVerificationReviews(c);
+  assert.equal(rows.revision, 1);
+  assert.deepEqual(rows.state.records[0]!.challengeLinkIds, ["contrary"]);
+  assert.equal(rows.state.records[0]!.resolution, "unresolved");
+  assert.equal(rows.state.records[0]!.assessment, null);
+  assert.deepEqual(await f.facade.load(c), claims);
+  assert.deepEqual(await f.facade.loadEvidenceLinks(c), links);
+  assert.equal(f.signal()!.aborted, true);
+});
+
+test("current verification writer refuses wrong humans and same-ID service agents before any review record", async (t) => {
+  const f = await consentWriterFixture(t),
+    writer = verificationWriter(f),
+    q = verificationInput(f);
+  for (const actor of [
+    { id: "other", kind: "human" },
+    { id: "owner", kind: "service" },
+    { id: "owner", kind: "agent" },
+  ]) {
+    Object.assign(f.identities[0]!.actor, actor);
+    await assert.rejects(writer.record(c, 0, q, "principal-" + actor.kind), {
+      code: "verification_unavailable",
+      message: "Current verification admission unavailable",
+    });
+  }
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 0);
+  Object.assign(f.identities[0]!.actor, { id: "owner", kind: "human" });
+  await f.permissions.withdraw(
+    c,
+    "consent",
+    "consent",
+    1,
+    "withdraw-before-verification",
+  );
+  await assert.rejects(writer.record(c, 0, q, "withdrawn"), {
+    code: "verification_unavailable",
+  });
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 0);
+});
+
+test("current verification writer withholds an actual owning source result after Consent withdrawal during observation", async (t) => {
+  const f = await consentWriterFixture(t),
+    actual = f.service.reviewSelectorsForHuman.bind(f.service);
+  let withdrew = false;
+  const port = {
+    reviewSelectorsForHuman: async (...args: Parameters<typeof actual>) => {
+      const result = await actual(...args);
+      if (!withdrew) {
+        withdrew = true;
+        await f.permissions.withdraw(
+          c,
+          "rights-grant",
+          "rights",
+          1,
+          "withdraw-during-verification",
+        );
+      }
+      return result;
+    },
+  } as EvidenceService;
+  const writer = verificationWriter(f, 10000, port);
+  await assert.rejects(
+    writer.record(c, 0, verificationInput(f), "withdrawn-result"),
+    { code: "verification_unavailable" },
+  );
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 0);
+  assert.equal(f.signal()!.aborted, true);
+});
+
+test("current verification writer preserves unknown lost COMMIT, exact guarded replay and acknowledged commits after cancellation", async (t) => {
+  const f = await consentWriterFixture(t),
+    transaction = f.knowledge.transaction.bind(f.knowledge),
+    q = verificationInput(f);
+  let lose = true,
+    cancel: AbortController | undefined;
+  Object.assign(f.knowledge, {
+    transaction: async <T>(
+      fn: Parameters<Database["transaction"]>[0],
+    ): Promise<T> => {
+      let wrote = false;
+      const value = await transaction((query) =>
+        fn({
+          query: async <R>(sql: string, values?: unknown[]) => {
+            if (
+              sql.includes("INSERT INTO public.evidence_record") &&
+              values?.includes(VERIFICATION_REVIEWS_KIND)
+            )
+              wrote = true;
+            return query.query<R>(sql, values);
+          },
+        }),
+      );
+      if (wrote && lose) {
+        lose = false;
+        throw Error("private lost actual verification COMMIT");
+      }
+      if (wrote) cancel?.abort();
+      return value as T;
+    },
+  });
+  const writer = verificationWriter(f);
+  await assert.rejects(writer.record(c, 0, q, "lost-verification"), {
+    code: "verification_commit_unknown",
+  });
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 1);
+  const ack = await writer.record(c, 0, q, "lost-verification");
+  assert.equal(ack.record.revision, 1);
+  Object.assign(f.identities[0]!.actor, { kind: "service" });
+  await assert.rejects(writer.record(c, 0, q, "lost-verification"), {
+    code: "verification_unavailable",
+  });
+  Object.assign(f.identities[0]!.actor, { kind: "human" });
+  cancel = new AbortController();
+  const next = await writer.record(
+    c,
+    1,
+    { ...q, expectedRevision: 1 },
+    "ack-after-cancel",
+    cancel.signal,
+  );
+  assert.equal(cancel.signal.aborted, true);
+  assert.equal(next.record.revision, 2);
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 2);
+});
+
+test("current verification writer gates new and cached admission after actual own history reads even when JS blocks the timer", async (t) => {
+  const f = await consentWriterFixture(t),
+    transaction = f.knowledge.transaction.bind(f.knowledge),
+    q = verificationInput(f);
+  let block = true;
+  Object.assign(f.knowledge, {
+    transaction: <T>(fn: Parameters<Database["transaction"]>[0]): Promise<T> =>
+      transaction((query) =>
+        fn({
+          query: async <R>(sql: string, values?: unknown[]) => {
+            const result = await query.query<R>(sql, values);
+            if (
+              block &&
+              sql.includes("SELECT") &&
+              values?.includes(VERIFICATION_REVIEWS_KIND)
+            ) {
+              block = false;
+              const until = performance.now() + 1300;
+              while (performance.now() < until) {}
+            }
+            return result;
+          },
+        }),
+      ) as Promise<T>,
+  });
+  await assert.rejects(
+    verificationWriter(f, 1000).record(c, 0, q, "expired-new"),
+    { code: "verification_commit_unknown" },
+  );
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 0);
+  const ack = await f.repo.recordVerificationReview(
+    c,
+    0,
+    q,
+    "legacy-historical",
+  );
+  block = true;
+  await assert.rejects(
+    verificationWriter(f, 1000).record(c, 0, q, "legacy-historical"),
+    { code: "verification_commit_unknown" },
+  );
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 1);
+  assert.deepEqual(
+    await verificationWriter(f).record(c, 0, q, "legacy-historical"),
+    ack,
+  );
+});
+
+test("current verification writer preflight rejects authority accessors scope and missing guard before credentials or SQL", async (t) => {
+  const f = await consentWriterFixture(t),
+    q = verificationInput(f);
+  const legacy = new ConsentEvidenceKnowledgeReview(
+    f.facade,
+    f.service,
+    f.credential,
+    f.makeGuard(),
+  );
+  assert.throws(
+    () => new CurrentVerificationReviewWriter(f.facade, legacy as never),
+    { code: "invalid_policy" },
+  );
+  assert.throws(
+    () =>
+      new CurrentVerificationReviewWriter(
+        {} as never,
+        new HumanConsentEvidenceKnowledgeReview(
+          f.facade,
+          f.service,
+          f.credential,
+          f.makeGuard(),
+        ),
+      ),
+    { code: "invalid_policy" },
+  );
+  let credentials = 0;
+  const review = new HumanConsentEvidenceKnowledgeReview(
+    f.facade,
+    f.service,
+    async () => {
+      credentials++;
+      throw Error("private callback diagnostic");
+    },
+    f.makeGuard(),
+  );
+  const writer = new CurrentVerificationReviewWriter(f.facade, review);
+  for (const bad of [
+    { ...q, assessment: "verified" },
+    { ...q, rationale: "x".repeat(4001) },
+    { ...q, linkRef: { ...q.linkRef, projectId: "foreign" } },
+    Object.defineProperty({ ...q }, "rationale", {
+      get() {
+        throw Error("must not invoke accessor");
+      },
+      enumerable: true,
+    }),
+  ])
+    await assert.rejects(writer.record(c, 0, bad, "bad-input"));
+  assert.equal(credentials, 0);
+  const captured = captureVerificationReviewInput(c, q);
+  Object.assign(q, { rationale: "caller changed" });
+  assert.notEqual(captured.rationale, q.rationale);
+  await assert.rejects(writer.record(c, 0, captured, "sanitized-callback"), {
+    code: "verification_unavailable",
+    message: "Current verification admission unavailable",
+  });
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 0);
+});
+
+test("current verification writer awaits own outbox rollback and requires explicit current guarded replay", async (t) => {
+  const f = await consentWriterFixture(t),
+    transaction = f.knowledge.transaction.bind(f.knowledge),
+    q = verificationInput(f);
+  let rollback = true;
+  Object.assign(f.knowledge, {
+    transaction: <T>(fn: Parameters<Database["transaction"]>[0]): Promise<T> =>
+      transaction((query) =>
+        fn({
+          query: async <R>(sql: string, values?: unknown[]) => {
+            const result = await query.query<R>(sql, values);
+            if (
+              rollback &&
+              sql.includes("INSERT INTO public.evidence_outbox") &&
+              values?.includes("knowledge.verification-review.revised")
+            )
+              throw Error("private verification outbox rollback");
+            return result;
+          },
+        }),
+      ) as Promise<T>,
+  });
+  const writer = verificationWriter(f);
+  await assert.rejects(writer.record(c, 0, q, "rollback-verification"), {
+    code: "verification_commit_unknown",
+  });
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 0);
+  rollback = false;
+  assert.equal(
+    (await writer.record(c, 0, q, "rollback-verification")).record.revision,
+    1,
+  );
+});

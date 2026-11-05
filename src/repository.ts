@@ -544,9 +544,11 @@ export class KnowledgeRepository {
     expectedStorageRevision: number,
     input: VerificationReviewInput,
     commandId: string,
+    admit?: () => void,
   ): Promise<KnowledgeAcknowledgement> {
     const c = this.#context(context),
-      q = structuredClone(input);
+      q = structuredClone(input),
+      admission = admit;
     nonempty(commandId, "Command", 128);
     invariant(
       Number.isSafeInteger(expectedStorageRevision) &&
@@ -560,6 +562,7 @@ export class KnowledgeRepository {
       const knowledge = await this.#load(tx, c),
         links = await this.#links(tx, c),
         reviews = await this.#verification(tx, c, knowledge.state, links.state);
+      admission?.();
       return (await tx.idempotent(
         commandId,
         json({
@@ -583,6 +586,7 @@ export class KnowledgeRepository {
             reviews.state,
             q,
           );
+          admission?.();
           const stored = await tx.put(
             VERIFICATION_REVIEWS_KIND,
             VERIFICATION_REVIEWS_KEY,
