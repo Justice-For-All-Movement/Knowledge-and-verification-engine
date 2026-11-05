@@ -12,6 +12,7 @@ export const KNOWLEDGE_RESOURCE_ID = digest({
 });
 /** Explicit opt-in; host authenticates human kind/id. Current stored roles replace incoming roles. */
 export class IdentityKnowledgeRepository {
+  readonly #selectedVerification: KnowledgeRepository["prepareVerificationReview"];
   readonly #verification: KnowledgeRepository["loadVerificationReviews"];
   readonly #recordVerification: KnowledgeRepository["recordVerificationReview"];
   readonly #resolve: MembershipRegistry["resolveResource"];
@@ -32,6 +33,7 @@ export class IdentityKnowledgeRepository {
     policy: Scope & Readonly<{ purpose: string }>,
     timeoutMs = 10000,
   ) {
+    this.#selectedVerification = repository.prepareVerificationReview.bind(repository);
     this.#verification = repository.loadVerificationReviews.bind(repository);
     this.#recordVerification =
       repository.recordVerificationReview.bind(repository);
@@ -205,6 +207,10 @@ export class IdentityKnowledgeRepository {
       commandId,
       admit,
     );
+  }
+  async prepareVerificationReview(context: Context, selected: Ref, signal?: AbortSignal, admit?: VerificationAdmission) {
+    const choice = structuredClone(selected), admission = admit;
+    return this.#selectedVerification(await this.#context(context, signal), choice, admission);
   }
   async loadVerificationReviews(context: Context, signal?: AbortSignal) {
     return this.#verification(await this.#context(context, signal));

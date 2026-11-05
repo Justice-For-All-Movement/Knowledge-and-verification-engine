@@ -400,6 +400,10 @@
         "verification": "docs/current-verification-writes-verification.json",
         "status": "Full135 local suite after complete-basis fix plus separate ninth local synchronous-hook group; all9 final installed compiled groups, strict declarations and four runtime modules match. Source2afdf4c CI41940808212 passed136 ordinary/10 existing actualPG17 with zero skips. No full136 local/installed claim. Final documentation-head CI required; AM-05-05 remains partial; protected interfaces/full workflow pending.",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/22"
+      },
+      "selectedVerificationRead": {
+        "docs": "docs/SELECTED_VERIFICATION_READ.md",
+        "status": "Incomplete WIP: owning exact latest/current selected read plus opt-in current Identity; tests/installed qualification/current-head CI pending. Source/Consent/protected interfaces remain pending; original unit partial."
       }
     },
     {

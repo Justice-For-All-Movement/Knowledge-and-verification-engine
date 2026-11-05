@@ -474,12 +474,14 @@ test("actual owning Identity resource authority is reloaded for verification rea
     "identity-review",
   );
   assert.equal((await facade.loadVerificationReviews(incoming)).revision, 1);
+  assert.deepEqual((await facade.prepareVerificationReview(incoming, ack.record)).record.ref, ack.record);
   await membership.setResourcePolicy(
     owner,
     1,
     { ...policy, memberIds: [] },
     "revoke",
   );
+  await assert.rejects(facade.prepareVerificationReview(owner, ack.record), { code: "identity_unavailable" });
   await assert.rejects(facade.loadVerificationReviews(owner), {
     code: "identity_unavailable",
   });
@@ -570,4 +572,52 @@ test("own verification checked lock precedes all actual claim citation review re
     cache > reviewRead,
     "Cached acknowledgement must follow current stored history validation",
   );
+});
+
+test("selected verification read returns only the exact latest current record and complete locked citation basis", async (t) => {
+  const f = await ready(t);
+  const first = await f.repo.recordVerificationReview(c, 0, f.input, "first");
+  const second = await f.repo.recordVerificationReview(c, 1, { ...f.input, expectedRevision: 1, rationale: "Revised unresolved observation" }, "second");
+  await assert.rejects(f.repo.prepareVerificationReview(c, first.record), { code: "stale_review" });
+  const view = await f.repo.prepareVerificationReview(c, second.record);
+  assert.deepEqual(Object.keys(view).sort(), ["knowledgeRevision", "linksRevision", "record", "reviewRevision", "revision"].sort());
+  assert.equal(view.reviewRevision, 2);
+  assert.deepEqual(view.record.ref, second.record);
+  assert.equal(view.record.resolution, "unresolved");
+  assert.equal(view.record.assessment, null);
+  assert.deepEqual(view.revision, (await f.repo.loadEvidenceLinks(c)).state.records[0]);
+  (view.record.checks.authenticity as { note: string }).note = "detached";
+  assert.notEqual((await f.repo.prepareVerificationReview(c, second.record)).record.checks.authenticity.note, "detached");
+  await f.repo.append(c, 1, { id: "claim", expectedRevision: 1, value: { ...claim, text: "Changed claim" } }, "change");
+  await assert.rejects(f.repo.prepareVerificationReview(c, second.record), { code: "stale_review" });
+  assert.equal((await f.repo.loadVerificationReviews(c)).state.records.length, 2);
+});
+
+test("selected verification read enforces locked synchronous admission, scope and unknown lost read COMMIT", async (t) => {
+  const f = await ready(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, f.input, "review");
+  let called = 0;
+  await f.repo.prepareVerificationReview(c, ack.record, basis => {
+    called++;
+    assert.equal(basis.knowledgeRevision, 1);
+    assert.deepEqual(basis.revision.ref, f.input.linkRef);
+    (basis.revision.links as unknown[]).length = 0;
+  });
+  assert.equal(called, 1);
+  assert.equal((await f.repo.prepareVerificationReview(c, ack.record)).revision.links.length, 2);
+  await assert.rejects(f.repo.prepareVerificationReview(c, ack.record, async () => {}), { code: "invalid_policy" });
+  await assert.rejects(f.repo.prepareVerificationReview(c, { ...ack.record, projectId: "foreign" }));
+  await assert.rejects(f.repo.prepareVerificationReview(c, { ...ack.record, revision: 999 }), { code: "stale_review" });
+  f.hooks.lost = true;
+  await assert.rejects(f.repo.prepareVerificationReview(c, ack.record), /lost COMMIT acknowledgement/);
+  assert.deepEqual((await f.repo.prepareVerificationReview(c, ack.record)).record.ref, ack.record);
+  assert.equal((await f.repo.loadVerificationReviews(c)).revision, 1);
+});
+
+test("selected verification read rejects citation replacement while preserving prior review history", async (t) => {
+  const f = await ready(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, f.input, "review");
+  await f.repo.recordEvidenceLinks(c, 1, f.d.evidence, { claim: f.d.knowledge.records[0]!.ref, expectedRevision: 1, links: [] }, "replace-links");
+  await assert.rejects(f.repo.prepareVerificationReview(c, ack.record), { code: "stale_review" });
+  assert.equal((await f.repo.loadVerificationReviews(c)).state.records[0]!.challengeLinkIds.length, 1);
 });

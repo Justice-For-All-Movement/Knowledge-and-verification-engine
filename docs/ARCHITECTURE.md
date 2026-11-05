@@ -53,3 +53,5 @@ HUMAN_SOURCE_LINK_REVIEW.md documents opt-in same-human owning review and its pr
 VERIFICATION_REPOSITORY.md documents partial own-DB unresolved human observation history and optional actual current Identity methods; earlier pure-only persistence-pending notes are historical. Durability does not attest source checks or current Evidence/Consent permission.
 
 CURRENT_VERIFICATION_WRITES.md documents the explicit same-human current Identity/Consent/source admission coordinator for unresolved own-DB observations, with under-lock deadline/cancellation gates and conservative unknown outcomes. It does not attest source truth/work or create findings/answers.
+
+SELECTED_VERIFICATION_READ.md documents a narrow exact latest/current owning review read and its current Identity facade; source/use permission and protected interfaces are separate requirements.

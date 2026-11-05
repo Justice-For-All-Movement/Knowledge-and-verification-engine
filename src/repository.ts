@@ -40,6 +40,7 @@ import {
   invariant,
   nonempty,
   requireScope,
+  validateRef,
 } from "./contracts.ts";
 import type { Context, Json, Ref, Scope } from "./contracts.ts";
 import {
@@ -557,6 +558,33 @@ export class KnowledgeRepository {
           basisStatus,
         })),
       });
+    });
+  }
+  /** Selected current unresolved record and its actual owning citation basis; no source/use attestation. */
+  async prepareVerificationReview(
+    context: Context,
+    selected: Ref,
+    admit?: VerificationAdmission,
+  ) {
+    const c = this.#context(context),
+      choice = validateRef(structuredClone(selected)),
+      admission = admit;
+    requireScope(c, choice);
+    invariant(choice.kind === "knowledge-verification-review", "invalid_review", "Exact verification review reference required");
+    return scoped(this.#db, c, async (tx) => {
+      await tx.audit("knowledge.verification-review.selected_checked", {});
+      const knowledge = await this.#load(tx, c),
+        links = await this.#links(tx, c),
+        reviews = await this.#verification(tx, c, knowledge.state, links.state);
+      const observed = reviews.observed.latest.find(({ record }) => canonical(record.ref) === canonical(choice));
+      invariant(observed && observed.basisStatus === "current-editions", "stale_review", "Exact latest review with current citation basis required");
+      const basis = {
+        knowledgeRevision: knowledge.revision,
+        linksRevision: links.revision,
+        revision: selectCurrentEvidenceLinks(c, knowledge.state, links.state, observed.record.linkRef),
+      };
+      if (admission) admitVerification(admission, basis);
+      return structuredClone({ ...basis, reviewRevision: reviews.revision, record: observed.record });
     });
   }
   async recordVerificationReview(
