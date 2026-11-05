@@ -2455,3 +2455,78 @@ test("current verification reader denies blocked-JS final owning admission and c
   assert.throws(() => new CurrentVerificationReviewReader(f.facade, {} as never), { code: "invalid_policy" });
   assert.equal((await f.facade.loadVerificationReviews(c)).revision, 1);
 });
+
+
+test("current verification reader binds source admission to the actual selected database basis across colliding scoped refs", async (t) => {
+  const f = await consentWriterFixture(t),
+    repoDb = await f.database("other_knowledge_login");
+  const before = await f.service.inspect(f.req, f.source.ref);
+  const other = await f.service.acquire(f.req, {
+    id: "unpermitted",
+    acquisitionId: "unpermitted-fictional",
+    bytes: Buffer.from("A different fictional source with no Consent binding"),
+    mediaType: "text/plain",
+    capturedAt: c.now,
+    originalLanguage: "und",
+    supersedes: null,
+    expectedRevision: before.revision,
+    idempotencyKey: "unpermitted",
+  });
+  await f.service.runNextScan({ ...f.req, token: "w".repeat(32) });
+  const metadata = await f.service.inspect(f.req, other.ref),
+    stored = await scoped(f.evidence, c, (tx) =>
+      tx.get<{ domain: EvidenceState }>("evidence.aggregate", "project"),
+    );
+  const repo = new KnowledgeRepository(repoDb, {
+    ...f.fixed,
+    humanIds: ["owner"],
+  });
+  const claim = await repo.append(c, 0, f.claim, "same-scoped-claim");
+  const links = await repo.recordEvidenceLinks(
+    c,
+    0,
+    stored!.value.domain,
+    {
+      claim: claim.record,
+      expectedRevision: 0,
+      links: [
+        {
+          id: "unpermitted",
+          relation: "supports",
+          selector: {
+            kind: "whole",
+            evidence: other.ref,
+            sha256: metadata.version.sha256,
+          },
+        },
+      ],
+    },
+    "same-scoped-link",
+  );
+  assert.deepEqual(
+    links.record,
+    f.link.record,
+    "Scoped logical references alone can collide across configured deployments",
+  );
+  const otherFacade = new IdentityKnowledgeRepository(
+    repo,
+    f.membership,
+    f.fixed,
+  );
+  const ack = await repo.recordVerificationReview(c, 0, verificationInput(f), "existing-review");
+  const reader = new CurrentVerificationReviewReader(
+    otherFacade,
+    new HumanConsentEvidenceKnowledgeReview(
+      f.facade,
+      f.service,
+      f.credential,
+      f.makeGuard(),
+    ),
+  );
+  await assert.rejects(
+    reader.read(c, ack.record),
+    { code: "verification_unavailable" },
+  );
+  assert.equal((await otherFacade.loadVerificationReviews(c)).revision, 1);
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 0);
+});

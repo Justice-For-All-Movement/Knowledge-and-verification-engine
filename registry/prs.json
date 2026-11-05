@@ -404,7 +404,7 @@
       },
       "selectedVerificationRead": {
         "docs": "docs/SELECTED_VERIFICATION_READ.md",
-        "status": "Incomplete WIP PR23: eleven local owning groups and four initial composed local groups pass; eight installed targeted groups pass. All6 composed local groups now pass, including supersession during source observation and blocked-JS final admission. Strict installed declarations and three runtime modules match. Broader/current-head CI/source review and expanded installed qualification remain pending. No HTTP/UI/full workflow acceptance.",
+        "status": "Incomplete WIP PR23: eleven local owning groups and four initial composed local groups pass; eight installed targeted groups pass. All6 composed local groups now pass, including supersession during source observation and blocked-JS final admission. Strict installed declarations and three runtime modules match. All10 expanded installed groups plus a separate cross-configuration local+installed group pass (7 composed local groups total). Broader/current-head CI/source review pending; initial139 local had138 pass/one missing scratch integration fixture, restored and targeted recheck pending. No HTTP/UI/full workflow acceptance.",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/23"
       }
     },
