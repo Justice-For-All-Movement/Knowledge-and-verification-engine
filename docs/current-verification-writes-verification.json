@@ -1,5 +1,5 @@
 {
-  "status": "PR22 expanded qualification checkpoint; final sync admission/export/full CI pending",
+  "status": "Implemented partial AM-05-05; source CI qualified; final documentation-head CI required before merge",
   "local": {
     "focusedGroups": 7,
     "pass": 7,
@@ -9,7 +9,7 @@
     "typecheck": "passed",
     "build": "passed",
     "registry": "passed",
-    "fullSuite": "Initial134 passed before basis fix; expanded135 in progress; no full136 local claim",
+    "fullSuite": "135 passed, zero failures/skips, after complete-basis fix before final synchronous hook guard; ninth group passed separately; no full136 local claim",
     "additionalFixedRegression": {
       "pass": 1,
       "fail": 0,
@@ -28,15 +28,27 @@
     }
   },
   "installed": {
-    "expandedEightGroups": 8,
-    "pass": 8,
+    "focusedGroups": 9,
+    "pass": 9,
     "fail": 0,
     "skipped": 0,
-    "declarations": "passed for expanded8",
-    "fullSuite": "not claimed",
-    "finalNine": "pending"
+    "declarations": "passed for final public exports",
+    "runtimeModules": "All four changed runtime modules byte-match compiled installed exports",
+    "normalPreparedInstall": "passed",
+    "fullSuite": "not claimed"
   },
-  "ci": "pending",
+  "ci": {
+    "source": "2afdf4c8e1b2b7ad88262e2729b5c51c935821ca",
+    "run": 41940808212,
+    "check": 126960817558,
+    "ordinary": 136,
+    "postgres": 126960817347,
+    "existingPostgresGroups": 10,
+    "fail": 0,
+    "skipped": 0,
+    "rawLogs": "Exact source/base merge and both test footers inspected",
+    "finalDocumentationHead": "required before merge"
+  },
   "review": [
     "Mandatory actual same-human guarded review and current Identity instances/prototype binding",
     "Detached exact preflight before credentials/SQL; same input profiles reused by pure recorder",
@@ -48,7 +60,6 @@
     "Admission callback must synchronously return undefined; promise/value outcomes fail closed for new/cached paths, native rejections observed"
   ],
   "remaining": [
-    "Installed public exports/full suite/current-head CI/branch rules",
     "Host proofing/mapping/delegation/current rights and driver/CPU/heap bounds",
     "Protected HTTP/UI/full verification/correction workflow/original shared dependencies/browser/AT/live"
   ],
@@ -59,13 +70,13 @@
     "src/identity-repository.ts": "3813b4ff1986fc46745185ea44adc3ed09cf65b100bb60c2a96800faf5bdbd5c",
     "tests/current-evidence.test.ts": "27c3112b5a38514013a9c62f0e5a9199336442ad0127d0f6cb9d330277a76a0a",
     "package.json": "47926c1c299aaa7427aa72c6d551c7a3f362fc7a5c03ae8ac7713a6330c839a8",
-    "docs/CURRENT_VERIFICATION_WRITES.md": "993a5f1075930111f11836c51f7f771733c4455a26aebf78df9ce1b28a3e7361",
+    "docs/CURRENT_VERIFICATION_WRITES.md": "773ece02e3675b00f18db0b3527d7905ffaf1ddfaf9039e13e724ab7e26f55c2",
     "docs/ARCHITECTURE.md": "8e6ddd4b1072ef6b544528e8eb7423bedd52da5c3ff12c50b627832129167ba2",
-    "registry/prs.json": "ade7e57824df0ba2ecf873d71f377ae732d25764015275727645d4410427b3e2"
+    "registry/prs.json": "df3a38213492c7ed5e37b22faded71ae40b92e9b151b6a75b83214e4b2ca2706"
   },
   "reproduction": {
     "preFixSource": "0f7b5dda30f6c402e711428415e43d92c2614abf",
     "expectedRejection": "locally reproduced missing rejection in unmerged coordinator",
-    "fixed": "local eighth group passes after full actual writer basis comparison under lock"
+    "fixed": "Expanded135 local suite and final nine installed groups pass after complete actual writer-basis comparison under lock"
   }
 }
