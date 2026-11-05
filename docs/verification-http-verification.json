@@ -1,0 +1,25 @@
+{
+  "status": "Explicitly incomplete WIP; not accepted",
+  "local": {
+    "groups": 3,
+    "pass": 3,
+    "fail": 0,
+    "skipped": 0,
+    "typecheck": "passed",
+    "build": "passed"
+  },
+  "remaining": [
+    "expanded auth/body/deadline/response/source review tests",
+    "installed exports/declarations/module bytes",
+    "broader current-head CI/actual rules",
+    "host identity/TLS/current rights/driver/browserATlive/full workflow"
+  ],
+  "sourceSha256": {
+    "src/verification-http.ts": "567fa767bc1a3c05bc68bb1f16e259a99dfb072fc5dd10fd585dd7d273f74487",
+    "tests/current-evidence.test.ts": "2e835ae24e786a56e56faecf1409d279578230c80ffc2cf312da4b014cf3f101",
+    "package.json": "f8791aeeec14f073892f8b44a4d89f7c68a9123dbf179277c22d7fec13b7ded7",
+    "docs/VERIFICATION_HTTP.md": "c9459c467fe4379ed79faafc2c965a4072c91c698b17784c75fae54f9b5cc536",
+    "docs/ARCHITECTURE.md": "df2eeaed5050f15e514742c5486727fd985d7d5e6bd56f32b95711b1462f594d",
+    "registry/prs.json": "499d0f7ac26a8e050c3ebdf99dfe246ec0d26b16d249211cfd5164f16e61d27f"
+  }
+}

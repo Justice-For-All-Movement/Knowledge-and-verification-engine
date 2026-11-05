@@ -55,3 +55,5 @@ VERIFICATION_REPOSITORY.md documents partial own-DB unresolved human observation
 CURRENT_VERIFICATION_WRITES.md documents the explicit same-human current Identity/Consent/source admission coordinator for unresolved own-DB observations, with under-lock deadline/cancellation gates and conservative unknown outcomes. It does not attest source truth/work or create findings/answers.
 
 SELECTED_VERIFICATION_READ.md documents a narrow exact latest/current owning review read and its current Identity facade; source/use permission and protected interfaces are separate requirements.
+
+VERIFICATION_HTTP.md records an explicitly incomplete private read-only selected verification Fetch adapter; operational host authentication/TLS/current policy/browser qualification remains separate.
