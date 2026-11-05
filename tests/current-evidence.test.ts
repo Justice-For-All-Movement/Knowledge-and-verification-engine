@@ -2268,3 +2268,20 @@ test("current verification writer awaits own outbox rollback and requires explic
     1,
   );
 });
+
+test("current verification writer binds source admission to the actual writer database basis when scoped refs collide across configurations",async t=>{
+ const f=await consentWriterFixture(t),repoDb=await f.database("other_knowledge_login");
+ const before=await f.service.inspect(f.req,f.source.ref);
+ const other=await f.service.acquire(f.req,{id:"unpermitted",acquisitionId:"unpermitted-fictional",bytes:Buffer.from("A different fictional source with no Consent binding"),mediaType:"text/plain",capturedAt:c.now,originalLanguage:"und",supersedes:null,expectedRevision:before.revision,idempotencyKey:"unpermitted"});
+ await f.service.runNextScan({...f.req,token:"w".repeat(32)});
+ const metadata=await f.service.inspect(f.req,other.ref),stored=await scoped(f.evidence,c,tx=>tx.get<{domain:EvidenceState}>("evidence.aggregate","project"));
+ const repo=new KnowledgeRepository(repoDb,{...f.fixed,humanIds:["owner"]});
+ const claim=await repo.append(c,0,f.claim,"same-scoped-claim");
+ const links=await repo.recordEvidenceLinks(c,0,stored!.value.domain,{claim:claim.record,expectedRevision:0,links:[{id:"unpermitted",relation:"supports",selector:{kind:"whole",evidence:other.ref,sha256:metadata.version.sha256}}]},"same-scoped-link");
+ assert.deepEqual(links.record,f.link.record,"Scoped logical references alone can collide across configured deployments");
+ const otherFacade=new IdentityKnowledgeRepository(repo,f.membership,f.fixed);
+ const writer=new CurrentVerificationReviewWriter(otherFacade,new HumanConsentEvidenceKnowledgeReview(f.facade,f.service,f.credential,f.makeGuard()));
+ await assert.rejects(writer.record(c,0,verificationInput(f),"mismatched-config"),{code:"verification_commit_unknown"});
+ assert.equal((await otherFacade.loadVerificationReviews(c)).revision,0);
+ assert.equal((await f.facade.loadVerificationReviews(c)).revision,0);
+});

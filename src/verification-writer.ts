@@ -4,6 +4,8 @@ import { IdentityKnowledgeRepository } from "./identity-repository.ts";
 import { captureVerificationReviewInput } from "./verification-review.ts";
 import type { VerificationReviewInput } from "./verification-review.ts";
 import { canonical, invariant, nonempty } from "./contracts.ts";
+import type { VerificationAdmission } from "./repository.ts";
+import type { CurrentEvidenceReview } from "./current-evidence.ts";
 import type { Context } from "./contracts.ts";
 
 /** Sequential current source/use admission for unresolved human notes, never proof of their truth or work. */
@@ -73,8 +75,9 @@ export class CurrentVerificationReviewWriter {
         "Verification command exceeds budget",
       );
       gate();
+      let reviewed: CurrentEvidenceReview;
       try {
-        await this.#review(principal, q.linkRef, owned.signal);
+        reviewed = await this.#review(principal, q.linkRef, owned.signal);
         gate();
       } catch {
         invariant(
@@ -83,6 +86,20 @@ export class CurrentVerificationReviewWriter {
           "Current verification admission unavailable",
         );
       }
+      const expected = canonical({
+        knowledgeRevision: reviewed.knowledgeRevision,
+        linksRevision: reviewed.linksRevision,
+        revision: reviewed.revision,
+      });
+      const admit: VerificationAdmission = (basis) => {
+        gate();
+        invariant(
+          canonical(basis) === expected,
+          "verification_unavailable",
+          "Owning verification basis differs from source admission",
+        );
+        gate();
+      };
       try {
         // Fresh owning Identity and own-DB basis/history checks run again. Admission is checked under the project lock,
         // before cached acknowledgements and immediately before a new SQL put. Begun SQL is awaited.
@@ -92,7 +109,7 @@ export class CurrentVerificationReviewWriter {
           q,
           commandId,
           owned.signal,
-          gate,
+          admit,
         );
         // Acknowledged commit stays acknowledged even if cancellation/deadline happened while SQL was settling.
         return structuredClone(result);

@@ -68,6 +68,12 @@ export type KnowledgeSnapshot = Readonly<{
   revision: number;
   state: KnowledgeState;
 }>;
+export type VerificationWriteBasis = Readonly<{
+  knowledgeRevision: number;
+  linksRevision: number;
+  revision: EvidenceLinksState["records"][number];
+}>;
+export type VerificationAdmission = (basis: VerificationWriteBasis) => void;
 export type KnowledgeAcknowledgement = Readonly<{ storage: Ref; record: Ref }>;
 const json = (v: unknown): Json => JSON.parse(canonical(v));
 /** Host-authenticated human research facade over its OWN operational database. */
@@ -544,7 +550,7 @@ export class KnowledgeRepository {
     expectedStorageRevision: number,
     input: VerificationReviewInput,
     commandId: string,
-    admit?: () => void,
+    admit?: VerificationAdmission,
   ): Promise<KnowledgeAcknowledgement> {
     const c = this.#context(context),
       q = structuredClone(input),
@@ -562,7 +568,19 @@ export class KnowledgeRepository {
       const knowledge = await this.#load(tx, c),
         links = await this.#links(tx, c),
         reviews = await this.#verification(tx, c, knowledge.state, links.state);
-      admission?.();
+      const basis = admission
+        ? {
+            knowledgeRevision: knowledge.revision,
+            linksRevision: links.revision,
+            revision: selectCurrentEvidenceLinks(
+              c,
+              knowledge.state,
+              links.state,
+              q.linkRef,
+            ),
+          }
+        : undefined;
+      if (admission) admission(structuredClone(basis!));
       return (await tx.idempotent(
         commandId,
         json({
@@ -586,7 +604,7 @@ export class KnowledgeRepository {
             reviews.state,
             q,
           );
-          admission?.();
+          if (admission) admission(structuredClone(basis!));
           const stored = await tx.put(
             VERIFICATION_REVIEWS_KIND,
             VERIFICATION_REVIEWS_KEY,

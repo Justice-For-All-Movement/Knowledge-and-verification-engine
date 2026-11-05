@@ -362,7 +362,8 @@
       "prs": [],
       "contributingPrs": [
         18,
-        21
+        21,
+        22
       ],
       "dependsOn": [
         "AM-05-01",
@@ -397,7 +398,8 @@
       "currentVerificationWrites": {
         "docs": "docs/CURRENT_VERIFICATION_WRITES.md",
         "verification": "docs/current-verification-writes-verification.json",
-        "status": "Incomplete WIP: seven actual four-restricted-DB/encrypted-root groups and normal npm ci/typecheck/build/registry pass; installed/full/current-head CI pending; unit remains partial."
+        "status": "Incomplete WIP: seven initial actual four-DB groups plus a fixed fifth-DB cross-configuration regression passed separately; complete source-basis comparison under writer lock added after reproduced unmerged gap. Expanded local/installed/full/current-head CI pending.",
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/22"
       }
     },
     {
