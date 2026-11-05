@@ -55,6 +55,10 @@
     "./verification-writer": {
       "types": "./dist/verification-writer.d.ts",
       "default": "./dist/verification-writer.js"
+    },
+    "./verification-reader": {
+      "types": "./dist/verification-reader.d.ts",
+      "default": "./dist/verification-reader.js"
     }
   },
   "engines": {

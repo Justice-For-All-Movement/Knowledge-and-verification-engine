@@ -363,7 +363,8 @@
       "contributingPrs": [
         18,
         21,
-        22
+        22,
+        23
       ],
       "dependsOn": [
         "AM-05-01",
@@ -403,7 +404,8 @@
       },
       "selectedVerificationRead": {
         "docs": "docs/SELECTED_VERIFICATION_READ.md",
-        "status": "Incomplete WIP: owning exact latest/current selected read plus opt-in current Identity; tests/installed qualification/current-head CI pending. Source/Consent/protected interfaces remain pending; original unit partial."
+        "status": "Incomplete WIP: selected owning read/current Identity plus mandatory current human Source/Consent reader composition. Eleven owning local groups pass; four composed groups and broader/installed/current-head checks pending. No protected HTTP/UI or full workflow acceptance.",
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/23"
       }
     },
     {

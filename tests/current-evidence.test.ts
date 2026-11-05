@@ -1,3 +1,4 @@
+import { CurrentVerificationReviewReader } from "../src/verification-reader.ts";
 import { randomBytes } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -2352,4 +2353,67 @@ test("current verification writer owning admission refuses async and value-retur
  await assert.rejects(f.repo.recordVerificationReview(c,0,q,"legacy-without-hook",async()=>true),{code:"invalid_policy"});
  assert.deepEqual(await f.repo.recordVerificationReview(c,0,q,"legacy-without-hook"),ack);
  assert.equal((await f.facade.loadVerificationReviews(c)).revision,1);
+});
+
+function verificationReader(f: Awaited<ReturnType<typeof consentWriterFixture>>, service = f.service, timeout = 10000) {
+  return new CurrentVerificationReviewReader(f.facade,
+    new HumanConsentEvidenceKnowledgeReview(f.facade, service, f.credential, f.makeGuard()), timeout);
+}
+
+test("current verification reader releases one selected unresolved record only after actual human source and Consent review", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "review");
+  const reader = verificationReader(f);
+  const result = await reader.read(c, ack.record);
+  assert.deepEqual(result.record.ref, ack.record);
+  assert.equal(result.record.resolution, "unresolved");
+  assert.equal(result.record.assessment, null);
+  assert.equal("state" in result, false);
+  assert.equal("sources" in result, false);
+  assert.deepEqual(result.revision.ref, f.link.record);
+  assert.equal(f.signal()!.aborted, true);
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 1);
+});
+
+test("current verification reader withholds notes for wrong human service agent and withdrawn Consent", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "review");
+  const reader = verificationReader(f);
+  for (const actor of [{ id: "other", kind: "human" }, { id: "owner", kind: "service" }, { id: "owner", kind: "agent" }]) {
+    Object.assign(f.identities[0]!.actor, actor);
+    await assert.rejects(reader.read(c, ack.record), { code: "verification_unavailable" });
+  }
+  Object.assign(f.identities[0]!.actor, { id: "owner", kind: "human" });
+  await f.permissions.withdraw(c, "consent", "consent", 1, "withdraw");
+  await assert.rejects(reader.read(c, ack.record), { code: "verification_unavailable" });
+});
+
+test("current verification reader withholds late source results after withdrawal and cancelled reads", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "review");
+  const actual = f.service.reviewSelectorsForHuman.bind(f.service);
+  const service = { reviewSelectorsForHuman: async (...args: Parameters<typeof actual>) => {
+    const result = await actual(...args);
+    await f.permissions.withdraw(c, "rights-grant", "rights", 1, "withdraw-read");
+    return result;
+  } } as EvidenceService;
+  await assert.rejects(verificationReader(f, service).read(c, ack.record), { code: "verification_unavailable" });
+  const controller = new AbortController(); controller.abort();
+  await assert.rejects(verificationReader(f).read(c, ack.record, controller.signal), { code: "verification_unavailable" });
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 1);
+});
+
+test("current verification reader awaits lost owning read COMMIT and sanitizes diagnostics without releasing notes", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "review");
+  const transaction = f.knowledge.transaction.bind(f.knowledge);
+  let lose = true;
+  Object.assign(f.knowledge, { transaction: async <T>(fn: Parameters<Database["transaction"]>[0]): Promise<T> => {
+    const result = await transaction(fn);
+    if (lose) { lose = false; throw Error("private lost read COMMIT diagnostic"); }
+    return result as T;
+  } });
+  const reader = verificationReader(f);
+  await assert.rejects(reader.read(c, ack.record), { code: "verification_unavailable", message: "Current verification read unavailable" });
+  assert.deepEqual((await reader.read(c, ack.record)).record.ref, ack.record);
 });
