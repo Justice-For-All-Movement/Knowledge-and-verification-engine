@@ -383,7 +383,7 @@
         "A contradicted or unresolved assertion cannot silently become a verified finding.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial pure and owning SQL unresolved human review history, with actual current Identity facade on every read/write/replay. PR18 pure contract accepted; PR21 adds immutable own-DB history, storage/logical CAS, exact current own claim/link admission, current history validation before cached original acknowledgement, atomic audit/outbox, coherent latest captured-basis status. All127 local/typecheck/build/registry and eight installed public-export groups/declarations/runtime bytes pass. Source5832a1c CI41933074302/postgres126934599383 passes10 actual PG17 scenarios (7prior+3new), raw head/logs inspected, zero skips; ordinary/final-head CI pending. No full127 installed claim. Current source/Consent proof, protected interfaces/full workflow/full correction impact and original cross-milestone/shared E07/E08 acceptance remain pending. Observations never become findings/answers/approvals.",
+      "implementationStatus": "Partial: pure/own-SQL immutable unresolved review history; current Identity on owning reads/writes/replay; current same-human Consent/Evidence admission and complete locked basis comparison for guarded writes/selected reads; protected private Fetch read and write adapters. Observations remain unresolved/null tracks, never findings/answers/approvals. Protected browser write/replay controls, complete workflow/work proof/correction impact/shared E07/E08 dependency gates and host/browser/AT/live acceptance remain pending. See owning per-profile evidence for exact tests and current-head CI.",
       "legacyWorkUnitId": "AM-05.05",
       "verificationReview": {
         "docs": "docs/VERIFICATION_REVIEW.md",
@@ -416,7 +416,7 @@
       },
       "verificationWriteHttp": {
         "docs": "docs/VERIFICATION_WRITE_HTTP.md",
-        "status": "Incomplete qualification: initial5+3 new local4restrictedDB/HTTP groups pass; full157 local and source0936 CI41965087235 ordinary157+10 existingPG pass/rawlogs inspected. LostACK exact replay/ACK-after-cancel/body rejection beforeauth/postlockHTTPdeadline covered. Installed exports/current-head160 CI/final review pending; no160 full local/installed or live claim.",
+        "status": "Read-only-source/private unresolved-write HTTP profile implemented and source-reviewed;9 focused groups locally AND installed (8+separate1), strict declarations and2 runtime bytes match. Prior full157 local+CI157/10existingPG passed. Final expanded161 current-head CI required; no161 full-local-installed or newTCP/browser/live claim. Browser writes/full workflow/correction impact/shared dependencies remain pending; unit partial.",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/25"
       }
     },

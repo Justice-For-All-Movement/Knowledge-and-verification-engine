@@ -4,6 +4,44 @@ import { createVerificationWriteHandler } from "../src/verification-write-http.t
 import { CurrentVerificationReviewWriter } from "../src/verification-writer.ts";
 import { HumanConsentEvidenceKnowledgeReview } from "../src/consent-links.ts";
 import { VERIFICATION_REVIEWS_KIND } from "../src/repository.ts";
+
+test("write authentication reloads membership after a stalled body and denies a newly disabled human", async (t) => {
+  const f = await setup(t);
+  const added = await f.membership.apply(
+    c,
+    1,
+    { type: "set-member", id: "backup", kind: "human", roles: ["owner"] },
+    "backup",
+  );
+  let finish!: () => void;
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(Buffer.from(JSON.stringify(f.command)));
+      finish = () => controller.close();
+    },
+  });
+  const pending = f.handler(
+    new Request("https://private.invalid/private/verification-write/record", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: "https://private.invalid",
+        "x-csrf-token": "s".repeat(32),
+      },
+      body,
+      duplex: "half",
+    } as RequestInit),
+  );
+  await f.membership.apply(
+    c,
+    added.revision,
+    { type: "disable-member", id: "owner" },
+    "disable",
+  );
+  finish();
+  assert.notEqual((await pending).status, 200);
+  assert.equal((await f.repo.loadVerificationReviews(c)).revision, 0);
+});
 import {
   writeFixture,
   verificationInput,
