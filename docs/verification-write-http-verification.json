@@ -1,0 +1,30 @@
+{
+  "status": "implemented read/write-source guards; final current-head CI required; owning unit partial",
+  "localGroups": 9,
+  "fullRegression": "running; no full155/157 claim",
+  "installed": "pending",
+  "currentHeadCI": "required",
+  "sha256": {
+    "src/verification-write-http.ts": "cc80d76674f1d2fbd414275968bfd3573d2143652e7b152e253576fe691a57ee",
+    "src/verification-writer.ts": "a104717ca09ac8d51d9915d4fd2255570f0434815e9c15839c87e9bdbedb99c0",
+    "tests/verification-write-http.test.ts": "b86bcfcb1894377ddd911fc224da0bc4c1e0a20b449b79f7c1f89e0023e32a6e",
+    "tests/verification-write-fixture.ts": "c7ab4438b498eb95078cba1700479b42d525379aaebe7ad00553cafc39b4a121",
+    "package.json": "27b4bdb0b04c09dbebebb049ef223444c4f2c4d2e34628a31ba245f050bf5507",
+    "docs/VERIFICATION_WRITE_HTTP.md": "05da8ecdeb7508a2ea00153c0500dc89fcc61c95c8196dd036e39be2c8ee5db8",
+    "docs/ARCHITECTURE.md": "83d917fd1fef8853c84c1f74465284b1b14b5c54e10e52866dd13985c29c8e0e",
+    "registry/prs.json": "aae275536e128a1bd65379683c82c46bbaee0809a2d42166424957fabd06b0fa"
+  },
+  "priorFullLocal": 157,
+  "priorCI": "41965087235/check127040135596:157;postgres127040135847:10existing",
+  "newLocalGroups": 3,
+  "full160LocalInstalledClaim": false,
+  "installedGroups": {
+    "together": 8,
+    "separateMembershipBody": 1
+  },
+  "installedDeclarations": "strict pass",
+  "runtimeModulesByteMatched": 2,
+  "sourceReview": "no unresolved issue within implemented profile",
+  "full161LocalInstalledClaim": false,
+  "newTCPBrowserATLiveClaim": false
+}

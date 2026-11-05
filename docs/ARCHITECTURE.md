@@ -57,3 +57,5 @@ CURRENT_VERIFICATION_WRITES.md documents the explicit same-human current Identit
 SELECTED_VERIFICATION_READ.md documents a narrow exact latest/current owning review read and its current Identity facade; source/use permission and protected interfaces are separate requirements.
 
 VERIFICATION_HTTP.md records an explicitly incomplete private read-only selected verification Fetch adapter; operational host authentication/TLS/current policy/browser qualification remains separate.
+
+VERIFICATION_WRITE_HTTP.md records explicitly incomplete private write HTTP work over the accepted current-source/use writer. Existing read routes remain unchanged.
