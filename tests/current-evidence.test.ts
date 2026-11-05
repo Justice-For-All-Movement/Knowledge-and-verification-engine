@@ -2563,7 +2563,7 @@ test("verification HTTP rejects origin metadata CSRF route and extra authority t
   const f = await consentWriterFixture(t);
   const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "existing");
   const handler = verificationHttp(f);
-  for (const headers of [{ origin: "https://other.invalid" }, { "sec-fetch-site": "cross-site" }, { "sec-fetch-site": "none" }, { "x-csrf-token": "wrong" }] as Record<string, string>[])
+  for (const headers of [{ origin: "https://other.invalid" }, { "sec-fetch-site": "cross-site" }, { "sec-fetch-site": "none" }, { "x-csrf-token": "wrong" }, { "x-csrf-token": "x".repeat(257) }] as Record<string, string>[])
     assert.equal((await handler(verificationRequest(ack.record, headers))).status, 403);
   assert.equal((await handler(new Request("https://private.invalid/private/verification/send", { method: "POST" }))).status, 404);
   const extra = new Request(verificationRequest(ack.record), { body: JSON.stringify({ selected: ack.record, roles: ["owner"] }) });
@@ -2584,10 +2584,14 @@ test("verification HTTP body deadlines and chunk budgets precede authentication 
     body, duplex: "half",
   } as RequestInit);
   let chunks = 0;
-  const bounded = await handler(request(new ReadableStream({ pull(controller) {
+  const generous = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async () => { calls++; return null; } },
+    { ...f.fixed, origin: "https://private.invalid", timeoutMs: 10000 }, () => c.now);
+  const bounded = await generous(request(new ReadableStream({ pull(controller) {
     if (++chunks <= 4097) controller.enqueue(new Uint8Array()); else controller.close();
   } })));
   assert.equal(bounded.status, 503);
+  assert.ok(chunks >= 4097, "Chunk rejection is exercised before the generous deadline");
   const hung = await handler(request(new ReadableStream({ pull() { return new Promise(() => {}); } })));
   assert.equal(hung.status, 503);
   assert.equal(calls, 0);
@@ -2629,6 +2633,15 @@ test("verification HTTP fences blocked or failing human providers and closes the
   assert.equal(result.status, 503);
   assert.deepEqual(await result.json(), { error: "verification_unavailable" });
   assert.equal(received!.aborted, true);
+  const failed = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async () => { throw Error("Private provider credential diagnostic"); } },
+    { ...f.fixed, origin: "https://private.invalid" }, () => c.now);
+  const failure = await failed(new Request("https://private.invalid/private/verification/session"));
+  assert.equal(failure.status, 503);
+  assert.deepEqual(await failure.json(), { error: "verification_unavailable" });
+  const absent = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async () => null }, { ...f.fixed, origin: "https://private.invalid" }, () => c.now);
+  assert.equal((await absent(new Request("https://private.invalid/private/verification/session"))).status, 401);
 });
 test("verification HTTP rejects byte encoding and malformed selection before releasing any notes", async t => {
   const f = await consentWriterFixture(t);

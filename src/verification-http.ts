@@ -104,7 +104,9 @@ export function createVerificationReadHandler(
         gate();
         return result;
       }
-      const supplied = Buffer.from(metadata.headers.get("x-csrf-token") ?? ""), expected = Buffer.from(session.csrfToken);
+      const token = metadata.headers.get("x-csrf-token");
+      if (!token || token.length > 256) return response(403, { error: "request_denied" });
+      const supplied = Buffer.from(token), expected = Buffer.from(session.csrfToken);
       if (!supplied.length || supplied.length > 256 || supplied.length !== expected.length || !timingSafeEqual(supplied, expected))
         return response(403, { error: "request_denied" });
       const value = await read(session.context, selected!, owned.signal);
