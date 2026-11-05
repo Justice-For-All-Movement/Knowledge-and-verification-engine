@@ -1,0 +1,56 @@
+{
+  "status": "Partial AM-05-05 implemented; source/installed qualified; final current-head CI required",
+  "local": {
+    "groups": 6,
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0,
+    "typecheck": "passed",
+    "build": "passed"
+  },
+  "remaining": [
+    "final current-head CI/actual branch rules",
+    "new HTTP network/capacity/production qualification",
+    "host identity/TLS/current rights/ingress-driver-worker bounds/browserATlive/full workflow"
+  ],
+  "sourceSha256": {
+    "src/verification-http.ts": "e2f9c89afa9e3837b97f57499ee3a8b12578007265245e2d9f2237cc91f91386",
+    "tests/current-evidence.test.ts": "b2ee88ae97f204ad6c0baa849808f56a829380be5759efdb8d0cf70417dfde78",
+    "package.json": "f8791aeeec14f073892f8b44a4d89f7c68a9123dbf179277c22d7fec13b7ded7",
+    "docs/VERIFICATION_HTTP.md": "8b29b946975955d93ca136257ad8041097fe9cb090311827f1add4f4ac2f0146",
+    "docs/ARCHITECTURE.md": "df2eeaed5050f15e514742c5486727fd985d7d5e6bd56f32b95711b1462f594d",
+    "registry/prs.json": "57846204ba7ff39448b7e215d75a8b2123a087db3ef9e2e7854e2390059f29e6"
+  },
+  "installedInitial": {
+    "pass": 3,
+    "fail": 0,
+    "skipped": 0
+  },
+  "strictDeclarations": "passed after test-only header override annotation",
+  "expandedInstalled": {
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0
+  },
+  "runtimeModule": "verification-http JS byte-matches installed compiled export",
+  "broaderLocal": "152 passed at sourcec584 before small CSRF pre-allocation/chunk-test refinements; final focused6 plus provider extension local+installed pass; no full152 installed claim",
+  "providerExtension": {
+    "localPass": 1,
+    "installedPass": 1,
+    "fail": 0,
+    "skipped": 0
+  },
+  "sourceReview": "Owning guards/body-order/ref-scope/routes/Origin-CSRF-metadata/capture/monotonic copy gates/cancel/SQL unknown reviewed; no unresolved runtime finding",
+  "ci": {
+    "source": "c584abcfb9b1c8eff8fcbe8436cbbdfb82465c7c",
+    "run": 41953090301,
+    "check": 127001400530,
+    "ordinary": 152,
+    "postgres": 127001400724,
+    "existingNetworkGroups": 10,
+    "fail": 0,
+    "skipped": 0,
+    "logs": "Exact source/head and footers inspected",
+    "finalHead": "required before merge"
+  }
+}

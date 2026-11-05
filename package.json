@@ -59,6 +59,10 @@
     "./verification-reader": {
       "types": "./dist/verification-reader.d.ts",
       "default": "./dist/verification-reader.js"
+    },
+    "./verification-http": {
+      "types": "./dist/verification-http.d.ts",
+      "default": "./dist/verification-http.js"
     }
   },
   "engines": {

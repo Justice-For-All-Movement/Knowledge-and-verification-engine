@@ -1,3 +1,4 @@
+import { createVerificationReadHandler } from "../src/verification-http.ts";
 import { CurrentVerificationReviewReader } from "../src/verification-reader.ts";
 import { randomBytes } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -2529,4 +2530,127 @@ test("current verification reader binds source admission to the actual selected 
   );
   assert.equal((await otherFacade.loadVerificationReviews(c)).revision, 1);
   assert.equal((await f.facade.loadVerificationReviews(c)).revision, 0);
+});
+
+function verificationHttp(f: Awaited<ReturnType<typeof consentWriterFixture>>, timeoutMs = 10000) {
+  return createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async () => ({ actorId: "owner", requestId: "synthetic-session", csrfToken: "s".repeat(32) }) },
+    { ...f.fixed, origin: "https://private.invalid", timeoutMs }, () => c.now);
+}
+function verificationRequest(selected: import("../src/contracts.ts").Ref, overrides: Record<string, string> = {}) {
+  return new Request("https://private.invalid/private/verification/review", {
+    method: "POST", headers: { "content-type": "application/json", origin: "https://private.invalid",
+      "sec-fetch-site": "same-origin", "x-csrf-token": "s".repeat(32), ...overrides }, body: JSON.stringify({ selected }),
+  });
+}
+test("verification HTTP serves only private selected guarded notes with actual membership session and no domain mutation", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "existing");
+  const handler = verificationHttp(f);
+  const session = await handler(new Request("https://private.invalid/private/verification/session"));
+  assert.equal(session.status, 200);
+  assert.equal(session.headers.get("cache-control"), "no-store");
+  assert.deepEqual(await session.json(), { actorId: "owner", csrfToken: "s".repeat(32) });
+  const result = await handler(verificationRequest(ack.record));
+  assert.equal(result.status, 200);
+  const value = await result.json();
+  assert.deepEqual(value.record.ref, ack.record);
+  assert.equal(value.record.resolution, "unresolved");
+  assert.equal("state" in value, false);
+  assert.equal((await f.facade.loadVerificationReviews(c)).revision, 1);
+});
+test("verification HTTP rejects origin metadata CSRF route and extra authority then withholds withdrawn source use", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "existing");
+  const handler = verificationHttp(f);
+  for (const headers of [{ origin: "https://other.invalid" }, { "sec-fetch-site": "cross-site" }, { "sec-fetch-site": "none" }, { "x-csrf-token": "wrong" }, { "x-csrf-token": "x".repeat(257) }] as Record<string, string>[])
+    assert.equal((await handler(verificationRequest(ack.record, headers))).status, 403);
+  assert.equal((await handler(new Request("https://private.invalid/private/verification/send", { method: "POST" }))).status, 404);
+  const extra = new Request(verificationRequest(ack.record), { body: JSON.stringify({ selected: ack.record, roles: ["owner"] }) });
+  assert.equal((await handler(extra)).status, 503);
+  await f.permissions.withdraw(c, "consent", "consent", 1, "withdraw-http");
+  const denied = await handler(verificationRequest(ack.record));
+  assert.equal(denied.status, 503);
+  assert.deepEqual(await denied.json(), { error: "verification_unavailable" });
+});
+test("verification HTTP body deadlines and chunk budgets precede authentication and expose no commands", async t => {
+  const f = await consentWriterFixture(t);
+  let calls = 0;
+  const handler = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async () => { calls++; return null; } },
+    { ...f.fixed, origin: "https://private.invalid", timeoutMs: 1000 }, () => c.now);
+  const request = (body: ReadableStream<Uint8Array>) => new Request("https://private.invalid/private/verification/review", {
+    method: "POST", headers: { "content-type": "application/json", origin: "https://private.invalid" },
+    body, duplex: "half",
+  } as RequestInit);
+  let chunks = 0;
+  const generous = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async () => { calls++; return null; } },
+    { ...f.fixed, origin: "https://private.invalid", timeoutMs: 10000 }, () => c.now);
+  const bounded = await generous(request(new ReadableStream({ pull(controller) {
+    if (++chunks <= 4097) controller.enqueue(new Uint8Array()); else controller.close();
+  } })));
+  assert.equal(bounded.status, 503);
+  assert.ok(chunks >= 4097, "Chunk rejection is exercised before the generous deadline");
+  const hung = await handler(request(new ReadableStream({ pull() { return new Promise(() => {}); } })));
+  assert.equal(hung.status, 503);
+  assert.equal(calls, 0);
+});
+
+test("verification HTTP observes membership disable committed while the request body is stalled", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "existing");
+  const current = await f.membership.read(c);
+  const added = await f.membership.apply(c, current.revision,
+    { type: "set-member", id: "backup-owner", kind: "human", roles: ["owner"] }, "add-backup");
+  let finish!: () => void;
+  const body = new ReadableStream<Uint8Array>({ start(controller) {
+    controller.enqueue(Buffer.from(JSON.stringify({ selected: ack.record })));
+    finish = () => controller.close();
+  } });
+  const handler = verificationHttp(f);
+  const pending = handler(new Request("https://private.invalid/private/verification/review", {
+    method: "POST", headers: { "content-type": "application/json", origin: "https://private.invalid",
+      "x-csrf-token": "s".repeat(32) }, body, duplex: "half",
+  } as RequestInit));
+  await f.membership.apply(c, added.revision, { type: "disable-member", id: "owner" }, "disable-during-body");
+  finish();
+  const result = await pending;
+  assert.notEqual(result.status, 200);
+  assert.equal((await f.repo.loadVerificationReviews(c)).revision, 1);
+});
+test("verification HTTP fences blocked or failing human providers and closes their signals", async t => {
+  const f = await consentWriterFixture(t);
+  let received: AbortSignal | undefined;
+  const handler = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async (_metadata, signal) => {
+      received = signal;
+      const until = performance.now() + 150;
+      while (performance.now() < until) {}
+      return { actorId: "owner", requestId: "late", csrfToken: "s".repeat(32) };
+    } }, { ...f.fixed, origin: "https://private.invalid", timeoutMs: 100 }, () => c.now);
+  const result = await handler(new Request("https://private.invalid/private/verification/session"));
+  assert.equal(result.status, 503);
+  assert.deepEqual(await result.json(), { error: "verification_unavailable" });
+  assert.equal(received!.aborted, true);
+  const failed = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async () => { throw Error("Private provider credential diagnostic"); } },
+    { ...f.fixed, origin: "https://private.invalid" }, () => c.now);
+  const failure = await failed(new Request("https://private.invalid/private/verification/session"));
+  assert.equal(failure.status, 503);
+  assert.deepEqual(await failure.json(), { error: "verification_unavailable" });
+  const absent = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async () => null }, { ...f.fixed, origin: "https://private.invalid" }, () => c.now);
+  assert.equal((await absent(new Request("https://private.invalid/private/verification/session"))).status, 401);
+});
+test("verification HTTP rejects byte encoding and malformed selection before releasing any notes", async t => {
+  const f = await consentWriterFixture(t);
+  const handler = verificationHttp(f);
+  for (const body of [Uint8Array.from([0xff]), Buffer.from("{"), Buffer.alloc(1025), Buffer.from(JSON.stringify({ selected: { kind: "command" } }))]) {
+    const result = await handler(new Request("https://private.invalid/private/verification/review", {
+      method: "POST", headers: { "content-type": "application/json", origin: "https://private.invalid" }, body,
+    }));
+    assert.equal(result.status, 503);
+    assert.deepEqual(await result.json(), { error: "verification_unavailable" });
+  }
 });
