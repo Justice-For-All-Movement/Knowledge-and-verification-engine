@@ -63,6 +63,10 @@
     "./verification-http": {
       "types": "./dist/verification-http.d.ts",
       "default": "./dist/verification-http.js"
+    },
+    "./verification-write-http": {
+      "types": "./dist/verification-write-http.d.ts",
+      "default": "./dist/verification-write-http.js"
     }
   },
   "engines": {

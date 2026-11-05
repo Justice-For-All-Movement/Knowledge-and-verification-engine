@@ -43,6 +43,7 @@ export class CurrentVerificationReviewWriter {
     input: VerificationReviewInput,
     commandId: string,
     signal?: AbortSignal,
+    admission?: () => void,
   ) {
     const started = performance.now(),
       owned = new AbortController(),
@@ -50,12 +51,28 @@ export class CurrentVerificationReviewWriter {
     signal?.addEventListener("abort", abort, { once: true });
     if (signal?.aborted) abort();
     const timer = setTimeout(abort, this.#timeout);
-    const gate = () =>
+    const gate = () => {
+      const available = () =>
+        invariant(
+          !owned.signal.aborted && performance.now() - started < this.#timeout,
+          "verification_unavailable",
+          "Current verification admission unavailable",
+        );
+      available();
       invariant(
-        !owned.signal.aborted && performance.now() - started < this.#timeout,
-        "verification_unavailable",
-        "Current verification admission unavailable",
+        admission === undefined || typeof admission === "function",
+        "invalid_policy",
+        "Synchronous admission required",
       );
+      const result: unknown = admission?.();
+      if (result instanceof Promise) void result.catch(() => {});
+      invariant(
+        result === undefined,
+        "invalid_policy",
+        "Admission must return synchronously without a value",
+      );
+      available();
+    };
     try {
       gate();
       const c = structuredClone(context),
