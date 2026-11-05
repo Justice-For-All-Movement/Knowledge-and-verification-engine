@@ -1,0 +1,20 @@
+{
+  "status": "explicitly incomplete WIP",
+  "localGroups": {
+    "initial": 3,
+    "expandedSeparate": 2
+  },
+  "fullRegression": "running; no full155/157 claim",
+  "installed": "pending",
+  "currentHeadCI": "required",
+  "sha256": {
+    "src/verification-write-http.ts": "6c78b5511a333d535274dc11641cec95db0f1b906d58c4c6a41393ed732c64bd",
+    "src/verification-writer.ts": "a104717ca09ac8d51d9915d4fd2255570f0434815e9c15839c87e9bdbedb99c0",
+    "tests/verification-write-http.test.ts": "cbee23fbed8866b09528431c7bce83c2fa4c9e64cd2b92dc70ce15b45ed37c51",
+    "tests/verification-write-fixture.ts": "c7ab4438b498eb95078cba1700479b42d525379aaebe7ad00553cafc39b4a121",
+    "package.json": "27b4bdb0b04c09dbebebb049ef223444c4f2c4d2e34628a31ba245f050bf5507",
+    "docs/VERIFICATION_WRITE_HTTP.md": "9a7ff80f8c4dc8dbf144c8403a45f84ac97f48288e1d776af0441e6eaf051052",
+    "docs/ARCHITECTURE.md": "83d917fd1fef8853c84c1f74465284b1b14b5c54e10e52866dd13985c29c8e0e",
+    "registry/prs.json": "504f08b589ad2eedd0b326015d1b6d84dea4ee54e917a84dd2ce95c7dd2d6706"
+  }
+}

@@ -415,7 +415,8 @@
       },
       "verificationWriteHttp": {
         "docs": "docs/VERIFICATION_WRITE_HTTP.md",
-        "status": "Explicitly incomplete WIP: three actual4restrictedDB encrypted Evidence/Fetch groups pass; typecheck/build pass. Full regression/expanded deadline-uncertainty and post-lock hooks/installed package/source review/final-head CI pending. No live acceptance or full AM05.05 completion."
+        "status": "Explicitly incomplete WIP:3 initial+2 expanded actual4restrictedDB encrypted Evidence/Fetch groups pass locally; typecheck/build pass. Real locked review reads observed before rejecting new/cached outer admission; blocked-JS late auth denies. Full regression still running; installed exports, ACK-loss/body/cancel/post-lock-time qualification/source review/final-head CI pending. No full155/157 local/installed or live acceptance claim.",
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/25"
       }
     },
     {

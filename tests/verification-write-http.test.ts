@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createVerificationWriteHandler } from "../src/verification-write-http.ts";
 import { CurrentVerificationReviewWriter } from "../src/verification-writer.ts";
 import { HumanConsentEvidenceKnowledgeReview } from "../src/consent-links.ts";
+import { VERIFICATION_REVIEWS_KIND } from "../src/repository.ts";
 import {
   writeFixture,
   verificationInput,
@@ -75,6 +76,70 @@ test("protected write records one unresolved observation and exact replay requir
   });
   assert.equal((await f.repo.loadVerificationReviews(c)).revision, 1);
   assert.ok(f.signals.every((s) => s.aborted));
+});
+
+test("outer gate denies new and cached records after the actual locked review read", async (t) => {
+  const f = await setup(t),
+    original = f.knowledge.transaction.bind(f.knowledge);
+  let observed = false;
+  f.knowledge.transaction = (fn) =>
+    original((tx) =>
+      fn({
+        query: async <T>(sql: string, values?: unknown[]) => {
+          const result = await tx.query<T>(sql, values);
+          if (
+            sql.includes("SELECT") &&
+            sql.includes("public.evidence_record") &&
+            values?.includes(VERIFICATION_REVIEWS_KIND)
+          )
+            observed = true;
+          return result;
+        },
+      }),
+    );
+  const admit = () => {
+    if (observed) throw Error("outer deadline");
+  };
+  await assert.rejects(
+    f.writer.record(c, 0, f.command.input, "locked", undefined, admit),
+    { code: "verification_commit_unknown" },
+  );
+  assert.equal(observed, true);
+  assert.equal((await f.repo.loadVerificationReviews(c)).revision, 0);
+  await f.writer.record(c, 0, f.command.input, "locked");
+  observed = false;
+  await assert.rejects(
+    f.writer.record(c, 0, f.command.input, "locked", undefined, admit),
+    { code: "verification_commit_unknown" },
+  );
+  assert.equal(observed, true);
+  assert.equal((await f.repo.loadVerificationReviews(c)).revision, 1);
+});
+
+test("blocked HTTP authentication cannot enter the writer after the monotonic deadline", async (t) => {
+  const f = await setup(t);
+  let signal: AbortSignal | undefined;
+  const handler = createVerificationWriteHandler(
+    f.writer,
+    f.membership,
+    {
+      authenticate: async (_m, s) => {
+        signal = s;
+        const until = performance.now() + 100;
+        while (performance.now() < until) {}
+        return {
+          actorId: "owner",
+          requestId: "late",
+          csrfToken: "s".repeat(32),
+        };
+      },
+    },
+    { ...f.fixed, origin: "https://private.invalid", timeoutMs: 50 },
+    () => c.now,
+  );
+  assert.equal((await handler(f.request())).status, 503);
+  assert.equal(signal!.aborted, true);
+  assert.equal((await f.repo.loadVerificationReviews(c)).revision, 0);
 });
 test("HTTP admission denies forged authority, CSRF and extra commands before any review effect", async (t) => {
   const f = await setup(t);
