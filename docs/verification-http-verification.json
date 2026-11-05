@@ -1,8 +1,8 @@
 {
   "status": "Explicitly incomplete WIP; not accepted",
   "local": {
-    "groups": 3,
-    "pass": 3,
+    "groups": 6,
+    "pass": 6,
     "fail": 0,
     "skipped": 0,
     "typecheck": "passed",
@@ -16,10 +16,23 @@
   ],
   "sourceSha256": {
     "src/verification-http.ts": "567fa767bc1a3c05bc68bb1f16e259a99dfb072fc5dd10fd585dd7d273f74487",
-    "tests/current-evidence.test.ts": "2e835ae24e786a56e56faecf1409d279578230c80ffc2cf312da4b014cf3f101",
+    "tests/current-evidence.test.ts": "5cad0942b2355c857191d90a6e4b7fb12f801acb7d99960bda7fe33347de1a6f",
     "package.json": "f8791aeeec14f073892f8b44a4d89f7c68a9123dbf179277c22d7fec13b7ded7",
-    "docs/VERIFICATION_HTTP.md": "c9459c467fe4379ed79faafc2c965a4072c91c698b17784c75fae54f9b5cc536",
+    "docs/VERIFICATION_HTTP.md": "9df2e4d2c5b5f5a693884791f4a89a983342639ad0af75e70e0ae1bee67c55ff",
     "docs/ARCHITECTURE.md": "df2eeaed5050f15e514742c5486727fd985d7d5e6bd56f32b95711b1462f594d",
-    "registry/prs.json": "499d0f7ac26a8e050c3ebdf99dfe246ec0d26b16d249211cfd5164f16e61d27f"
-  }
+    "registry/prs.json": "67295894844d88176e65151e739e7c4f1014a2049db842041202a41e81f59965"
+  },
+  "installedInitial": {
+    "pass": 3,
+    "fail": 0,
+    "skipped": 0
+  },
+  "strictDeclarations": "passed after test-only header override annotation",
+  "expandedInstalled": {
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0
+  },
+  "runtimeModule": "verification-http JS byte-matches installed compiled export",
+  "broaderLocal": "current152 executing; not claimed"
 }

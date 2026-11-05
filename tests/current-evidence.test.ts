@@ -2563,7 +2563,7 @@ test("verification HTTP rejects origin metadata CSRF route and extra authority t
   const f = await consentWriterFixture(t);
   const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "existing");
   const handler = verificationHttp(f);
-  for (const headers of [{ origin: "https://other.invalid" }, { "sec-fetch-site": "cross-site" }, { "sec-fetch-site": "none" }, { "x-csrf-token": "wrong" }])
+  for (const headers of [{ origin: "https://other.invalid" }, { "sec-fetch-site": "cross-site" }, { "sec-fetch-site": "none" }, { "x-csrf-token": "wrong" }] as Record<string, string>[])
     assert.equal((await handler(verificationRequest(ack.record, headers))).status, 403);
   assert.equal((await handler(new Request("https://private.invalid/private/verification/send", { method: "POST" }))).status, 404);
   const extra = new Request(verificationRequest(ack.record), { body: JSON.stringify({ selected: ack.record, roles: ["owner"] }) });
@@ -2591,4 +2591,53 @@ test("verification HTTP body deadlines and chunk budgets precede authentication 
   const hung = await handler(request(new ReadableStream({ pull() { return new Promise(() => {}); } })));
   assert.equal(hung.status, 503);
   assert.equal(calls, 0);
+});
+
+test("verification HTTP observes membership disable committed while the request body is stalled", async t => {
+  const f = await consentWriterFixture(t);
+  const ack = await f.repo.recordVerificationReview(c, 0, verificationInput(f), "existing");
+  const current = await f.membership.read(c);
+  const added = await f.membership.apply(c, current.revision,
+    { type: "set-member", id: "backup-owner", kind: "human", roles: ["owner"] }, "add-backup");
+  let finish!: () => void;
+  const body = new ReadableStream<Uint8Array>({ start(controller) {
+    controller.enqueue(Buffer.from(JSON.stringify({ selected: ack.record })));
+    finish = () => controller.close();
+  } });
+  const handler = verificationHttp(f);
+  const pending = handler(new Request("https://private.invalid/private/verification/review", {
+    method: "POST", headers: { "content-type": "application/json", origin: "https://private.invalid",
+      "x-csrf-token": "s".repeat(32) }, body, duplex: "half",
+  } as RequestInit));
+  await f.membership.apply(c, added.revision, { type: "disable-member", id: "owner" }, "disable-during-body");
+  finish();
+  const result = await pending;
+  assert.notEqual(result.status, 200);
+  assert.equal((await f.repo.loadVerificationReviews(c)).revision, 1);
+});
+test("verification HTTP fences blocked or failing human providers and closes their signals", async t => {
+  const f = await consentWriterFixture(t);
+  let received: AbortSignal | undefined;
+  const handler = createVerificationReadHandler(verificationReader(f), f.membership,
+    { authenticate: async (_metadata, signal) => {
+      received = signal;
+      const until = performance.now() + 150;
+      while (performance.now() < until) {}
+      return { actorId: "owner", requestId: "late", csrfToken: "s".repeat(32) };
+    } }, { ...f.fixed, origin: "https://private.invalid", timeoutMs: 100 }, () => c.now);
+  const result = await handler(new Request("https://private.invalid/private/verification/session"));
+  assert.equal(result.status, 503);
+  assert.deepEqual(await result.json(), { error: "verification_unavailable" });
+  assert.equal(received!.aborted, true);
+});
+test("verification HTTP rejects byte encoding and malformed selection before releasing any notes", async t => {
+  const f = await consentWriterFixture(t);
+  const handler = verificationHttp(f);
+  for (const body of [Uint8Array.from([0xff]), Buffer.from("{"), Buffer.alloc(1025), Buffer.from(JSON.stringify({ selected: { kind: "command" } }))]) {
+    const result = await handler(new Request("https://private.invalid/private/verification/review", {
+      method: "POST", headers: { "content-type": "application/json", origin: "https://private.invalid" }, body,
+    }));
+    assert.equal(result.status, 503);
+    assert.deepEqual(await result.json(), { error: "verification_unavailable" });
+  }
 });

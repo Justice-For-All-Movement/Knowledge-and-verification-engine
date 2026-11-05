@@ -410,7 +410,8 @@
       },
       "verificationHttp": {
         "docs": "docs/VERIFICATION_HTTP.md",
-        "status": "Explicitly incomplete WIP: private read-only Fetch interface over actual current human source/use reader and membership session authentication;3 local actual restrictedDB/nativeFetch groups pass/typecheck/build. Expanded adversarial, installed and current-head CI pending. No live authentication/TLS/browser or full workflow qualification."
+        "status": "Explicitly incomplete WIP PR24:6 actual restrictedDB/nativeFetch local groups pass/typecheck/build;initial3 installed groups pass. Test-only header array inference corrected for strict declarations. All6 expanded installed compiled groups/strict declarations/runtime bytes pass. Current-head broader CI/source review pending; no host identity/TLS/browser/full workflow qualification.",
+        "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/24"
       }
     },
     {
