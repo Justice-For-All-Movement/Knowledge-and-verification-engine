@@ -1,20 +1,21 @@
 {
-  "status": "explicitly incomplete WIP",
-  "localGroups": {
-    "initial": 3,
-    "expandedSeparate": 2
-  },
+  "status": "incomplete qualification checkpoint",
+  "localGroups": 8,
   "fullRegression": "running; no full155/157 claim",
   "installed": "pending",
   "currentHeadCI": "required",
   "sha256": {
-    "src/verification-write-http.ts": "6c78b5511a333d535274dc11641cec95db0f1b906d58c4c6a41393ed732c64bd",
+    "src/verification-write-http.ts": "cc80d76674f1d2fbd414275968bfd3573d2143652e7b152e253576fe691a57ee",
     "src/verification-writer.ts": "a104717ca09ac8d51d9915d4fd2255570f0434815e9c15839c87e9bdbedb99c0",
-    "tests/verification-write-http.test.ts": "cbee23fbed8866b09528431c7bce83c2fa4c9e64cd2b92dc70ce15b45ed37c51",
+    "tests/verification-write-http.test.ts": "8d4477a187be0a3f1a38dcc5167344c2e6f5c6c50661b824d1e4fa6169b39cc5",
     "tests/verification-write-fixture.ts": "c7ab4438b498eb95078cba1700479b42d525379aaebe7ad00553cafc39b4a121",
     "package.json": "27b4bdb0b04c09dbebebb049ef223444c4f2c4d2e34628a31ba245f050bf5507",
-    "docs/VERIFICATION_WRITE_HTTP.md": "9a7ff80f8c4dc8dbf144c8403a45f84ac97f48288e1d776af0441e6eaf051052",
+    "docs/VERIFICATION_WRITE_HTTP.md": "bdb366f32486a46e3d22a13d2c6335250d4644343324f469e475adbc73d0918a",
     "docs/ARCHITECTURE.md": "83d917fd1fef8853c84c1f74465284b1b14b5c54e10e52866dd13985c29c8e0e",
-    "registry/prs.json": "504f08b589ad2eedd0b326015d1b6d84dea4ee54e917a84dd2ce95c7dd2d6706"
-  }
+    "registry/prs.json": "e448f4738d1998e6cd8224c3dd3aa771724484a89b946b57f257037dbcdc439f"
+  },
+  "priorFullLocal": 157,
+  "priorCI": "41965087235/check127040135596:157;postgres127040135847:10existing",
+  "newLocalGroups": 3,
+  "full160LocalInstalledClaim": false
 }

@@ -24,7 +24,7 @@ export function createVerificationWriteHandler(
     writer instanceof CurrentVerificationReviewWriter &&
       membership instanceof MembershipRegistry,
     "invalid_policy",
-    "Owning verification reader and membership registry required",
+    "Owning verification writer and membership registry required",
   );
   const policy = structuredClone(configuration),
     origin = new URL(policy.origin);
