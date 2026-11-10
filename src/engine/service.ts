@@ -296,12 +296,14 @@ export function createEngine(deps: EngineDeps) {
 
   // ───────────────────────────── entities ─────────────────────────────
   async function createEntity(ctx: ServiceContext, input: EntityInput & Placement & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, [...E_KEYS, ...PLACE], 'entity');
     const b = vEntity(i);
     const { id } = await cmd(ctx, 'knowledge:write', 'createEntity', input, async (tx) => ({ id: (await mkEntity(tx, ctx, b, placement(i), null)).id }), { human: true });
     return getEntity(ctx, id);
   }
   async function reviseEntity(ctx: ServiceContext, id: string, input: Partial<EntityInput> & { expectedRevision: number; reason: string; state?: string } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, [...E_KEYS, ...REV, 'state', 'compartment'], 'entity revision');
     const reason = text(i.reason, 'reason', 2000);
     await cmd(ctx, 'knowledge:write', `reviseEntity:${id}`, input, async (tx) => {
@@ -328,6 +330,7 @@ export function createEngine(deps: EngineDeps) {
     return R.deep(await entityView(sql, ctx, o, R));
   }
   async function mergeEntities(ctx: ServiceContext, input: { survivorId: string; mergedId: string; rationale: string } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:merge');
     const i = strict<Record<string, unknown>>(input, ['survivorId', 'mergedId', 'rationale', 'idempotencyKey'], 'merge');
     const survivorId = idOf(i.survivorId, 'survivorId'), mergedId = idOf(i.mergedId, 'mergedId'), rationale = text(i.rationale, 'rationale', 4000);
     const { id } = await cmd(ctx, 'knowledge:merge', 'mergeEntities', input, async (tx) => {
@@ -347,6 +350,7 @@ export function createEngine(deps: EngineDeps) {
     return get(ctx, 'entity_merge', id);
   }
   async function unmergeEntities(ctx: ServiceContext, mergeId: string, input: { reason: string } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:merge');
     const i = strict<Record<string, unknown>>(input, ['reason', 'idempotencyKey'], 'unmerge');
     const reason = text(i.reason, 'reason', 4000);
     await cmd(ctx, 'knowledge:merge', `unmergeEntities:${mergeId}`, input, async (tx) => {
@@ -375,6 +379,7 @@ export function createEngine(deps: EngineDeps) {
   }
   /** Records a same/different/unresolved identity decision for a pair. It never merges; disputed matches stay visible. */
   async function recordEntityMatch(ctx: ServiceContext, input: { leftId: string; rightId: string; decision: 'same' | 'different' | 'unresolved'; rationale: string; similarity?: number | null; expectedRevision?: number } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['leftId', 'rightId', 'decision', 'rationale', 'similarity', 'expectedRevision', 'idempotencyKey'], 'entity match');
     const decision = oneOf(i.decision, ['same', 'different', 'unresolved'], 'decision'), rationale = text(i.rationale, 'rationale', 4000), sim = similarity(i.similarity);
     const { id } = await cmd(ctx, 'knowledge:write', 'recordEntityMatch', input, async (tx) => ({ id: (await mkMatch(tx, ctx, idOf(i.leftId, 'leftId'), idOf(i.rightId, 'rightId'), decision, rationale, sim, i.expectedRevision)).id }), { human: true });
@@ -383,12 +388,14 @@ export function createEngine(deps: EngineDeps) {
 
   // ───────────────────────────── claims ─────────────────────────────
   async function createClaim(ctx: ServiceContext, input: ClaimInput & Placement & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, [...C_KEYS, ...PLACE], 'claim');
     const b = vClaim(i);
     const { id } = await cmd(ctx, 'knowledge:write', 'createClaim', input, async (tx) => ({ id: (await mkClaim(tx, ctx, b, placement(i), null)).id }), { human: true });
     return getClaim(ctx, id);
   }
   async function reviseClaim(ctx: ServiceContext, id: string, input: Partial<ClaimInput> & { expectedRevision: number; reason: string; state?: 'active' | 'withdrawn' | 'superseded'; compartment?: string | null } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, [...C_KEYS, ...REV, 'state', 'compartment'], 'claim revision');
     const reason = text(i.reason, 'reason', 2000);
     await cmd(ctx, 'knowledge:write', `reviseClaim:${id}`, input, async (tx) => {
@@ -529,6 +536,7 @@ export function createEngine(deps: EngineDeps) {
   }
   /** Retraction keeps the link and its history; nothing that supports or challenges a claim is ever deleted. */
   async function retractEvidenceLink(ctx: ServiceContext, id: string, input: { expectedRevision: number; reason: string } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, REV, 'evidence link retraction');
     const reason = text(i.reason, 'reason', 2000);
     await cmd(ctx, 'knowledge:write', `retractEvidenceLink:${id}`, input, async (tx) => {
@@ -571,6 +579,7 @@ export function createEngine(deps: EngineDeps) {
     return get(ctx, 'relationship', id);
   }
   async function reviseRelationship(ctx: ServiceContext, id: string, input: { relationshipType?: string; label?: string | null; time?: TimeInterval | null; note?: string | null; state?: 'active' | 'withdrawn'; expectedRevision: number; reason: string } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['relationshipType', 'label', 'time', 'note', 'state', ...REV], 'relationship revision');
     const reason = text(i.reason, 'reason', 2000);
     await cmd(ctx, 'knowledge:write', `reviseRelationship:${id}`, input, async (tx) => {
@@ -597,6 +606,7 @@ export function createEngine(deps: EngineDeps) {
   }
   const eventDeps = (id: string, b: Record<string, any>) => (b.claimIds as string[]).map((c) => ({ depKind: 'event' as Kind, depId: id, sourceRef: selfRef('claim', c), role: 'claim' }));
   async function createEvent(ctx: ServiceContext, input: EventInput & Placement & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, [...EV_KEYS, ...PLACE], 'event');
     const b = vEvent(i);
     const { id } = await cmd(ctx, 'knowledge:write', 'createEvent', input, async (tx) => {
@@ -609,6 +619,7 @@ export function createEngine(deps: EngineDeps) {
     return get(ctx, 'event', id);
   }
   async function reviseEvent(ctx: ServiceContext, id: string, input: Partial<EventInput> & { expectedRevision: number; reason: string; state?: 'active' | 'withdrawn' } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, [...EV_KEYS, ...REV, 'state'], 'event revision');
     const reason = text(i.reason, 'reason', 2000);
     await cmd(ctx, 'knowledge:write', `reviseEvent:${id}`, input, async (tx) => {
@@ -655,6 +666,7 @@ export function createEngine(deps: EngineDeps) {
     return o;
   }
   async function createSourceFamily(ctx: ServiceContext, input: { label: string; description?: string | null; basis?: string; members: string[]; caseId?: string | null } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['label', 'description', 'basis', 'members', 'caseId', 'idempotencyKey'], 'source family');
     const basis = optText(i.basis, 'basis', 500) ?? 'manual';
     const b = { label: text(i.label, 'label', 500), description: optText(i.description, 'description', 4000), basis, members: vMembers(i.members, basis, ctx) };
@@ -662,6 +674,7 @@ export function createEngine(deps: EngineDeps) {
     return get(ctx, 'source_family', id);
   }
   async function reviseSourceFamily(ctx: ServiceContext, id: string, input: { label?: string; description?: string | null; addMembers?: string[]; removeMembers?: string[]; state?: 'active' | 'dissolved'; expectedRevision: number; reason: string } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['label', 'description', 'addMembers', 'removeMembers', 'state', ...REV], 'source family revision');
     const reason = text(i.reason, 'reason', 2000);
     await cmd(ctx, 'knowledge:write', `reviseSourceFamily:${id}`, input, async (tx) => {
@@ -690,6 +703,7 @@ export function createEngine(deps: EngineDeps) {
 
   // ───────────────────────────── contradictions and alternative explanations ─────────────────────────────
   async function recordContradiction(ctx: ServiceContext, input: { members: ObjRef[]; description: string } & Placement & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['members', 'description', ...PLACE], 'contradiction');
     const members = objRefs(i.members, ['claim', 'evidence_link'], 'members'), description = text(i.description, 'description', 4000);
     invariant(members.length >= 2, 'invalid_input', 'A contradiction needs at least two claims or evidence links in tension');
@@ -703,6 +717,7 @@ export function createEngine(deps: EngineDeps) {
   }
   /** Sets the resolution state. Every member claim and link stays in place with its contrary material. */
   async function resolveContradiction(ctx: ServiceContext, id: string, input: { state: 'open' | 'resolved' | 'unresolvable' | 'dismissed'; note: string; expectedRevision: number } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['state', 'note', 'expectedRevision', 'idempotencyKey'], 'contradiction resolution');
     const state = oneOf(i.state, ['open', 'resolved', 'unresolvable', 'dismissed'], 'state'), note = text(i.note, 'note', 4000);
     await cmd(ctx, 'knowledge:write', `resolveContradiction:${id}`, input, async (tx) => {
@@ -715,6 +730,7 @@ export function createEngine(deps: EngineDeps) {
     return get(ctx, 'contradiction', id);
   }
   async function addAlternativeExplanation(ctx: ServiceContext, input: { claimId?: string | null; question?: string | null; text: string } & Placement & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['claimId', 'question', 'text', ...PLACE], 'alternative explanation');
     const b = { claimId: i.claimId === undefined || i.claimId === null ? null : idOf(i.claimId, 'claimId'), question: optText(i.question, 'question', 2000), text: text(i.text, 'text', 8000), note: null };
     invariant(b.claimId !== null || b.question !== null, 'invalid_input', 'An alternative explanation belongs to a claim (claimId) or a question');
@@ -728,6 +744,7 @@ export function createEngine(deps: EngineDeps) {
     return get(ctx, 'alternative', id);
   }
   async function reviseAlternativeExplanation(ctx: ServiceContext, id: string, input: { text?: string; state?: 'open' | 'plausible' | 'ruled_out' | 'adopted'; note?: string | null; expectedRevision: number; reason: string } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['text', 'state', 'note', ...REV], 'alternative explanation revision');
     const reason = text(i.reason, 'reason', 2000);
     await cmd(ctx, 'knowledge:write', `reviseAlternative:${id}`, input, async (tx) => {
@@ -789,6 +806,7 @@ export function createEngine(deps: EngineDeps) {
   }
   /** Any actor (including agents) may propose an assessment. A proposal changes nothing until a human records it. */
   async function proposeAssessment(ctx: ServiceContext, claimId: string, input: Omit<AssessmentInput, 'proposalId'> & Idem): Promise<AssessmentView> {
+    requireCapability(ctx, 'knowledge:propose');
     const a = vAssessment(input);
     invariant(a.proposalId === null, 'invalid_input', 'proposalId is not accepted on a proposal');
     const { id } = await cmd(ctx, 'knowledge:propose', `proposeAssessment:${claimId}`, input, async (tx) => {
@@ -805,6 +823,7 @@ export function createEngine(deps: EngineDeps) {
    * `knowledge:approve`; source-type classification needs `knowledge:assess`. Other dimensions are not read or changed.
    */
   async function recordAssessment(ctx: ServiceContext, claimId: string, input: AssessmentInput & Idem): Promise<AssessmentView> {
+    requireCapability(ctx, (input as { dimension?: unknown } | null)?.dimension === 'source_type' ? 'knowledge:assess' : 'knowledge:approve');
     const a = vAssessment(input);
     const capability = a.dimension === 'source_type' ? 'knowledge:assess' : 'knowledge:approve';
     requireCapability(ctx, capability);
@@ -828,6 +847,7 @@ export function createEngine(deps: EngineDeps) {
     return assessment(ctx, id);
   }
   async function rejectAssessmentProposal(ctx: ServiceContext, assessmentId: string, input: { reason: string } & Idem): Promise<AssessmentView> {
+    requireCapability(ctx, 'knowledge:approve');
     const i = strict<Record<string, unknown>>(input, ['reason', 'idempotencyKey'], 'rejection');
     const reason = text(i.reason, 'reason', 2000);
     await cmd(ctx, 'knowledge:approve', `rejectAssessmentProposal:${assessmentId}`, input, async (tx) => {
@@ -890,6 +910,7 @@ export function createEngine(deps: EngineDeps) {
     return { refs, basis: optText(i.basis, 'basis', 200) ?? 'suggested', label: optText(i.label, 'label', 500), similarity: similarity(i.similarity) };
   }
   async function propose(ctx: ServiceContext, type: 'claim' | 'entity' | 'link' | 'family', input: { origin: ProposalOrigin; items: unknown[] } & Placement & Idem): Promise<ObjectView[]> {
+    requireCapability(ctx, 'knowledge:propose');
     const i = strict<Record<string, unknown>>(input, ['origin', 'items', ...PLACE], 'proposal batch');
     const origin = vOrigin(i.origin);
     invariant(Array.isArray(i.items) && i.items.length >= 1 && i.items.length <= 100 && JSON.stringify(i.items).length <= 512 * 1024, 'invalid_input', 'items must hold 1–100 bounded proposals');
@@ -912,6 +933,7 @@ export function createEngine(deps: EngineDeps) {
   const proposeLinks = (ctx: ServiceContext, input: { origin: ProposalOrigin; items: (LinkInput & { excerpt?: { start: number; end: number; quote: string } })[] } & Placement & Idem) => propose(ctx, 'link', input);
   /** Mirror / content-family hints (for example from E04) become suggestions; sources are grouped only when a human accepts. */
   const suggestSourceFamilies = (ctx: ServiceContext, input: { origin: ProposalOrigin; hints: { refs: string[]; basis?: string; label?: string; similarity?: number | null }[] } & Placement & Idem) => {
+    requireCapability(ctx, 'knowledge:propose');
     const { hints, ...rest } = strict<Record<string, any>>(input, ['origin', 'hints', ...PLACE], 'source family hints');
     return propose(ctx, 'family', { ...rest, items: hints } as { origin: ProposalOrigin; items: unknown[] });
   };
@@ -1198,6 +1220,7 @@ export function createEngine(deps: EngineDeps) {
   }
   /** A correction opened by a researcher inside this engine: same marking as an upstream change, plus the impact set. */
   async function openCorrection(ctx: ServiceContext, input: { refs: string[]; kind?: 'source_corrected' | 'source_superseded' | 'source_removed' | 'content_changed'; reason: string } & Idem): Promise<{ correctionId: string; affected: string[]; impact: Impact }> {
+    requireCapability(ctx, 'knowledge:write');
     const i = strict<Record<string, unknown>>(input, ['refs', 'kind', 'reason', 'idempotencyKey'], 'correction');
     const kind = i.kind === undefined ? 'source_corrected' : oneOf(i.kind, ['source_corrected', 'source_superseded', 'source_removed', 'content_changed'], 'kind');
     const refs = urefs(i.refs, 'refs', 500), reason = text(i.reason, 'reason', 1000);
@@ -1211,6 +1234,7 @@ export function createEngine(deps: EngineDeps) {
   }
   /** A human with `knowledge:approve` clears a stale or blocked flag after checking the cause; refused while the cause still feeds the record. */
   async function resolveFlag(ctx: ServiceContext, target: ObjRef, input: { flag: 'stale' | 'blocked'; note: string } & Idem): Promise<ObjectView> {
+    requireCapability(ctx, 'knowledge:approve');
     const t = strict<Record<string, unknown>>(target, ['kind', 'id'], 'target'), i = strict<Record<string, unknown>>(input, ['flag', 'note', 'idempotencyKey'], 'flag resolution');
     const kind = oneOf(t.kind, ['claim', 'evidence_link', 'statement', 'relationship', 'event', 'alternative'], 'kind') as Kind, id = idOf(t.id, 'id');
     const flag = oneOf(i.flag, ['stale', 'blocked'], 'flag'), note = text(i.note, 'note', 2000);

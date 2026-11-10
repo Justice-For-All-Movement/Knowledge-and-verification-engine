@@ -111,9 +111,10 @@ test('catalog acceptance: families, contradicted claims keep contrary material, 
     // Suggested family (for example a mirror hint from discovery) changes nothing until a human accepts it.
     const [hint] = await engine.suggestSourceFamilies({ ...ctx, actor: { id: 'discovery', kind: 'service', roles: [] }, capabilities: ['knowledge:propose'] }, { origin: { kind: 'discovery', ref: 'E04:source:s-9' }, hints: [{ refs: [ev('scada'), ev('scada-mirror')], basis: 'mirror', similarity: 0.97 }] });
     assert.equal(hint!.state, 'pending'); assert.equal(hint!.item.similarity.label, 'similarity');
-    assert.equal((await engine.independence(ctx, c2.id)).families[0].familyId, null);
+    const scadaFamily = async () => (await engine.independence(ctx, c2.id)).families.find((f: any) => f.sources.includes('E05:evidence_version:scada')).familyId;
+    assert.equal(await scadaFamily(), null);
     await engine.reviewProposal(ctx, hint!.id, { decision: 'accept', reason: 'Same file hash' });
-    assert.notEqual((await engine.independence(ctx, c2.id)).families[0].familyId, null);
+    assert.notEqual(await scadaFamily(), null);
     assert.equal((await engine.getClaim(ctx, c2.id)).status, 'needs_reverification', 'a change in source dependence flags the assessed claim');
     assert.equal((await engine.getClaim(ctx, c2.id)).assessments.factual.value, 'supported', 'the recorded value is retained');
 

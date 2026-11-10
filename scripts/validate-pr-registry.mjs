@@ -7,7 +7,10 @@ const plan = JSON.parse(
 const catalog = JSON.parse(
   readFileSync("docs/approved-design/engine_catalog.json", "utf8"),
 );
+// The repository moved organizations; the registry records the original name and the current one must be this engine.
 assert.equal(v.repository, "neophilism/Knowledge-and-verification-engine");
+assert.equal(v.currentRepository, "Justice-For-All-Movement/knowledge-and-verification-engine");
+if (process.env.GITHUB_REPOSITORY) assert.equal(process.env.GITHUB_REPOSITORY.toLowerCase(), v.currentRepository.toLowerCase());
 assert.equal(v.planVerified, true);
 assert.equal(plan.tasks.length, 122);
 assert.equal(catalog.engines.length, 15);
@@ -79,3 +82,12 @@ assert.equal(pkg.dependencies["@accountability/consent-rights"],
   "git+https://github.com/Justice-For-All-Movement/Consent-rights-and-use-decisions-engine.git#" + consentPin);
 assert(lock.packages["node_modules/@accountability/consent-rights"].resolved.endsWith("#" + consentPin));
 console.log("Accepted current-time Consent SDK pinned separately from Evidence persistence");
+
+// Service layer: the vendored kit must be the byte-identical Identity copy recorded in docs/ENGINE_API.md.
+import { createHash } from "node:crypto";
+const kitSha = createHash("sha256").update(readFileSync("src/service-kit.ts")).digest("hex");
+assert(readFileSync("docs/ENGINE_API.md", "utf8").includes(kitSha), "docs/ENGINE_API.md must record the vendored kit sha256");
+assert.equal(pkg.dependencies.pg, "8.23.1");
+for (const f of ["src/engine/model.ts", "src/engine/core.ts", "src/engine/service.ts", "src/engine/http.ts", "src/engine/index.ts", "src/engine/serve.ts"])
+  assert(!/@accountability\//.test(readFileSync(f, "utf8")), f + " must not import another engine's package");
+console.log("Service layer: kit checksum recorded; no cross-engine package imports");
