@@ -67,6 +67,18 @@
     "./verification-write-http": {
       "types": "./dist/verification-write-http.d.ts",
       "default": "./dist/verification-write-http.js"
+    },
+    "./engine": {
+      "types": "./dist/engine/index.d.ts",
+      "default": "./dist/engine/index.js"
+    },
+    "./serve": {
+      "types": "./dist/engine/serve.d.ts",
+      "default": "./dist/engine/serve.js"
+    },
+    "./service-kit": {
+      "types": "./dist/service-kit.d.ts",
+      "default": "./dist/service-kit.js"
     }
   },
   "engines": {
@@ -78,12 +90,14 @@
     "check": "npm run typecheck && npm test && npm run build && node scripts/validate-pr-registry.mjs",
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "test:postgres": "npm run typecheck && node --test integration/postgres-knowledge.test.ts"
+    "test:postgres": "npm run typecheck && node --test integration/postgres-knowledge.test.ts",
+    "serve": "node src/engine/serve.ts"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.12",
     "@types/node": "26.6.5",
-    "typescript": "7.0.2",
-    "@electric-sql/pglite": "0.5.12"
+    "@types/pg": "8.23.1",
+    "typescript": "7.0.2"
   },
   "files": [
     "dist",
@@ -91,9 +105,10 @@
     "docs"
   ],
   "dependencies": {
-    "@accountability/evidence": "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#d240403c39934ab781178efea8cf4922c94d88a4",
-    "@accountability/evidence-sql": "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#dce7105a70b42d77afe4cd48d34723331447037c",
-    "@accountability/identity-policy": "git+https://github.com/neophilism/Identity-Authorization-and-Policy-Engine.git#763060ddc840979b56483afd830f78679a2369b0",
-    "@accountability/consent-rights": "git+https://github.com/neophilism/Consent-rights-and-use-decisions-engine.git#cd4d35e3247aacae96c0dae7ba416125f73dc383"
+    "@accountability/consent-rights": "git+https://github.com/Justice-For-All-Movement/Consent-rights-and-use-decisions-engine.git#cd4d35e3247aacae96c0dae7ba416125f73dc383",
+    "@accountability/evidence": "git+https://github.com/Justice-For-All-Movement/Evidence-Storage-and-Provenance-Engine.git#d240403c39934ab781178efea8cf4922c94d88a4",
+    "@accountability/evidence-sql": "git+https://github.com/Justice-For-All-Movement/Evidence-Storage-and-Provenance-Engine.git#dce7105a70b42d77afe4cd48d34723331447037c",
+    "@accountability/identity-policy": "git+https://github.com/Justice-For-All-Movement/Identity-Authorization-and-Policy-Engine.git#763060ddc840979b56483afd830f78679a2369b0",
+    "pg": "8.23.1"
   }
 }

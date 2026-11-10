@@ -47,7 +47,7 @@ const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
 const evidencePin = "d240403c39934ab781178efea8cf4922c94d88a4";
 assert.equal(
   pkg.dependencies["@accountability/evidence"],
-  "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#" +
+  "git+https://github.com/Justice-For-All-Movement/Evidence-Storage-and-Provenance-Engine.git#" +
     evidencePin,
 );
 assert(
@@ -61,7 +61,7 @@ console.log(
 const persistencePin = "dce7105a70b42d77afe4cd48d34723331447037c";
 assert.equal(
   pkg.dependencies["@accountability/evidence-sql"],
-  "git+https://github.com/neophilism/Evidence-Storage-and-Provenance-Engine.git#" +
+  "git+https://github.com/Justice-For-All-Movement/Evidence-Storage-and-Provenance-Engine.git#" +
     persistencePin,
 );
 assert(
@@ -70,12 +70,12 @@ assert(
   ),
 );
 console.log("Separate stable persistence SDK pinned for Knowledge owning DB");
-assert.equal(pkg.dependencies["@accountability/identity-policy"],"git+https://github.com/neophilism/Identity-Authorization-and-Policy-Engine.git#763060ddc840979b56483afd830f78679a2369b0");
+assert.equal(pkg.dependencies["@accountability/identity-policy"],"git+https://github.com/Justice-For-All-Movement/Identity-Authorization-and-Policy-Engine.git#763060ddc840979b56483afd830f78679a2369b0");
 assert(lock.packages["node_modules/@accountability/identity-policy"].resolved.endsWith("#763060ddc840979b56483afd830f78679a2369b0"));
 console.log("Accepted Identity resource policy SDK pinned");
 
 const consentPin = "cd4d35e3247aacae96c0dae7ba416125f73dc383";
 assert.equal(pkg.dependencies["@accountability/consent-rights"],
-  "git+https://github.com/neophilism/Consent-rights-and-use-decisions-engine.git#" + consentPin);
+  "git+https://github.com/Justice-For-All-Movement/Consent-rights-and-use-decisions-engine.git#" + consentPin);
 assert(lock.packages["node_modules/@accountability/consent-rights"].resolved.endsWith("#" + consentPin));
 console.log("Accepted current-time Consent SDK pinned separately from Evidence persistence");
