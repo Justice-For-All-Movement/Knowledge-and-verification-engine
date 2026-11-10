@@ -499,6 +499,7 @@ export function createEngine(deps: EngineDeps) {
     const i = strict<Record<string, unknown>>(input, ['target', ...L_KEYS, 'compartment', 'idempotencyKey'], 'evidence link');
     requireCapability(ctx, 'knowledge:write');
     const target = vTarget(i.target), e = vEvidence(i), compartment = label(i.compartment, 'compartment');
+    await core.need(sql, ctx, target.kind as Kind, target.id); // a foreign or hidden target is "not found" before anything else is checked
     const validation = await validateEvidence(ctx, e.evidenceRef);
     const { id } = await cmd(ctx, 'knowledge:write', 'addEvidenceLink', input, async (tx) => ({ id: (await mkLink(tx, ctx, target, e, validation, compartment, null)).id }), { human: true });
     return get(ctx, 'evidence_link', id);
