@@ -67,6 +67,10 @@
     "./verification-write-http": {
       "types": "./dist/verification-write-http.d.ts",
       "default": "./dist/verification-write-http.js"
+    },
+    "./proposal-acceptance": {
+      "types": "./dist/proposal-acceptance.d.ts",
+      "default": "./dist/proposal-acceptance.js"
     }
   },
   "engines": {

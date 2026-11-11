@@ -59,3 +59,5 @@ SELECTED_VERIFICATION_READ.md documents a narrow exact latest/current owning rev
 VERIFICATION_HTTP.md records an explicitly incomplete private read-only selected verification Fetch adapter; operational host authentication/TLS/current policy/browser qualification remains separate.
 
 VERIFICATION_WRITE_HTTP.md records explicitly incomplete private write HTTP work over the accepted current-source/use writer. Existing read routes remain unchanged.
+
+PROPOSAL_ACCEPTANCE.md documents a pure captured exact-span acceptance transition into private unassessed claims and quote-only citations. Durable/current-source admission remains pending; this profile does not authenticate supplied bundles or source truth.
