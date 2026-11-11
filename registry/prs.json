@@ -318,7 +318,8 @@
         16,
         17,
         20,
-        26
+        26,
+        27
       ],
       "dependsOn": [
         "AM-05-01",
@@ -362,7 +363,8 @@
       },
       "durableProposalAcceptance": {
         "docs": "docs/DURABLE_PROPOSAL_ACCEPTANCE.md",
-        "status": "Explicitly incomplete WIP: actual own-DB atomic captured transition/Identity-on-every-call; five local restricted-migration groups/typecheck/build pass. Current same-human Consent/Evidence coordinator, broad review/compiled/full regression/current-head CI pending."
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/27",
+        "status": "Explicitly incomplete WIP: owning locked atomic captured acceptance/current Identity every replay; eight local groups plus separate ninth prototype group; compiled/source/full current-head CI qualification tracked in owning manifest. Mandatory current same-human Consent/Evidence coordinator/reader/HTTPUI and fullAM05.04 remain pending."
       }
     },
     {
