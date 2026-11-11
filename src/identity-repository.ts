@@ -1,4 +1,5 @@
 import type { VerificationAdmission } from "./repository.ts";
+import type { ProposalAcceptanceAdmission } from "./repository.ts";
 import type { ProposalAcceptanceInput } from "./proposal-acceptance.ts";
 import { copyJson } from "@accountability/consent-rights";
 import type { VerificationReviewInput } from "./verification-review.ts";
@@ -121,7 +122,7 @@ export class IdentityKnowledgeRepository {
     input: ProposalAcceptanceInput,
     commandId: string,
     signal?: AbortSignal,
-    admission?: VerificationAdmission,
+    admission?: ProposalAcceptanceAdmission,
   ) {
     const b = copyJson(bundle), q = copyJson(input), admit = admission;
     return this.#acceptProposal(await this.#context(context, signal), b, q, commandId, admit);

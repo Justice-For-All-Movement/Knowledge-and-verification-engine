@@ -364,7 +364,11 @@
       "durableProposalAcceptance": {
         "docs": "docs/DURABLE_PROPOSAL_ACCEPTANCE.md",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/27",
-        "status": "Explicitly incomplete WIP: owning locked atomic captured acceptance/current Identity every replay; eight local groups plus separate ninth prototype group; compiled/source/full current-head CI qualification tracked in owning manifest. Mandatory current same-human Consent/Evidence coordinator/reader/HTTPUI and fullAM05.04 remain pending."
+        "status": "Accepted bounded host-context owning transaction PR27 mergec49806c7d28c529cb938d94e4d18bc34a4dffa78/source21c70cc; all4CI checks178+10existingPG17 PASS/rawlogs0fail0skip; full178local;9focused compiled groups/declarations/3modules pass. Current source/use admission remains separate."
+      },
+      "currentProposalAcceptance": {
+        "docs": "docs/CURRENT_PROPOSAL_ACCEPTANCE.md",
+        "status": "Explicitly incomplete WIP: mandatory same-human current source/use review, fresh Identity and complete locked actual-writer-basis phases; four actual four-DB groups plus fifthDB collision pass/typecheckbuild. Broader lost-ACK/deadline/compiled/full regression/final CI/source review pending."
       }
     },
     {

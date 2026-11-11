@@ -36,6 +36,16 @@ export function inspectClaimProposals(
   context: Context,
   input: unknown,
 ): ClaimProposalBundle {
+  const c = structuredClone(context);
+  invariant(Array.isArray(c.actor.roles) && c.actor.roles.some(r => r === "owner" || r === "researcher"),
+    "forbidden", "Host-authorized human research context required");
+  return captureClaimProposalBundle(c, input);
+}
+/** Detached syntax-only capture for current-authority coordinators. No caller role grants authority. */
+export function captureClaimProposalBundle(
+  context: Context,
+  input: unknown,
+): ClaimProposalBundle {
   const c = structuredClone(context),
     b = copyJson(input) as ClaimProposalBundle;
   nonempty(c.tenantId, "Tenant", 128);
@@ -45,11 +55,9 @@ export function inspectClaimProposals(
   nonempty(c.requestId, "Request", 128);
   validTime(c.now);
   invariant(
-    c.actor.kind === "human" &&
-      Array.isArray(c.actor.roles) &&
-      c.actor.roles.some((r) => r === "owner" || r === "researcher"),
+    c.actor.kind === "human",
     "forbidden",
-    "Host-authorized human research context required",
+    "Human proposal context required; capture does not authenticate it",
   );
   exact(b, [
     "schemaVersion",
