@@ -1,4 +1,6 @@
 import type { VerificationAdmission } from "./repository.ts";
+import type { ProposalAcceptanceInput } from "./proposal-acceptance.ts";
+import { copyJson } from "@accountability/consent-rights";
 import type { VerificationReviewInput } from "./verification-review.ts";
 import type { EvidenceState } from "@accountability/evidence";
 import type { EvidenceLinksCommand } from "./evidence-links.ts";
@@ -6,12 +8,14 @@ import type { EntityIdentityInput } from "./entity-identity.ts";
 import type { MembershipRegistry } from "@accountability/identity-policy/membership";
 import { digest, invariant, nonempty, requireScope } from "./contracts.ts";
 import type { Context, Scope, Ref } from "./contracts.ts";
-import type { KnowledgeRepository, KnowledgeAppend } from "./repository.ts";
+import { KnowledgeRepository } from "./repository.ts";
+import type { KnowledgeAppend } from "./repository.ts";
 export const KNOWLEDGE_RESOURCE_ID = digest({
   kind: "knowledge-private-history-v1",
 });
 /** Explicit opt-in; host authenticates human kind/id. Current stored roles replace incoming roles. */
 export class IdentityKnowledgeRepository {
+  readonly #acceptProposal: KnowledgeRepository["acceptCapturedProposal"];
   readonly #selectedVerification: KnowledgeRepository["prepareVerificationReview"];
   readonly #verification: KnowledgeRepository["loadVerificationReviews"];
   readonly #recordVerification: KnowledgeRepository["recordVerificationReview"];
@@ -33,6 +37,7 @@ export class IdentityKnowledgeRepository {
     policy: Scope & Readonly<{ purpose: string }>,
     timeoutMs = 10000,
   ) {
+    this.#acceptProposal = KnowledgeRepository.prototype.acceptCapturedProposal.bind(repository);
     this.#selectedVerification = repository.prepareVerificationReview.bind(repository);
     this.#verification = repository.loadVerificationReviews.bind(repository);
     this.#recordVerification =
@@ -109,6 +114,17 @@ export class IdentityKnowledgeRepository {
   }
   async load(context: Context, signal?: AbortSignal) {
     return this.#load(await this.#context(context, signal));
+  }
+  async acceptCapturedProposal(
+    context: Context,
+    bundle: unknown,
+    input: ProposalAcceptanceInput,
+    commandId: string,
+    signal?: AbortSignal,
+    admission?: VerificationAdmission,
+  ) {
+    const b = copyJson(bundle), q = copyJson(input), admit = admission;
+    return this.#acceptProposal(await this.#context(context, signal), b, q, commandId, admit);
   }
   async append(
     context: Context,

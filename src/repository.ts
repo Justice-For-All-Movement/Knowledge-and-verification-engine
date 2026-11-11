@@ -3,6 +3,9 @@ import {
   inspectVerificationReviews,
   recordVerificationReview as appendVerificationReview,
 } from "./verification-review.ts";
+import { acceptCapturedClaimProposal, captureProposalAcceptanceInput } from "./proposal-acceptance.ts";
+import type { ProposalAcceptanceInput } from "./proposal-acceptance.ts";
+import { inspectClaimProposals } from "./claim-proposal-review.ts";
 import type {
   VerificationReviewState,
   VerificationReviewInput,
@@ -60,6 +63,14 @@ export const KNOWLEDGE_KIND = "knowledge-history";
 export const ENTITY_IDENTITY_KIND = "knowledge-entity-identity-history";
 export const ENTITY_IDENTITY_KEY = digest({ aggregate: ENTITY_IDENTITY_KIND });
 export const KNOWLEDGE_KEY = digest({ aggregate: KNOWLEDGE_KIND });
+export const PROPOSAL_ACCEPTANCE_KIND = "knowledge-proposal-acceptance";
+export type ProposalAcceptanceAcknowledgement = Readonly<{
+  knowledgeStorage: Ref;
+  linksStorage: Ref;
+  acceptance: Ref;
+  claim: Ref;
+  links: Ref;
+}>;
 export type KnowledgeAppend = Readonly<{
   id: string;
   expectedRevision: number;
@@ -205,6 +216,50 @@ export class KnowledgeRepository {
           return json(result);
         },
       )) as KnowledgeAcknowledgement;
+    });
+  }
+  /** Own-DB atomicity for captured proposals. Source permissions are not authenticated by this host-context API. */
+  async acceptCapturedProposal(
+    context: Context,
+    bundle: unknown,
+    input: ProposalAcceptanceInput,
+    commandId: string,
+    admission?: VerificationAdmission,
+  ): Promise<ProposalAcceptanceAcknowledgement> {
+    const c = this.#context(context), b = inspectClaimProposals(c, bundle),
+      q = captureProposalAcceptanceInput(input), admit = admission;
+    nonempty(commandId, "Command", 128);
+    return scoped(this.#db, c, async tx => {
+      // Same project lock as all owning writers, before current reads AND historical cache lookup.
+      await tx.audit("knowledge.proposal-acceptance.checked", {});
+      const knowledge = await this.#load(tx, c), links = await this.#links(tx, c);
+      const basis = {
+        knowledgeRevision: knowledge.revision,
+        linksRevision: links.revision,
+        revision: selectCurrentEvidenceLinks(c, knowledge.state, links.state, b.basis.linkRef),
+      };
+      if (admit) admitVerification(admit, basis);
+      return await tx.idempotent(commandId, json({
+        operation: "proposal-acceptance", actorKind: c.actor.kind, actorId: c.actor.id,
+        purpose: c.purpose, bundle: b, input: q,
+      }), async () => {
+        const result = acceptCapturedClaimProposal(c, knowledge.state, links.state, b, q);
+        if (admit) admitVerification(admit, basis);
+        const knowledgeStored = await tx.put(KNOWLEDGE_KIND, KNOWLEDGE_KEY, knowledge.revision, result.knowledge);
+        const linksStored = await tx.put(EVIDENCE_LINKS_KIND, EVIDENCE_LINKS_KEY, links.revision, result.links);
+        const id = digest({ claim: result.acceptance.claim });
+        const accepted = await tx.put(PROPOSAL_ACCEPTANCE_KIND, id, 0, result.acceptance);
+        const ref = (kind: string, id: string, revision: number): Ref => ({ tenantId: c.tenantId, projectId: c.projectId, kind, id, revision });
+        const ack: ProposalAcceptanceAcknowledgement = {
+          knowledgeStorage: ref(KNOWLEDGE_KIND, KNOWLEDGE_KEY, knowledgeStored.revision),
+          linksStorage: ref(EVIDENCE_LINKS_KIND, EVIDENCE_LINKS_KEY, linksStored.revision),
+          acceptance: ref(PROPOSAL_ACCEPTANCE_KIND, id, accepted.revision),
+          claim: result.acceptance.claim, links: result.acceptance.links,
+        };
+        await tx.audit("knowledge.proposal-acceptance.recorded", json(ack));
+        await tx.enqueue("knowledge.proposal-acceptance.recorded", json(ack));
+        return json(ack);
+      }) as unknown as ProposalAcceptanceAcknowledgement;
     });
   }
   async #identities(tx: UnitOfWork, c: Context) {

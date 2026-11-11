@@ -358,7 +358,11 @@
       "capturedProposalAcceptance": {
         "docs": "docs/PROPOSAL_ACCEPTANCE.md",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/26",
-        "status": "Pure captured profile implemented; eight local groups/typecheck/build and initial six packed groups/declarations pass. Source review clear. Final packed expansion/full regression/current-head CI pending. Durable current-source transaction/Identity/Consent/authenticated UI remain separate pending; fullAM05.04 not accepted."
+        "status": "Accepted bounded pure profile PR26 merge985956d7b8a7d0ea247cbdd19ebef4bb03a86786 after source0bbc3c3 all4checksPASS169+10existingPG17/rawlogs0fail0skip. Eight focused local+packed/declarations/module-byte pass. Durable/current-source acceptance remains separate."
+      },
+      "durableProposalAcceptance": {
+        "docs": "docs/DURABLE_PROPOSAL_ACCEPTANCE.md",
+        "status": "Explicitly incomplete WIP: actual own-DB atomic captured transition/Identity-on-every-call; five local restricted-migration groups/typecheck/build pass. Current same-human Consent/Evidence coordinator, broad review/compiled/full regression/current-head CI pending."
       }
     },
     {

@@ -61,3 +61,5 @@ VERIFICATION_HTTP.md records an explicitly incomplete private read-only selected
 VERIFICATION_WRITE_HTTP.md records explicitly incomplete private write HTTP work over the accepted current-source/use writer. Existing read routes remain unchanged.
 
 PROPOSAL_ACCEPTANCE.md documents a pure captured exact-span acceptance transition into private unassessed claims and quote-only citations. Durable/current-source admission remains pending; this profile does not authenticate supplied bundles or source truth.
+
+DURABLE_PROPOSAL_ACCEPTANCE.md records explicitly incomplete own-DB captured-proposal transaction/Identity work. Pure PR26 is accepted985956d; current same-human source/use admission and protected acceptance interfaces remain separate.
