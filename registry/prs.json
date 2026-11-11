@@ -317,7 +317,8 @@
       "contributingPrs": [
         16,
         17,
-        20
+        20,
+        26
       ],
       "dependsOn": [
         "AM-05-01",
@@ -356,7 +357,8 @@
       },
       "capturedProposalAcceptance": {
         "docs": "docs/PROPOSAL_ACCEPTANCE.md",
-        "status": "Explicitly incomplete WIP: pure captured acceptance transition/six local groups/typecheck/build; durable current-source acceptance, installed/full regressions/final CI pending."
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/26",
+        "status": "Pure captured profile implemented; eight local groups/typecheck/build and initial six packed groups/declarations pass. Source review clear. Final packed expansion/full regression/current-head CI pending. Durable current-source transaction/Identity/Consent/authenticated UI remain separate pending; fullAM05.04 not accepted."
       }
     },
     {

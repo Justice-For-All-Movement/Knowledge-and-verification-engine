@@ -10,10 +10,15 @@ const c: Context = { tenantId: "fiction", projectId: "acceptance", actor: { id: 
 function redigest<T extends { digest: string }>(bundle: T) {
   const { digest: ignored, ...payload } = bundle; return { ...payload, digest: digest(payload) };
 }
-function fixture() {
-  let source = e.acquireEvidence(e.createEvidenceState(c), c, {
+function fixture(withFamily = false) {
+  let initial = e.createEvidenceState(c);
+  if (withFamily) {
+    initial = e.addSourceFamily(initial, c, { id: "root", label: "Fictional root", parentIds: [], reason: "Synthetic ancestry" });
+    initial = e.addSourceFamily(initial, c, { id: "copy", label: "Fictional copy", parentIds: ["root"], reason: "Synthetic copy ancestry" });
+  }
+  let source = e.acquireEvidence(initial, c, {
     id: "source", bytes: Buffer.from("A😀B"), acquisitionId: "acq", storageVersionRef: "private",
-    mediaType: "text/plain", sourceFamilyId: null, capturedAt: c.now, originalLanguage: "und", allowedPurposes: [c.purpose], supersedes: null,
+    mediaType: "text/plain", sourceFamilyId: withFamily ? "copy" : null, capturedAt: c.now, originalLanguage: "und", allowedPurposes: [c.purpose], supersedes: null,
   });
   const v = source.versions[0]!;
   source = e.beginScan(source, c, { id: "start", evidence: v.ref, attemptId: "scan", engineVersion: "synthetic-only" });
@@ -83,4 +88,19 @@ test("a recomputed captured assertion is not authenticated by this pure profile"
   const result = acceptCapturedClaimProposal(c, f.knowledge, f.links, redigest(f.bundle), f.command);
   assert.equal((result.knowledge.records[1]!.value as any).text, f.bundle.proposals[0]!.assertion);
   assert.equal((result.knowledge.records[1]!.value as any).assessment, null);
+});
+test("copied source ancestry remains the same family and cannot become an independent supporting source", () => {
+  const f = fixture(true), result = acceptCapturedClaimProposal(c, f.knowledge, f.links, f.bundle, f.command);
+  const original = f.links.records[0]!.links[0]!, copied = result.links.records[1]!.links[0]!;
+  assert.equal(copied.family.familyId, "copy");
+  assert.deepEqual(copied.family.roots, ["root"]);
+  assert.deepEqual(copied.family, original.family);
+  assert.equal(copied.relation, "quotes");
+  assert.equal(result.links.records[1]!.links.filter(l => l.relation === "supports").length, 0);
+});
+test("an unrelated Knowledge append invalidates the captured containing basis without changing parent references", () => {
+  const f = fixture();
+  const next = reviseKnowledge(c, f.knowledge, { id: "other", expectedRevision: 0, value: { type: "entity", category: "unknown", label: "Fictional", description: "Unrelated change" } });
+  assert.throws(() => acceptCapturedClaimProposal(c, next, f.links, f.bundle, { ...f.command, expectedKnowledgeRevision: 2 }), { code: "stale_proposal" });
+  assert.equal(next.records.length, 2); assert.equal(f.links.records.length, 1);
 });

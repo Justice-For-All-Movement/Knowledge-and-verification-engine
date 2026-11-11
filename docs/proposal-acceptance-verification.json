@@ -1,0 +1,19 @@
+{
+  "status": "pure captured profile; final qualification pending",
+  "localFocused": 8,
+  "initialPackedFocused": 6,
+  "publicDeclarations": "strict pass",
+  "normalPreparedDependencies": "npm ci pass",
+  "ownSqlCurrentAuthority": "not implemented by pure profile",
+  "sourceReview": "clear",
+  "finalCurrentHeadCI": "required",
+  "sha256": {
+    "src/proposal-acceptance.ts": "1bfb48d1980271504f76f2443ccdaf449ab8144742cbb956745e75bc764d4108",
+    "tests/proposal-acceptance.test.ts": "0a5d7b6053089a2c4f94391e74837ff4037a468fbed1ac302c62d3731979ee23",
+    "package.json": "b2d512996fe5c186ec6ca61e8bfc5979005df002ccfe3724232cab9f518202b3",
+    "docs/PROPOSAL_ACCEPTANCE.md": "0e09993be35872e43373bc97d6e2275b0c5390b187d65b1a4d1331f76cf87a34",
+    "docs/ARCHITECTURE.md": "fd20be7b3207af6794be98aa3540dc6cedffb6ca2006ee04fcd8f0693b0bbcc1",
+    "registry/prs.json": "5dedc84ce28a66ca8069ca5d2a2766baad517cb1d671f2214fd1308892bd81da",
+    "scripts/validate-pr-registry.mjs": "9a63b7b447664c9436e41c8563e41b54cb80e355dd5d1775c68cfaf13b54c57d"
+  }
+}
