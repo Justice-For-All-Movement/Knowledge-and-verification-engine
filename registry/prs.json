@@ -319,7 +319,8 @@
         17,
         20,
         26,
-        27
+        27,
+        28
       ],
       "dependsOn": [
         "AM-05-01",
@@ -364,7 +365,12 @@
       "durableProposalAcceptance": {
         "docs": "docs/DURABLE_PROPOSAL_ACCEPTANCE.md",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/27",
-        "status": "Explicitly incomplete WIP: owning locked atomic captured acceptance/current Identity every replay; eight local groups plus separate ninth prototype group; compiled/source/full current-head CI qualification tracked in owning manifest. Mandatory current same-human Consent/Evidence coordinator/reader/HTTPUI and fullAM05.04 remain pending."
+        "status": "Accepted bounded host-context owning transaction PR27 mergec49806c7d28c529cb938d94e4d18bc34a4dffa78/source21c70cc; all4CI checks178+10existingPG17 PASS/rawlogs0fail0skip; full178local;9focused compiled groups/declarations/3modules pass. Current source/use admission remains separate."
+      },
+      "currentProposalAcceptance": {
+        "docs": "docs/CURRENT_PROPOSAL_ACCEPTANCE.md",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/28",
+        "status": "Explicitly incomplete draft qualification: current same-human source/use coordinator implemented/source-reviewed;9 unique focused local groups and9 packed-export groups plus final later-Evidence refinement passed. Complete actual writing basis checked before cache/preputs; new-only exact observation editions; original authorized replay unchanged. Declarations/build/byte manifests; full regression/final-head CI pending. Owning reader/HTTPUI/fullAM05.04 and deployment remain separate pending work."
       }
     },
     {

@@ -86,6 +86,7 @@ export type VerificationWriteBasis = Readonly<{
   revision: EvidenceLinksState["records"][number];
 }>;
 export type VerificationAdmission = (basis: VerificationWriteBasis) => void;
+export type ProposalAcceptanceAdmission = (basis: VerificationWriteBasis, phase: "checked" | "write") => void;
 export type KnowledgeAcknowledgement = Readonly<{ storage: Ref; record: Ref }>;
 const json = (v: unknown): Json => JSON.parse(canonical(v));
 function admitVerification(
@@ -224,7 +225,7 @@ export class KnowledgeRepository {
     bundle: unknown,
     input: ProposalAcceptanceInput,
     commandId: string,
-    admission?: VerificationAdmission,
+    admission?: ProposalAcceptanceAdmission,
   ): Promise<ProposalAcceptanceAcknowledgement> {
     const c = this.#context(context), b = inspectClaimProposals(c, bundle),
       q = captureProposalAcceptanceInput(input), admit = admission;
@@ -238,13 +239,13 @@ export class KnowledgeRepository {
         linksRevision: links.revision,
         revision: selectCurrentEvidenceLinks(c, knowledge.state, links.state, b.basis.linkRef),
       };
-      if (admit) admitVerification(admit, basis);
+      if (admit) admitVerification(b => admit(b, "checked"), basis);
       return await tx.idempotent(commandId, json({
         operation: "proposal-acceptance", actorKind: c.actor.kind, actorId: c.actor.id,
         purpose: c.purpose, bundle: b, input: q,
       }), async () => {
         const result = acceptCapturedClaimProposal(c, knowledge.state, links.state, b, q);
-        if (admit) admitVerification(admit, basis);
+        if (admit) admitVerification(b => admit(b, "write"), basis);
         const knowledgeStored = await tx.put(KNOWLEDGE_KIND, KNOWLEDGE_KEY, knowledge.revision, result.knowledge);
         const linksStored = await tx.put(EVIDENCE_LINKS_KIND, EVIDENCE_LINKS_KEY, links.revision, result.links);
         const id = digest({ claim: result.acceptance.claim });
