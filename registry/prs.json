@@ -320,7 +320,8 @@
         20,
         26,
         27,
-        28
+        28,
+        29
       ],
       "dependsOn": [
         "AM-05-01",
@@ -370,7 +371,12 @@
       "currentProposalAcceptance": {
         "docs": "docs/CURRENT_PROPOSAL_ACCEPTANCE.md",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/28",
-        "status": "Explicitly incomplete draft qualification: current same-human source/use coordinator implemented/source-reviewed;9 unique focused local groups and9 packed-export groups plus final later-Evidence refinement passed. Complete actual writing basis checked before cache/preputs; new-only exact observation editions; original authorized replay unchanged. Declarations/build/byte manifests; full regression/final-head CI pending. Owning reader/HTTPUI/fullAM05.04 and deployment remain separate pending work."
+        "status": "Accepted PR28 merge54ff6aaba98b58c346df266c1e1a5892fde02c23/source38a87d7; all4headchecksSUCCESS/raw PR check130484067121 pass187 and postgres130484066252 pass10existingPG17/0fail0skip. Full187local and9packed groups/declarations/4runtime bytes qualified. Initial stale-state automatic merge rejection resolved by fresh ready/clean/head/rules evidence; expected-head merge succeeded. Reader and protected HTTPUI/full workflow remain separate."
+      },
+      "proposalAcceptanceRead": {
+        "docs": "docs/PROPOSAL_ACCEPTANCE_READ.md",
+        "status": "Explicitly incomplete draft. Previous7a7a069 full196local+13actualPG17 CI PASS;9packed groups+parent refinement passed. Source review reproduced impossible null recorded Evidence edition acceptance against old compiled module; strict positive-edition fix now focused local/typecheck/build PASS. Final compiled/full/current-head CI qualification must use fixed source, not old7a checks. No current-source TCP/browser/live qualification.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/29"
       }
     },
     {

@@ -65,3 +65,5 @@ PROPOSAL_ACCEPTANCE.md documents a pure captured exact-span acceptance transitio
 DURABLE_PROPOSAL_ACCEPTANCE.md records explicitly incomplete own-DB captured-proposal transaction/Identity work. Pure PR26 is accepted985956d; current same-human source/use admission and protected acceptance interfaces remain separate.
 
 CURRENT_PROPOSAL_ACCEPTANCE.md documents explicitly incomplete current same-human Identity/Consent/Evidence acceptance coordinator work over accepted atomic PR27. It compares complete source and actual writing bases under lock without rebasing historical replay.
+
+PR28 is accepted54ff6aaba98b58c346df266c1e1a5892fde02c23 after final source38a87d7 CI187+10existingPG17. Earlier pending qualification notes are historical. PROPOSAL_ACCEPTANCE_READ.md describes incomplete selected owning/current-source private receipt reads; protected acceptance HTTP/UI and full-workflow/live qualification remain pending.

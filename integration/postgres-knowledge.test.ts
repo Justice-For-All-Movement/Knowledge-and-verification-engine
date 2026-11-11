@@ -1,3 +1,4 @@
+import { fixture as capturedAcceptance } from "../tests/proposal-acceptance-fixture.ts";
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -692,3 +693,66 @@ for (const mode of ["claim", "links"] as const)
       }
     },
   );
+
+
+async function acceptance(t: test.TestContext, id: string) {
+  const f = await fixture(t, id), d = capturedAcceptance(true, f.context);
+  await f.sa.append(f.context, 0, { id: "parent", expectedRevision: 0, value: d.knowledge.records[0]!.value }, "parent");
+  await f.sa.recordEvidenceLinks(f.context, 0, d.source, { claim: d.knowledge.records[0]!.ref,
+    expectedRevision: 0, links: d.links.records[0]!.links.map(({ id, relation, selector }) => ({ id, relation, selector })) }, "parent-links");
+  const ack = await f.sa.acceptCapturedProposal(f.context, d.bundle, d.command, "accept");
+  return { ...f, d, ack };
+}
+for (const mode of ["claim", "links"] as const) test(
+  `selected acceptance read observes committed accepted ${mode} revision after required independent lock wait`,
+  { timeout: 20000 }, async t => {
+    const f = await acceptance(t, "knowledge-acceptance-read-" + mode);
+    const baseline = await f.sb.prepareProposalAcceptance(f.context, f.ack.acceptance);
+    assert.equal(baseline.citation.links[0]!.relation, "quotes");
+    assert.equal(baseline.record.excerpt.quote, "😀");
+    const locked = gate(), release = gate(), writer = new KnowledgeRepository(held(f.a, locked, release), f.policy);
+    const writing = mode === "claim"
+      ? writer.append(f.context, 2, { id: "accepted", expectedRevision: 1, value: baseline.claim.value }, "changed-accepted-claim")
+      : writer.recordEvidenceLinks(f.context, 2, f.d.source, { claim: f.ack.claim, expectedRevision: 1,
+        links: baseline.citation.links.map(({ id, relation, selector }) => ({ id, relation, selector })) }, "changed-accepted-links");
+    let pending: Promise<unknown> | undefined;
+    try {
+      await Promise.race([locked.promise, writing]);
+      pending = f.sb.prepareProposalAcceptance(f.context, f.ack.acceptance);
+      const outcome = pending.then(value => ({ value }), error => ({ error }));
+      await observedWait(f.id);
+      release.resolve(); await writing;
+      const result = await outcome;
+      assert.ok("error" in result);
+      const code = mode === "claim" ? "stale_claim" : "stale_links";
+      assert.equal((result.error as { code: string }).code, code);
+      await f.b.close();
+      const fresh = f.connect("fresh"), repo = new KnowledgeRepository(fresh, f.policy);
+      await assert.rejects(repo.prepareProposalAcceptance(f.context, f.ack.acceptance), { code });
+      await scoped(fresh, f.context, async tx => {
+        const audits = await tx.audits(); assert(verifyAudit(audits));
+        assert.equal(audits.filter(a => a.type === "knowledge.proposal-acceptance.read_checked").length, 1,
+          "Only the baseline selected read commits; stale checked reads roll back");
+        assert.equal(audits.filter(a => a.type === "knowledge.proposal-acceptance.recorded").length, 1);
+      });
+    } finally { release.resolve(); await writing; await pending?.catch(() => {}); }
+  });
+test("lost selected acceptance read COMMIT is not a new effect; fresh pool returns actual retained receipt", { timeout: 20000 }, async t => {
+  const f = await acceptance(t, "knowledge-acceptance-read-lost");
+  let lost = false;
+  const wrapped: Database = { close: async () => {}, transaction: fn => f.a.transaction(fn).then(value => {
+    lost = true; throw Error("fixture lost selected read COMMIT acknowledgement");
+  }) };
+  await assert.rejects(new KnowledgeRepository(wrapped, f.policy).prepareProposalAcceptance(f.context, f.ack.acceptance), /lost selected read COMMIT/);
+  assert(lost); await f.a.close();
+  const fresh = f.connect("fresh"), repo = new KnowledgeRepository(fresh, f.policy);
+  const selected = await repo.prepareProposalAcceptance(f.context, f.ack.acceptance);
+  assert.deepEqual(selected.record.claim, f.ack.claim);
+  assert.equal(selected.knowledgeStorage.revision, 2); assert.equal(selected.linksStorage.revision, 2);
+  assert.equal(selected.record.parentRelation, "challenges"); assert.equal(selected.citation.links[0]!.relation, "quotes");
+  await scoped(fresh, f.context, async tx => {
+    const audits = await tx.audits(); assert(verifyAudit(audits));
+    assert.equal(audits.filter(a => a.type === "knowledge.proposal-acceptance.recorded").length, 1);
+    assert.equal(audits.filter(a => a.type === "knowledge.proposal-acceptance.read_checked").length, 2);
+  });
+});

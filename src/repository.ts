@@ -1,3 +1,5 @@
+import { inspectStoredProposalAcceptance } from "./proposal-acceptance-record.ts";
+import { copyJson } from "@accountability/consent-rights";
 import {
   createVerificationReviewState,
   inspectVerificationReviews,
@@ -261,6 +263,28 @@ export class KnowledgeRepository {
         await tx.enqueue("knowledge.proposal-acceptance.recorded", json(ack));
         return json(ack);
       }) as unknown as ProposalAcceptanceAcknowledgement;
+    });
+  }
+  /** Checked read only; immutable metadata is validated against actual retained histories under the project lock. */
+  async prepareProposalAcceptance(context: Context, selected: Ref, admission?: VerificationAdmission) {
+    const c = this.#context(context), choice = validateRef(copyJson(selected));
+    requireScope(c, choice);
+    invariant(choice.kind === PROPOSAL_ACCEPTANCE_KIND && choice.revision === 1,
+      "invalid_acceptance", "Exact immutable acceptance reference required");
+    return scoped(this.#db, c, async tx => {
+      await tx.audit("knowledge.proposal-acceptance.read_checked", {});
+      const knowledge = await this.#load(tx, c), links = await this.#links(tx, c);
+      const stored = await tx.get<unknown>(choice.kind, choice.id);
+      invariant(stored && stored.revision === 1, "invalid_acceptance", "Exact retained acceptance edition required");
+      const result = inspectStoredProposalAcceptance(c, knowledge.state, links.state, choice, stored.value);
+      if (admission) admitVerification(admission, { knowledgeRevision: knowledge.revision,
+        linksRevision: links.revision, revision: result.citation });
+      const ref = (kind: string, id: string, revision: number): Ref => ({ ...choice, kind, id, revision });
+      const output = { acceptance: choice, ...result,
+        knowledgeStorage: ref(KNOWLEDGE_KIND, KNOWLEDGE_KEY, knowledge.revision),
+        linksStorage: ref(EVIDENCE_LINKS_KIND, EVIDENCE_LINKS_KEY, links.revision) };
+      invariant(Buffer.byteLength(canonical(output)) <= 512 * 1024, "invalid_acceptance", "Acceptance read exceeds budget");
+      return structuredClone(output);
     });
   }
   async #identities(tx: UnitOfWork, c: Context) {
