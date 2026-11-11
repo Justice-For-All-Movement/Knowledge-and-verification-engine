@@ -31,7 +31,7 @@ export function inspectStoredProposalAcceptance(c: Context, knowledge: Knowledge
     "invalid_acceptance", "Exact acceptance and claim identities required");
   for (const [n, size] of [[a.parentKnowledgeRevision, knowledge.records.length], [a.parentLinksRevision, links.records.length]] as const)
     invariant(Number.isSafeInteger(n) && n > 0 && n < size, "invalid_acceptance", "Retained containing editions required");
-  invariant(a.capturedEvidenceRevision === null || (Number.isSafeInteger(a.capturedEvidenceRevision) && a.capturedEvidenceRevision > 0),
+  invariant(Number.isSafeInteger(a.capturedEvidenceRevision) && a.capturedEvidenceRevision !== null && a.capturedEvidenceRevision > 0,
     "invalid_acceptance", "Recorded Evidence edition required");
   // Positions are observed in the ACTUAL retained arrays. No synthetic historical snapshot is exposed.
   const claim = knowledge.records[a.parentKnowledgeRevision]!, citation = links.records[a.parentLinksRevision]!;

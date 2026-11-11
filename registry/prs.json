@@ -376,12 +376,12 @@
       },
       "proposalAcceptanceRead": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_READ.md",
-        "status": "PR29 source7a7a069; full196local/typecheck/build/registry PASS/0fail0skip;9compiled packed groups+later-parent refinement/declarations/4runtime bytes pass. CI43018180457/postgres130514418464 raw13PASS(10prior+3new)/0fail0skip. General final-head CI still pending at observation; draft not yet merged.",
+        "status": "Explicitly incomplete draft. Previous7a7a069 full196local+13actualPG17 CI PASS;9packed groups+parent refinement passed. Source review reproduced impossible null recorded Evidence edition acceptance against old compiled module; strict positive-edition fix now focused local/typecheck/build PASS. Final compiled/full/current-head CI qualification must use fixed source, not old7a checks. No current-source TCP/browser/live qualification.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/29"
       },
       "proposalAcceptanceHttp": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_HTTP.md",
-        "status": "Explicitly incomplete draft;7focused local groups (6+separate final locked-read deadline) and all7compiled packed-export groups PASS/0fail0skip; strict public declarations/HTTP module bytes/typecheckbuildregistry pass. Copied normal-prepared dependencies/not fresh consumer install. Dependency PR29/final current-head CI pending; no full203local/TCP/browser/live claim.",
+        "status": "Explicitly incomplete draft;7focused local groups (6+separate final locked-read deadline) and all7compiled packed-export groups PASS/0fail0skip; strict public declarations/HTTP module bytes/typecheckbuildregistry pass. Copied normal-prepared dependencies/not fresh consumer install. Dependency PR29/final current-head CI pending; no full203local/TCP/browser/live claim. Reader strict positive-edition fix8110841 is incorporated; fresh final-head regression/compiled integration qualification required.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/30"
       }
     },
