@@ -87,6 +87,10 @@
     "./proposal-acceptance-write-http": {
       "types": "./dist/proposal-acceptance-write-http.d.ts",
       "default": "./dist/proposal-acceptance-write-http.js"
+    },
+    "./claim-dossier": {
+      "types": "./dist/claim-dossier.d.ts",
+      "default": "./dist/claim-dossier.js"
     }
   },
   "engines": {
