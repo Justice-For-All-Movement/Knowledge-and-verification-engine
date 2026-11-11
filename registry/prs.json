@@ -322,7 +322,8 @@
         27,
         28,
         29,
-        30
+        30,
+        31
       ],
       "dependsOn": [
         "AM-05-01",
@@ -376,13 +377,18 @@
       },
       "proposalAcceptanceRead": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_READ.md",
-        "status": "Explicitly incomplete draft. Previous7a7a069 full196local+13actualPG17 CI PASS;9packed groups+parent refinement passed. Source review reproduced impossible null recorded Evidence edition acceptance against old compiled module; strict positive-edition fix now focused local/typecheck/build PASS. Final compiled/full/current-head CI qualification must use fixed source, not old7a checks. No current-source TCP/browser/live qualification.",
+        "status": "Accepted PR29 merge0895ff36f12213fb8f130737a08ace67f12011ab/source8110841; all4headchecksSUCCESS/raw196+13PG17 PASS0fail0skip;9fixed-runtime packed groups/types/4modulebytes qualified. No host/live/fullworkflow completion.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/29"
       },
       "proposalAcceptanceHttp": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_HTTP.md",
-        "status": "Explicitly incomplete draft;7focused local groups (6+separate final locked-read deadline) and all7compiled packed-export groups PASS/0fail0skip; strict public declarations/HTTP module bytes/typecheckbuildregistry pass. Copied normal-prepared dependencies/not fresh consumer install. Dependency PR29/final current-head CI pending; no full203local/TCP/browser/live claim. Reader strict positive-edition fix8110841 is incorporated; fresh final-head regression/compiled integration qualification required.",
+        "status": "Accepted PR30 mergea89646b1e08ba56f1b41a383051450c14f7b909c/source827e15; retargetedmain after29; all4headchecksSUCCESS/raw203+13PG17 PASS0fail0skip;7fixed-runtime packed groups/types/bytes qualified. No host/live/fullworkflow completion.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/30"
+      },
+      "proposalAcceptanceWriteHttp": {
+        "docs": "docs/PROPOSAL_ACCEPTANCE_WRITE_HTTP.md",
+        "status": "Explicitly incomplete draft;6unique focused local groups pass(4+2), typecheck/build/registry pass. Exact original input/current Consent replay/ACK-after-cancel/lost actual COMMIT/member disable/blocked provider/new+cached actual locked HTTP deadline/chunk-cancel admission tested. Full regression/compiled public exports/final-head CI pending; no live/fullworkflow qualification.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/31"
       }
     },
     {

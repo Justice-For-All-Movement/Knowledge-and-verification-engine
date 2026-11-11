@@ -69,3 +69,5 @@ CURRENT_PROPOSAL_ACCEPTANCE.md documents explicitly incomplete current same-huma
 PR28 is accepted54ff6aaba98b58c346df266c1e1a5892fde02c23 after final source38a87d7 CI187+10existingPG17. Earlier pending qualification notes are historical. PROPOSAL_ACCEPTANCE_READ.md describes incomplete selected owning/current-source private receipt reads; protected acceptance HTTP/UI and full-workflow/live qualification remain pending.
 
 PROPOSAL_ACCEPTANCE_HTTP.md records incomplete private selected acceptance native Fetch routes over PR29 current reader. The adapter exposes session/read only; no acceptance command, grants or publication. Host authentication/TLS/rights and full deployment qualification remain separate.
+
+PR29/30 are accepted0895ff36/a89646b1 with final196/203 tests and13 PostgreSQL scenarios. Older pending notes are historical. PROPOSAL_ACCEPTANCE_WRITE_HTTP.md describes incomplete protected acceptance commands over the accepted same-human coordinator; host/live/full workflow remain pending.

@@ -83,6 +83,10 @@
     "./proposal-acceptance-http": {
       "types": "./dist/proposal-acceptance-http.d.ts",
       "default": "./dist/proposal-acceptance-http.js"
+    },
+    "./proposal-acceptance-write-http": {
+      "types": "./dist/proposal-acceptance-write-http.d.ts",
+      "default": "./dist/proposal-acceptance-write-http.js"
     }
   },
   "engines": {
