@@ -1,0 +1,11 @@
+{
+  "status": "explicitly incomplete draft;4focused local groups/typecheckbuild passed; final qualification pending",
+  "sha256": {
+    "docs/ARCHITECTURE.md": "d1d0ff59d6a9f7fed7b5f9ff16bdab2e03c4f510b509c5aa251419c9cb312196",
+    "package.json": "6274e5678af9112998c8b17c3f6d032d67ce9571b76dbf4595607ac984d564a5",
+    "registry/prs.json": "e3247e23f2cbd19d1ce3e0516f1e450249584f8faf3f4a346366e7608805b036",
+    "docs/PROPOSAL_ACCEPTANCE_WRITE_HTTP.md": "5724b859bde76a5ed8f299864daad279f88ebb408de5b6992a7198cee69b07cb",
+    "src/proposal-acceptance-write-http.ts": "3c6df5a97b672797f2a0b8370731ba6b8ffda3ac34014b382391c0104dfdbd8d",
+    "tests/proposal-acceptance-write-http.test.ts": "a0715b71e7162d0b760304c266b1782abcf8e8986c05c6ddbbbfa076a23513a7"
+  }
+}
