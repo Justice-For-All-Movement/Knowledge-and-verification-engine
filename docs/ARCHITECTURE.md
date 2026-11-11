@@ -67,3 +67,5 @@ DURABLE_PROPOSAL_ACCEPTANCE.md records explicitly incomplete own-DB captured-pro
 CURRENT_PROPOSAL_ACCEPTANCE.md documents explicitly incomplete current same-human Identity/Consent/Evidence acceptance coordinator work over accepted atomic PR27. It compares complete source and actual writing bases under lock without rebasing historical replay.
 
 PR28 is accepted54ff6aaba98b58c346df266c1e1a5892fde02c23 after final source38a87d7 CI187+10existingPG17. Earlier pending qualification notes are historical. PROPOSAL_ACCEPTANCE_READ.md describes incomplete selected owning/current-source private receipt reads; protected acceptance HTTP/UI and full-workflow/live qualification remain pending.
+
+PROPOSAL_ACCEPTANCE_HTTP.md records incomplete private selected acceptance native Fetch routes over PR29 current reader. The adapter exposes session/read only; no acceptance command, grants or publication. Host authentication/TLS/rights and full deployment qualification remain separate.
