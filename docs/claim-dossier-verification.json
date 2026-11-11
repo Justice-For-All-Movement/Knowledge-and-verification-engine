@@ -1,0 +1,13 @@
+{
+  "profile": "captured-claim-dossier-v1",
+  "localEvidence": "Eight focused local groups/typecheck/build/registry qualified; seven packed groups before final included-record purpose gates. Full and final compiled/CI qualification pending.",
+  "limits": "Pure host-authorized captured metadata, not authentication/current permissions/verification/export/closure; no new SQL/TCP/browser/live qualification.",
+  "sha256": {
+    "src/claim-dossier.ts": "cb0403c9787b4c8c444c7d2ea248fc7f9339b5f849d318eade43021a00f83864",
+    "tests/claim-dossier.test.ts": "d6d16d8f8c931200e01c87a7aa1fdf1aa40772a18ab06c96ed4ebb4aa87de55c",
+    "package.json": "1bb37557b97fadea6f6c40253d97a8fda97a484bfe0e3de1248abb447478fc10",
+    "registry/prs.json": "3aae0e11b1092e201fc16b66e51123e5f85aca5b0232fbdc3f05138aabe7bd63",
+    "docs/CLAIM_DOSSIER.md": "d21882cd55b19707930adc429b421b1c7bc7904260721a73fb7f8b1ca2899b5c",
+    "docs/ARCHITECTURE.md": "09aebf15d1906dd41bb49438bbc41d2bffd67f9c4f36934384de554f5c2ea3f8"
+  }
+}

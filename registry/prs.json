@@ -503,11 +503,12 @@
         "Export includes contrary material, attribution limits and exact evidence versions within its authorized scope.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial captured private claim dossier: exact latest claim/citation selection within supplied complete histories; all contrary links/selector-family metadata/limitations retained; changed historical subjects explicit. Three synthetic local groups/typecheck/build/registry pass. Wider source-bound/package/adversarial/current-head CI pending; no current authorization, export, closure or full task acceptance.",
+      "implementationStatus": "Partial captured private claim dossier: exact latest claim/citation selection within supplied complete histories; ALL current and historical contrary links/selector-family metadata/limitations retained; changed historical subjects explicit. Eight focused local groups/types/build/registry qualified; final compiled/full/current-head CI pending. No current authorization, export, closure/full correction impact or full task acceptance.",
       "legacyWorkUnitId": "AM-05.07",
       "claimDossier": {
         "docs": "docs/CLAIM_DOSSIER.md",
-        "status": "Incomplete WIP source checkpoint; no authenticated current-service or full report/referral workflow claim."
+        "status": "Incomplete WIP source checkpoint; no authenticated current-service or full report/referral workflow claim.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/32"
       }
     },
     {
