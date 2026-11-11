@@ -375,7 +375,7 @@
       },
       "proposalAcceptanceRead": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_READ.md",
-        "status": "Explicitly incomplete draft;9 unique focused local groups and9 compiled packed-export groups pass/0fail0skip, strict public declarations pass; separate later-parent correction refinement local pass. Full regression/current-head CI and3 newly authored owning TCP groups pending. No fresh consumer install/current-source TCP/browser/live qualification.",
+        "status": "Explicitly incomplete draft. Previous7a7a069 full196local+13actualPG17 CI PASS;9packed groups+parent refinement passed. Source review reproduced impossible null recorded Evidence edition acceptance against old compiled module; strict positive-edition fix now focused local/typecheck/build PASS. Final compiled/full/current-head CI qualification must use fixed source, not old7a checks. No current-source TCP/browser/live qualification.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/29"
       }
     },

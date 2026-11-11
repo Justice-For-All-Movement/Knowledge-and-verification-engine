@@ -41,6 +41,7 @@ test("owning read validates actual immutable receipt and histories, retaining co
     (r: any) => { r.parentLinksRevision--; },
     (r: any) => { r.actorId = "another"; },
     (r: any) => { r.parentRelation = "supports"; },
+    (r: any) => { r.capturedEvidenceRevision = null; },
     (r: any) => { r.excerpt.quote = "invented"; },
     (r: any) => { r.claim.id = "absent"; },
     (r: any) => { r.extra = "authority"; },
