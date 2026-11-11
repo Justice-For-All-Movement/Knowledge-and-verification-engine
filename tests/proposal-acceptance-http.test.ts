@@ -102,3 +102,22 @@ test("lost actual owning read COMMIT is a sanitized unavailable HTTP response; e
   assert.equal((await f.handler(request(f.ack.acceptance))).status, 200);
   await scoped(f.knowledge, c, async tx => { assert.equal((await tx.audits()).filter(a => a.type === "knowledge.proposal-acceptance.recorded").length, 1); });
 });
+test("HTTP final deadline withholds a late actual locked read and binds the owning reader prototype", async t => {
+  const f = await setup(t), original = f.knowledge.transaction.bind(f.knowledge);
+  let shadow = false, reads = 0, finalLock = false;
+  (f.reader as any).read = async () => { shadow = true; return { forged: true }; };
+  const handler = createProposalAcceptanceReadHandler(f.reader, f.membership, f.provider,
+    { ...f.fixed, origin, timeoutMs: 1000 }, () => c.now);
+  f.knowledge.transaction = fn => original(tx => fn({ query: async <T>(sql: string, values?: unknown[]) => {
+    const result = await tx.query<T>(sql, values);
+    if (sql.includes("INSERT INTO public.evidence_audit") && values?.includes("knowledge.proposal-acceptance.read_checked")) reads++;
+    if (reads === 2 && sql.includes("SELECT") && values?.includes("knowledge-proposal-acceptance")) {
+      finalLock = true; const until = performance.now() + 1100; while (performance.now() < until) {}
+    }
+    return result;
+  } }));
+  const result = await handler(request(f.ack.acceptance));
+  assert.equal(result.status, 503); assert.deepEqual(await result.json(), { error: "proposal_acceptance_unavailable" });
+  assert.equal(shadow, false); assert(finalLock); assert(f.signals.every(s => s.aborted));
+  assert.equal((await f.repo.load(c)).revision, 2);
+});

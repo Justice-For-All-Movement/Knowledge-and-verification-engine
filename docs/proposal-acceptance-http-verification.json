@@ -1,11 +1,17 @@
 {
-  "status": "explicitly incomplete draft dependent on PR29 reader; source/types/build/registry and6focused local groups passed; compiled consumer/final CI pending",
+  "status": "explicitly incomplete WIP; dependency PR29 and final-head CI pending",
+  "localFocused": "7groups passed(6+separate final locked-read deadline group)",
+  "compiledPacked": "all7pass/0fail0skip; copied normal-prepared dependencies, not fresh consumer install",
+  "publicDeclarations": "strict pass",
+  "runtimeModuleByteMatch": "HTTP pass",
+  "upstreamQualification": "PR29 full196local+13actualPG17 groups passed; no full203local claim",
+  "sourceReview": "clear for bounded private selected-read adapter; host proofing and deployment separate",
   "sha256": {
     "docs/ARCHITECTURE.md": "a3d386d24d248c448a30648bb81b593caae19c0a269f2df865c8a753806e7286",
+    "docs/PROPOSAL_ACCEPTANCE_HTTP.md": "1da3c925bc48b4c46b8e743687eb7055864620fe9a65fcbc9275d632ef01ae99",
     "package.json": "11a1c86c2216f4d3b092d739d4338a40f64e268d6fb8fc058af1ebc46dd23657",
-    "registry/prs.json": "b1260fe61d655bce7d7c86d5342185e03ba56df59a4b03b389d2b2b8ae3bf0e0",
-    "docs/PROPOSAL_ACCEPTANCE_HTTP.md": "a88b5a3521757a2a2bc345cb1b5aad929e9d0085b9d6fea555507e04970f0b81",
+    "registry/prs.json": "14942125f1d1fc1d9fc97452640ee915503a549f4affdf46feef33839a1fc92f",
     "src/proposal-acceptance-http.ts": "333c26430deb45e57a699e3a31136669079a797ea2a3b26a23f36623908d8cce",
-    "tests/proposal-acceptance-http.test.ts": "5577011d6f590e78210a072f08663bf64e69575d9363428ece8bcde7f3dab3e3"
+    "tests/proposal-acceptance-http.test.ts": "e18ee12b3c1a574fe209e0761c06ebc2751ec21f3b25a88e5523b5d2d6b41bde"
   }
 }

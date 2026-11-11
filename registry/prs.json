@@ -321,7 +321,8 @@
         26,
         27,
         28,
-        29
+        29,
+        30
       ],
       "dependsOn": [
         "AM-05-01",
@@ -375,12 +376,13 @@
       },
       "proposalAcceptanceRead": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_READ.md",
-        "status": "Explicitly incomplete draft;9 unique focused local groups and9 compiled packed-export groups pass/0fail0skip, strict public declarations pass; separate later-parent correction refinement local pass. Full regression/current-head CI and3 newly authored owning TCP groups pending. No fresh consumer install/current-source TCP/browser/live qualification.",
+        "status": "PR29 source7a7a069; full196local/typecheck/build/registry PASS/0fail0skip;9compiled packed groups+later-parent refinement/declarations/4runtime bytes pass. CI43018180457/postgres130514418464 raw13PASS(10prior+3new)/0fail0skip. General final-head CI still pending at observation; draft not yet merged.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/29"
       },
       "proposalAcceptanceHttp": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_HTTP.md",
-        "status": "Explicitly incomplete draft on PR29 reader; private selected read only, qualification pending."
+        "status": "Explicitly incomplete draft;7focused local groups (6+separate final locked-read deadline) and all7compiled packed-export groups PASS/0fail0skip; strict public declarations/HTTP module bytes/typecheckbuildregistry pass. Copied normal-prepared dependencies/not fresh consumer install. Dependency PR29/final current-head CI pending; no full203local/TCP/browser/live claim.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/30"
       }
     },
     {
