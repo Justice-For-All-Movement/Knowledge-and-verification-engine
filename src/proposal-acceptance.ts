@@ -13,6 +13,17 @@ export type ProposalAcceptanceInput = Readonly<{
   expectedKnowledgeRevision: number;
   expectedLinksRevision: number;
 }>;
+export function captureProposalAcceptanceInput(input: ProposalAcceptanceInput): ProposalAcceptanceInput {
+  const q = copyJson(input);
+  invariant(q && typeof q === "object" && Object.keys(q).length === 4 &&
+    ["proposalId", "claimId", "expectedKnowledgeRevision", "expectedLinksRevision"].every(key => Object.hasOwn(q, key)),
+    "invalid_acceptance", "Exact acceptance fields required");
+  nonempty(q.proposalId, "Proposal ID", 128);
+  nonempty(q.claimId, "New claim ID", 128);
+  for (const n of [q.expectedKnowledgeRevision, q.expectedLinksRevision])
+    invariant(Number.isSafeInteger(n) && n > 0, "invalid_revision", "Positive containing revision required");
+  return q;
+}
 /** Pure captured-state transition only. Host context and bundle digest are not authentication or current source permission. */
 export function acceptCapturedClaimProposal(
   context: Context,
@@ -22,16 +33,9 @@ export function acceptCapturedClaimProposal(
   input: ProposalAcceptanceInput,
 ) {
   const c = copyJson(context), k = copyJson(knowledge), l = copyJson(links),
-    b = inspectClaimProposals(c, bundle), q = copyJson(input);
-  invariant(q && typeof q === "object" && Object.keys(q).length === 4 &&
-    ["proposalId", "claimId", "expectedKnowledgeRevision", "expectedLinksRevision"].every(key => Object.hasOwn(q, key)),
-    "invalid_acceptance", "Exact acceptance fields required");
-  nonempty(q.proposalId, "Proposal ID", 128);
-  nonempty(q.claimId, "New claim ID", 128);
+    b = inspectClaimProposals(c, bundle), q = captureProposalAcceptanceInput(input);
   inspectKnowledge(c, k);
   assertEvidenceLinksState(l);
-  for (const n of [q.expectedKnowledgeRevision, q.expectedLinksRevision])
-    invariant(Number.isSafeInteger(n) && n > 0, "invalid_revision", "Positive containing revision required");
   invariant(q.expectedKnowledgeRevision === k.records.length &&
     q.expectedLinksRevision === l.records.length &&
     b.basis.knowledgeRevision === k.records.length && b.basis.linksRevision === l.records.length,

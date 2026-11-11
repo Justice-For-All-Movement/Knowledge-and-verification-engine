@@ -1,0 +1,22 @@
+{
+  "status": "explicitly incomplete WIP",
+  "localRestrictedGroups": "8 complete-footer + separate ninth prototype group",
+  "compiledPackedGroups": "9 complete-footer pass/0 fail/0 skips",
+  "publicDeclarations": "strict pass",
+  "fullRegression": "running; no full count claim",
+  "currentHeadCI": "required",
+  "mandatoryCurrentSourceConsentCoordinator": "not implemented",
+  "migration": "no schema change; new object kind on unchanged stable SQL SDK",
+  "rollback": "atomic SQL rollback; unknown COMMIT not absence; retain all acceptance metadata",
+  "sha256": {
+    "src/proposal-acceptance.ts": "e5afe7d94588672ea909c5c54cc1bca565ff3575e52a057a7570512b1750f7de",
+    "src/repository.ts": "4053e4921132f417271a42c9a9333d81d1b5b7a2e56a399a51f06ae5647acc8d",
+    "src/identity-repository.ts": "b2684a58f46b0e9fb7b61f8e9353e303dd1639fdc29e308a0da77285969caf31",
+    "tests/proposal-acceptance-fixture.ts": "fc9c3f4c8523f04b6e74a0e436a4be7b582259b79484bacebb23dbe66b048a2a",
+    "tests/proposal-acceptance-repository.test.ts": "f8d7971a4020a4e31866f14b7f80d18f941b75ed64fb3fa74670419ca462e535",
+    "docs/DURABLE_PROPOSAL_ACCEPTANCE.md": "0c73275f03892830158ece7ee27bfe4a38d0b59a21384a28a3c5a24fa4e1d4c4",
+    "docs/ARCHITECTURE.md": "88a70d82786d10dae9e2eb9a2f5c3d48d2b91236c4b5752aff533d0879c9ac3a",
+    "registry/prs.json": "2043fe74513c232405addd8c68289df01a7a00b3ebfbe81d247ef091b73c201a"
+  },
+  "runtimeModulesByteMatched": 3
+}
