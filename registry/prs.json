@@ -387,7 +387,7 @@
       },
       "proposalAcceptanceWriteHttp": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_WRITE_HTTP.md",
-        "status": "Explicitly incomplete draft;6unique focused local groups pass(4+2), typecheck/build/registry pass. Exact original input/current Consent replay/ACK-after-cancel/lost actual COMMIT/member disable/blocked provider/new+cached actual locked HTTP deadline/chunk-cancel admission tested. Full regression/compiled public exports/final-head CI pending; no live/fullworkflow qualification.",
+        "status": "Accepted PR31 sourcea99e5757/mergebc5d4f06d92866ea20ba8305c45ead6bf17d9ba0; final-head209ordinary+13existingPG17 pass. Six focused local+packed/declarations/bytes qualified; no209full-local-installed or host/live/fullworkflow claim. Visual27 accepted0c0237990ab2b06a3bc733e6a09863651ad3bbd1 after exacthead6afcb40d CI175pass/0fail0skip; fixed11packed groups/types/3bytes qualified. Memory-only uncertainty/protected recovery/browserATlive remain separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/31"
       }
     },
@@ -486,7 +486,9 @@
       "title": "Evidence reports and referral packages",
       "origin": "original",
       "prs": [],
-      "contributingPrs": [],
+      "contributingPrs": [
+        32
+      ],
       "dependsOn": [
         "AM-05-01"
       ],
@@ -501,8 +503,12 @@
         "Export includes contrary material, attribution limits and exact evidence versions within its authorized scope.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-05.07"
+      "implementationStatus": "Partial captured private claim dossier: exact latest claim/citation selection within supplied complete histories; all contrary links/selector-family metadata/limitations retained; changed historical subjects explicit. Three synthetic local groups/typecheck/build/registry pass. Wider source-bound/package/adversarial/current-head CI pending; no current authorization, export, closure or full task acceptance.",
+      "legacyWorkUnitId": "AM-05.07",
+      "claimDossier": {
+        "docs": "docs/CLAIM_DOSSIER.md",
+        "status": "Incomplete WIP source checkpoint; no authenticated current-service or full report/referral workflow claim."
+      }
     },
     {
       "id": "AM-05-08",
