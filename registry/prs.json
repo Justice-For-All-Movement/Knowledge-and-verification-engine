@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "repository": "neophilism/Knowledge-and-verification-engine",
+  "repository": "Justice-For-All-Movement/Knowledge-and-verification-engine",
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
@@ -353,6 +353,10 @@
         "status": "Six actual four-DB/encrypted-root local+installed groups; full118 local plus separate sixth group/typecheck/build/registry pass; expanded source6cc29b5 CI41929903130 passes119+7priorPG17. Final documentation-head CI required; no single full119 local/installed claim. Legacy profiles unchanged; partial unit only.",
         "verification": "docs/human-source-review-verification.json",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/20"
+      },
+      "capturedProposalAcceptance": {
+        "docs": "docs/PROPOSAL_ACCEPTANCE.md",
+        "status": "Explicitly incomplete WIP: pure captured acceptance transition/six local groups/typecheck/build; durable current-source acceptance, installed/full regressions/final CI pending."
       }
     },
     {
@@ -383,7 +387,7 @@
         "A contradicted or unresolved assertion cannot silently become a verified finding.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial: pure/own-SQL immutable unresolved review history; current Identity on owning reads/writes/replay; current same-human Consent/Evidence admission and complete locked basis comparison for guarded writes/selected reads; protected private Fetch read and write adapters. Observations remain unresolved/null tracks, never findings/answers/approvals. Protected browser write/replay controls, complete workflow/work proof/correction impact/shared E07/E08 dependency gates and host/browser/AT/live acceptance remain pending. See owning per-profile evidence for exact tests and current-head CI.",
+      "implementationStatus": "Partial: pure/own-SQL immutable unresolved review history; current Identity on owning reads/writes/replay; current same-human Consent/Evidence admission and complete locked basis comparison for guarded writes/selected reads; protected private Fetch read and write adapters. Observations remain unresolved/null tracks, never findings/answers/approvals. Protected browser write/replay controls accepted in Visual PR25 merge5d59b755106468c4110eb925b7fc7331d93c0149; complete workflow/work proof/correction impact/shared E07/E08 dependency gates and host/browser/AT/live acceptance remain pending. See owning per-profile evidence for exact tests and current-head CI.",
       "legacyWorkUnitId": "AM-05.05",
       "verificationReview": {
         "docs": "docs/VERIFICATION_REVIEW.md",
