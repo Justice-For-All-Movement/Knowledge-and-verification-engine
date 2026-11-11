@@ -21,6 +21,12 @@ test("selected owning/current read retains original metadata and actual containi
   assert.deepEqual(second.record, first.record); assert.equal(second.knowledgeStorage.revision, 3);
   (second.record.excerpt as any).quote = "changed caller copy";
   assert.equal((await reader.read(principal, ack.acceptance)).record.excerpt.quote, "Neutral");
+  // A later parent correction does not erase the retained original ancestry or substitute its latest claim.
+  await f.repo.append(c, 3, { ...f.claim, expectedRevision: 1,
+    value: { ...f.claim.value, text: "Later fictional parent correction" } as typeof f.claim.value }, "parent-correction");
+  const afterParent = await reader.read(principal, ack.acceptance);
+  assert.deepEqual(afterParent.record.parentClaim, first.record.parentClaim);
+  assert.equal(afterParent.record.parentClaim.revision, 1); assert.equal(afterParent.knowledgeStorage.revision, 4);
   await scoped(f.knowledge, c, async tx => {
     const audit = await tx.audits(); assert(verifyAudit(audit));
     assert.equal(audit.filter(e => e.type === "knowledge.proposal-acceptance.recorded").length, 1);

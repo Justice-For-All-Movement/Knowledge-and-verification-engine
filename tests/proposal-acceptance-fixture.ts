@@ -4,7 +4,8 @@ import { createEvidenceLinksState, reviseEvidenceLinks } from "../src/evidence-l
 import { digest } from "../src/contracts.ts";
 import type { Context } from "../src/contracts.ts";
 export const c: Context = { tenantId: "fiction", projectId: "acceptance", actor: { id: "human", kind: "human", roles: ["researcher"] }, purpose: "review", requestId: "fixture", now: "2026-01-01T00:00:00Z" };
-export function fixture(withFamily = false) {
+export function fixture(withFamily = false, context: Context = c) {
+  const c = context;
   let initial = e.createEvidenceState(c);
   if (withFamily) {
     initial = e.addSourceFamily(initial, c, { id: "root", label: "Fictional root", parentIds: [], reason: "Synthetic ancestry" });
