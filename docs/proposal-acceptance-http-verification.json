@@ -1,0 +1,11 @@
+{
+  "status": "explicitly incomplete draft dependent on PR29 reader; source/types/build/registry and6focused local groups passed; compiled consumer/final CI pending",
+  "sha256": {
+    "docs/ARCHITECTURE.md": "a3d386d24d248c448a30648bb81b593caae19c0a269f2df865c8a753806e7286",
+    "package.json": "11a1c86c2216f4d3b092d739d4338a40f64e268d6fb8fc058af1ebc46dd23657",
+    "registry/prs.json": "b1260fe61d655bce7d7c86d5342185e03ba56df59a4b03b389d2b2b8ae3bf0e0",
+    "docs/PROPOSAL_ACCEPTANCE_HTTP.md": "a88b5a3521757a2a2bc345cb1b5aad929e9d0085b9d6fea555507e04970f0b81",
+    "src/proposal-acceptance-http.ts": "333c26430deb45e57a699e3a31136669079a797ea2a3b26a23f36623908d8cce",
+    "tests/proposal-acceptance-http.test.ts": "5577011d6f590e78210a072f08663bf64e69575d9363428ece8bcde7f3dab3e3"
+  }
+}
