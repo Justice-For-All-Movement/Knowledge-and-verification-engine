@@ -51,3 +51,29 @@ test('stalled body is authenticated after member disable; blocked provider canno
  const handler=createProposalAcceptanceWriteHandler(f.writer,f.membership,{authenticate:async(_m,s)=>{signal=s;const until=performance.now()+100;while(performance.now()<until){}return{actorId:c.actor.id,requestId:'late',csrfToken:csrf};}},{...f.fixed,origin,timeoutMs:50},()=>c.now);
  assert.equal((await handler(new Request(base+'/session'))).status,503);assert(signal?.aborted);assert.equal((await f.repo.load(c)).revision,1);
 });
+test('HTTP deadline reaches actual locked new and cached acceptance admission', async t => {
+ const f = await setup(t), original = f.knowledge.transaction.bind(f.knowledge);
+ let writing = false, block = true, observed = false;
+ f.knowledge.transaction = fn => original(tx => fn({query: async <T>(sql:string,v?:unknown[]) => {
+  const result = await tx.query<T>(sql,v);
+  if(sql.includes('INSERT INTO public.evidence_audit') && v?.includes('knowledge.proposal-acceptance.checked')) writing = true;
+  if(writing && block && sql.includes('SELECT') && v?.includes('knowledge-evidence-links-history')) {
+   observed = true; const until = performance.now()+1100; while(performance.now()<until) {}
+  }
+  return result;
+ }}));
+ const handler = createProposalAcceptanceWriteHandler(f.writer,f.membership,f.provider,{...f.fixed,origin,timeoutMs:1000},()=>c.now);
+ assert.equal((await handler(f.request())).status,503); assert(observed); assert.equal((await f.repo.load(c)).revision,1);
+ block = false; writing = false; assert.equal((await handler(f.request())).status,200);
+ block = true; writing = false; observed = false;
+ assert.equal((await handler(f.request())).status,503); assert(observed); assert.equal((await f.repo.load(c)).revision,2);
+});
+test('body chunk limits and cancelled streams finish before session authentication', async t => {
+ const f = await setup(t); let auth = 0;
+ const handler = createProposalAcceptanceWriteHandler(f.writer,f.membership,{authenticate:async(...args)=>{auth++;return f.provider.authenticate(...args);}},{...f.fixed,origin},()=>c.now);
+ const body = new ReadableStream<Uint8Array>({start(s){s.enqueue(Buffer.from(JSON.stringify(f.command)));for(let n=0;n<4096;n++)s.enqueue(new Uint8Array());s.close();}});
+ assert.equal((await handler(new Request(base+'/accept',{method:'POST',headers,body,duplex:'half'} as RequestInit))).status,503);
+ const cancelled = new AbortController(); cancelled.abort();
+ assert.equal((await handler(new Request(base+'/accept',{method:'POST',headers,body:JSON.stringify(f.command),signal:cancelled.signal}))).status,503);
+ assert.equal(auth,0); assert.equal((await f.repo.load(c)).revision,1);
+});

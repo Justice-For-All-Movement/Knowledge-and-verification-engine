@@ -322,7 +322,8 @@
         27,
         28,
         29,
-        30
+        30,
+        31
       ],
       "dependsOn": [
         "AM-05-01",
@@ -386,7 +387,8 @@
       },
       "proposalAcceptanceWriteHttp": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_WRITE_HTTP.md",
-        "status": "Explicitly incomplete WIP;4focused local groups/typecheck/build pass; compiled/adversarial/final CI qualification pending."
+        "status": "Explicitly incomplete draft;6unique focused local groups pass(4+2), typecheck/build/registry pass. Exact original input/current Consent replay/ACK-after-cancel/lost actual COMMIT/member disable/blocked provider/new+cached actual locked HTTP deadline/chunk-cancel admission tested. Full regression/compiled public exports/final-head CI pending; no live/fullworkflow qualification.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/31"
       }
     },
     {
