@@ -320,7 +320,8 @@
         20,
         26,
         27,
-        28
+        28,
+        29
       ],
       "dependsOn": [
         "AM-05-01",
@@ -374,7 +375,8 @@
       },
       "proposalAcceptanceRead": {
         "docs": "docs/PROPOSAL_ACCEPTANCE_READ.md",
-        "status": "Explicitly incomplete draft: owning selected immutable receipt/history validation, current Identity and same-human Consent/Evidence composition. Qualification pending; no TCP/browser/live claim."
+        "status": "Explicitly incomplete draft; nine unique focused restricted-migration groups pass (4 initial plus expansion/refinement runs). Actual fifth-DB collision denied, immutable retained receipt validation, lost actual read COMMIT/cancellation/deadline/current withdrawal/prototype guards. Full regression/compiled consumer/final CI pending. No TCP/browser/live qualification.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/29"
       }
     },
     {

@@ -80,3 +80,113 @@ test("owning selected read gate precedes release and rejects asynchronous admiss
   await f.repo.append(c, 2, { id: "accepted", expectedRevision: 1, value }, "new-claim-edition");
   await assert.rejects(new CurrentProposalAcceptanceReader(f.facade, f.review).read(c, ack.acceptance), { code: "proposal_acceptance_unavailable" });
 });
+test("malformed selections and pre-cancellation reach no credentials; owning prototypes ignore instance shadows", async t => {
+  const f = await acceptanceFixture(t), ack = await f.writer.accept(c, f.bundle, f.input, "accept");
+  let calls = 0, getter = 0, shadow = false;
+  const { HumanConsentEvidenceKnowledgeReview } = await import("../src/consent-links.ts");
+  const review = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, async (...args) => {
+    calls++; return f.credential(...args);
+  }, f.guard);
+  (review as any).review = async () => { shadow = true; throw Error("shadow source"); };
+  (f.facade as any).prepareProposalAcceptance = async () => { shadow = true; throw Error("shadow identity"); };
+  (f.repo as any).prepareProposalAcceptance = async () => { shadow = true; throw Error("shadow repository"); };
+  const facade = new IdentityKnowledgeRepository(f.repo, f.membership, f.fixed);
+  const reader = new CurrentProposalAcceptanceReader(facade, review);
+  const choice = { ...ack.acceptance };
+  Object.defineProperty(choice, "id", { enumerable: true, get() { getter++; return ack.acceptance.id; } });
+  await assert.rejects(reader.read(c, choice), { code: "proposal_acceptance_unavailable" });
+  const cancel = new AbortController(); cancel.abort();
+  await assert.rejects(reader.read(c, ack.acceptance, cancel.signal), { code: "proposal_acceptance_unavailable" });
+  await assert.rejects(reader.read(c, { ...ack.acceptance, projectId: "foreign" }), { code: "proposal_acceptance_unavailable" });
+  assert.equal(calls, 0); assert.equal(getter, 0);
+  assert.equal((await reader.read(c, ack.acceptance)).record.proposalId, "candidate");
+  assert.equal(shadow, false); assert(calls > 0);
+});
+test("lost checked-read COMMIT and cancellation after actual COMMIT withhold all private metadata without a second effect", async t => {
+  const f = await acceptanceFixture(t), ack = await f.writer.accept(c, f.bundle, f.input, "accept");
+  const original = f.knowledge.transaction.bind(f.knowledge);
+  let lose = true, cancelAt = 0, checked = 0;
+  const cancelled = new AbortController();
+  f.knowledge.transaction = fn => {
+    let selected = false;
+    return original(tx => fn({ query: async <T>(sql: string, values?: unknown[]) => {
+      const result = await tx.query<T>(sql, values);
+      if (sql.includes("INSERT INTO public.evidence_audit") && values?.includes("knowledge.proposal-acceptance.read_checked")) selected = true;
+      return result;
+    } })).then(value => {
+      if (selected && lose) { lose = false; throw Error("private lost COMMIT diagnostic"); }
+      if (selected && ++checked === cancelAt) cancelled.abort();
+      return value;
+    });
+  };
+  const reader = new CurrentProposalAcceptanceReader(f.facade, f.review);
+  await assert.rejects(reader.read(c, ack.acceptance), e => (e as any).code === "proposal_acceptance_unavailable" && !(e as Error).message.includes("private lost"));
+  assert.equal((await reader.read(c, ack.acceptance)).acceptance.revision, 1);
+  checked = 0; cancelAt = 2;
+  await assert.rejects(reader.read(c, ack.acceptance, cancelled.signal), { code: "proposal_acceptance_unavailable" });
+  assert.equal(cancelled.signal.aborted, true);
+  await scoped(f.knowledge, c, async tx => {
+    const audit = await tx.audits(); assert(verifyAudit(audit));
+    assert.equal(audit.filter(e => e.type === "knowledge.proposal-acceptance.recorded").length, 1);
+  });
+});
+test("same-ID service credentials and withdrawal during source observation cannot disclose a selected acceptance", async t => {
+  const f = await acceptanceFixture(t), ack = await f.writer.accept(c, f.bundle, f.input, "accept");
+  const identity = f.identities.find(i => i.actor.id === c.actor.id)!, actor = identity.actor;
+  identity.actor = { ...actor, kind: "service" };
+  await assert.rejects(new CurrentProposalAcceptanceReader(f.facade, f.review).read(c, ack.acceptance), { code: "proposal_acceptance_unavailable" });
+  identity.actor = actor;
+  const observe = f.service.reviewSelectorsForHuman.bind(f.service);
+  f.service.reviewSelectorsForHuman = async (...args: Parameters<typeof observe>) => {
+    const result = await observe(...args);
+    await f.permissions.withdraw(c, "consent", "text-consent", 1, "withdraw-during-read");
+    return result;
+  };
+  const { HumanConsentEvidenceKnowledgeReview } = await import("../src/consent-links.ts");
+  const review = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, f.credential, f.guard);
+  await assert.rejects(new CurrentProposalAcceptanceReader(f.facade, review).read(c, ack.acceptance), { code: "proposal_acceptance_unavailable" });
+});
+test("deadline includes blocked credentials and actual final locked read; source signals close on success and denial", async t => {
+  const f = await acceptanceFixture(t), ack = await f.writer.accept(c, f.bundle, f.input, "accept");
+  const { HumanConsentEvidenceKnowledgeReview } = await import("../src/consent-links.ts");
+  let captured: AbortSignal | undefined;
+  const review = new HumanConsentEvidenceKnowledgeReview(f.facade, f.service, async (context, signal) => {
+    captured = signal; const until = performance.now() + 200; while (performance.now() < until) {}
+    return f.credential(context, signal);
+  }, f.guard);
+  await assert.rejects(new CurrentProposalAcceptanceReader(f.facade, review, 150).read(c, ack.acceptance), { code: "proposal_acceptance_unavailable" });
+  assert(captured?.aborted);
+  const original = f.knowledge.transaction.bind(f.knowledge); let reads = 0, finalLock = false;
+  f.knowledge.transaction = fn => original(tx => fn({ query: async <T>(sql: string, values?: unknown[]) => {
+    const result = await tx.query<T>(sql, values);
+    if (sql.includes("INSERT INTO public.evidence_audit") && values?.includes("knowledge.proposal-acceptance.read_checked")) reads++;
+    if (reads === 2 && sql.includes("SELECT") && values?.includes("knowledge-proposal-acceptance")) {
+      finalLock = true; const until = performance.now() + 600; while (performance.now() < until) {}
+    }
+    return result;
+  } }));
+  await assert.rejects(new CurrentProposalAcceptanceReader(f.facade, f.review, 500).read(c, ack.acceptance), { code: "proposal_acceptance_unavailable" });
+  assert(finalLock);
+});
+test("actual fifth database with colliding refs/counts and another valid selector cannot substitute for reviewed basis", async t => {
+  const f = await acceptanceFixture(t), ack = await f.writer.accept(c, f.bundle, f.input, "accept");
+  const db = await f.database("alternate_login"), repo = new KnowledgeRepository(db, { ...f.fixed, humanIds: [c.actor.id] });
+  const facade = new IdentityKnowledgeRepository(repo, f.membership, f.fixed);
+  const { HumanConsentEvidenceKnowledgeReview } = await import("../src/consent-links.ts");
+  const { ClaimProposalReader } = await import("../src/claim-proposals.ts");
+  const { CurrentProposalAcceptanceWriter } = await import("../src/proposal-acceptance-writer.ts");
+  const { HumanConsentEvidenceLinksWriter } = await import("../src/consent-links.ts");
+  await repo.append(c, 0, f.claim, "parent");
+  const stored = await scoped(f.evidence, c, tx => tx.get<any>("evidence.aggregate", "project"));
+  await repo.recordEvidenceLinks(c, 0, stored!.value.domain, f.linkCommand, "whole");
+  const selector = { ...f.selector, start: 1, quote: f.selector.quote.slice(1) };
+  const link = await new HumanConsentEvidenceLinksWriter(facade, f.service, f.credential, f.guard).record(c, 1,
+    { ...f.command, links: [{ id: "passage", relation: "quotes", selector }] }, "other-selector");
+  const review = new HumanConsentEvidenceKnowledgeReview(facade, f.service, f.credential, f.guard);
+  const bundle = await new ClaimProposalReader(review).propose(c, link.record,
+    [{ ...f.candidate, start: 0, end: 6, quote: "eutral" }]);
+  const other = await new CurrentProposalAcceptanceWriter(facade, review).accept(c, bundle, f.input, "alternate");
+  assert.deepEqual(other.claim, ack.claim); assert.deepEqual(other.linksStorage, ack.linksStorage);
+  assert.equal((await new CurrentProposalAcceptanceReader(facade, review).read(c, other.acceptance)).record.excerpt.quote, "eutral");
+  await assert.rejects(new CurrentProposalAcceptanceReader(facade, f.review).read(c, other.acceptance), { code: "proposal_acceptance_unavailable" });
+});

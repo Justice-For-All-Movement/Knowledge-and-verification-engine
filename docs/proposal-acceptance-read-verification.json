@@ -1,15 +1,17 @@
 {
-  "status": "explicitly incomplete WIP; four focused groups/typecheck/build/registry pass; full regression/current-head CI/compiled consumer pending",
-  "sourceReview": "ongoing",
+  "status": "explicitly incomplete WIP pending full regression/compiled consumer/current-head CI",
+  "localFocused": "9 unique groups across focused runs; final deadline/collision refinement2pass",
+  "typecheck": "final pass",
+  "sourceReview": "clear for bounded selected metadata/source-use read; no live/TCP/browser profile claim",
   "sha256": {
     "docs/ARCHITECTURE.md": "ec58a0605f2c1df166de8e9a383046aa7bf9713cbd032e4578d76ab87eeb1612",
+    "docs/PROPOSAL_ACCEPTANCE_READ.md": "8a234165b4df8218d63aea28386a23ce6eaa081440c807d511281b3d93664c7d",
     "package.json": "faeae6516e9d73a012762d855b91f0b8daec6f3163685f406127b10b5adf06c6",
-    "registry/prs.json": "11c7ff7b70b6166b23fe8d6826217f848157c528d90fb269dc03ff287a7682a5",
+    "registry/prs.json": "0eca7361be37dea8ab279f5cee52f51eacfba11d9547c7e367ba606249393c21",
     "src/identity-repository.ts": "bd2cb6a3722d4455f25b8bb490b3fbfdbbad2007951c4fb3e56c9611e3441082",
-    "src/repository.ts": "20a065b8e1c9b54c9f0909feb092fe85cd81c648b04438ac90a2739c4f521bfc",
-    "docs/PROPOSAL_ACCEPTANCE_READ.md": "23dc000456e89d414f53c2c4bbdf402aa9a405ec381ca0b2f0d56f3722659f4b",
     "src/proposal-acceptance-reader.ts": "954d9bbfc890d7088c24eea9d1f8692aeb9e6dddc2eab0b75dae034d8cfc477b",
-    "src/proposal-acceptance-record.ts": "a0facaa3f3dee5f4ddf8994fc02fcba685650d05a7448440cdc3975a77043aa0",
-    "tests/proposal-acceptance-reader.test.ts": "30b67fa63d7e0848bcf059a743a1dc0b857fa193b5b90533d43a758c8b25d29d"
+    "src/proposal-acceptance-record.ts": "642709c5b4e9a62fbb3db56f670eb026a6c18b1d43f968a464f02260fbf2d4d0",
+    "src/repository.ts": "20a065b8e1c9b54c9f0909feb092fe85cd81c648b04438ac90a2739c4f521bfc",
+    "tests/proposal-acceptance-reader.test.ts": "3405207f4c6226a5eeee1db2f09a27e4deee9728926c8e3b52cbb138bcbfd428"
   }
 }
