@@ -370,7 +370,11 @@
       "currentProposalAcceptance": {
         "docs": "docs/CURRENT_PROPOSAL_ACCEPTANCE.md",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/28",
-        "status": "Explicitly incomplete draft qualification: current same-human source/use coordinator implemented/source-reviewed;9 unique focused local groups and9 packed-export groups plus final later-Evidence refinement passed. Complete actual writing basis checked before cache/preputs; new-only exact observation editions; original authorized replay unchanged. Declarations/build/byte manifests; full regression/final-head CI pending. Owning reader/HTTPUI/fullAM05.04 and deployment remain separate pending work."
+        "status": "Accepted PR28 merge54ff6aaba98b58c346df266c1e1a5892fde02c23/source38a87d7; all4headchecksSUCCESS/raw PR check130484067121 pass187 and postgres130484066252 pass10existingPG17/0fail0skip. Full187local and9packed groups/declarations/4runtime bytes qualified. Initial stale-state automatic merge rejection resolved by fresh ready/clean/head/rules evidence; expected-head merge succeeded. Reader and protected HTTPUI/full workflow remain separate."
+      },
+      "proposalAcceptanceRead": {
+        "docs": "docs/PROPOSAL_ACCEPTANCE_READ.md",
+        "status": "Explicitly incomplete draft: owning selected immutable receipt/history validation, current Identity and same-human Consent/Evidence composition. Qualification pending; no TCP/browser/live claim."
       }
     },
     {

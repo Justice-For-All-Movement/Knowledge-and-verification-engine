@@ -16,6 +16,7 @@ export const KNOWLEDGE_RESOURCE_ID = digest({
 });
 /** Explicit opt-in; host authenticates human kind/id. Current stored roles replace incoming roles. */
 export class IdentityKnowledgeRepository {
+  readonly #selectedAcceptance: KnowledgeRepository["prepareProposalAcceptance"];
   readonly #acceptProposal: KnowledgeRepository["acceptCapturedProposal"];
   readonly #selectedVerification: KnowledgeRepository["prepareVerificationReview"];
   readonly #verification: KnowledgeRepository["loadVerificationReviews"];
@@ -38,6 +39,7 @@ export class IdentityKnowledgeRepository {
     policy: Scope & Readonly<{ purpose: string }>,
     timeoutMs = 10000,
   ) {
+    this.#selectedAcceptance = KnowledgeRepository.prototype.prepareProposalAcceptance.bind(repository);
     this.#acceptProposal = KnowledgeRepository.prototype.acceptCapturedProposal.bind(repository);
     this.#selectedVerification = repository.prepareVerificationReview.bind(repository);
     this.#verification = repository.loadVerificationReviews.bind(repository);
@@ -115,6 +117,10 @@ export class IdentityKnowledgeRepository {
   }
   async load(context: Context, signal?: AbortSignal) {
     return this.#load(await this.#context(context, signal));
+  }
+  async prepareProposalAcceptance(context: Context, selected: Ref, signal?: AbortSignal, admit?: VerificationAdmission) {
+    const choice = copyJson(selected);
+    return this.#selectedAcceptance(await this.#context(context, signal), choice, admit);
   }
   async acceptCapturedProposal(
     context: Context,

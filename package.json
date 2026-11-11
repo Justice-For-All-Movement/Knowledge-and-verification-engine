@@ -75,6 +75,10 @@
     "./proposal-acceptance-writer": {
       "types": "./dist/proposal-acceptance-writer.d.ts",
       "default": "./dist/proposal-acceptance-writer.js"
+    },
+    "./proposal-acceptance-reader": {
+      "types": "./dist/proposal-acceptance-reader.d.ts",
+      "default": "./dist/proposal-acceptance-reader.js"
     }
   },
   "engines": {
