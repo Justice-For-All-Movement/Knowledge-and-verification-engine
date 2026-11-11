@@ -319,7 +319,8 @@
         17,
         20,
         26,
-        27
+        27,
+        28
       ],
       "dependsOn": [
         "AM-05-01",
@@ -368,7 +369,8 @@
       },
       "currentProposalAcceptance": {
         "docs": "docs/CURRENT_PROPOSAL_ACCEPTANCE.md",
-        "status": "Explicitly incomplete WIP: mandatory same-human current source/use review, fresh Identity and complete locked actual-writer-basis phases; four actual four-DB groups plus fifthDB collision pass/typecheckbuild. Broader lost-ACK/deadline/compiled/full regression/final CI/source review pending."
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/28",
+        "status": "Explicitly incomplete draft qualification: current same-human source/use coordinator implemented/source-reviewed;9 unique focused local groups and9 packed-export groups plus final later-Evidence refinement passed. Complete actual writing basis checked before cache/preputs; new-only exact observation editions; original authorized replay unchanged. Declarations/build/byte manifests; full regression/final-head CI pending. Owning reader/HTTPUI/fullAM05.04 and deployment remain separate pending work."
       }
     },
     {

@@ -1,0 +1,22 @@
+{
+  "status": "explicitly incomplete draft; current coordinator implemented/reviewed, final qualification pending",
+  "localFocused": "9 unique groups in focused runs plus refined locked/later-Evidence groups rerun",
+  "compiledPacked": "9 complete-footer pass/0fail/0skip plus final later-Evidence refinement separate pass",
+  "publicDeclarations": "strict pass",
+  "runtimeModulesByteMatched": 4,
+  "fullRegression": "running; no full-count claim",
+  "currentHeadCI": "required",
+  "rawSourceBytesScannerDeployment": "unqualified; owning selector metadata only",
+  "sha256": {
+    "src/claim-proposal-review.ts": "34094179cb0f14a56e8e1af9acc78795ff7ae2c4fef2a367f74b0a036eea3d50",
+    "src/repository.ts": "4fbf44cab0607c9733405a659f53b783d906e58481ad7738645148bbad74a986",
+    "src/identity-repository.ts": "0f063bf6afc9222e9e27c47c5f448681b8a43ae8529632861362710b76caacb8",
+    "src/proposal-acceptance-writer.ts": "785587b5105bbf6863f53e2b9e15ada3f58d32da566184a17a5189f29dba32b9",
+    "tests/current-proposal-fixture.ts": "af4d9c5a87745926feaa6107a233fdd13edda7863987cff810051eeba1a8facf",
+    "tests/proposal-acceptance-writer.test.ts": "637e0c51a04ac5a688ba1e3f90da7c35b44a429e99d26ae6e016e6f3cb5f06b3",
+    "package.json": "4770400036dab849ee56cbe97ad0ff8365fc3a879f742389bd6afe6e25557193",
+    "docs/CURRENT_PROPOSAL_ACCEPTANCE.md": "532e0f3f934564425677fb6f3b0bb41ac68a8a46cd2f44214c51b581e4a763d7",
+    "docs/ARCHITECTURE.md": "d0522901eb94a1f05aef703188337ffbf00191038b149956cc1ef101a7b78ee3",
+    "registry/prs.json": "b157402da85558c60085ad44d579e4e2936f402201a97b8aa3bb838e68d26eaa"
+  }
+}

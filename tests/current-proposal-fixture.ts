@@ -25,6 +25,6 @@ export async function acceptanceFixture(t: test.TestContext) {
   const bundle = await reader.propose(c, link.record, [candidate]);
   const input = { proposalId: "candidate", claimId: "accepted", expectedKnowledgeRevision: bundle.basis.knowledgeRevision,
     expectedLinksRevision: bundle.basis.linksRevision };
-  return { ...f, selector, command, review, guard, reader, bundle, input,
+  return { ...f, selector, command, review, guard, reader, candidate, bundle, input,
     writer: new CurrentProposalAcceptanceWriter(f.facade, review) };
 }
