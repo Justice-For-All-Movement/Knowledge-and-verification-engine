@@ -756,3 +756,98 @@ test("lost selected acceptance read COMMIT is not a new effect; fresh pool retur
     assert.equal(audits.filter(a => a.type === "knowledge.proposal-acceptance.read_checked").length, 2);
   });
 });
+
+async function dossier(t:test.TestContext,id:string) {
+  const f=await acceptance(t,id),selected={claim:f.d.knowledge.records[0]!.ref,links:f.d.links.records[0]!.ref};
+  return {...f,selected};
+}
+test('owning dossier waits for actual public citation writer before reading both histories and retains removed challenges',
+  {timeout:20000},async t=>{
+  const f=await dossier(t,'knowledge-dossier-links'),baseline=await f.sb.prepareClaimDossier(f.context,f.selected);
+  assert.equal(baseline.dossier.citations.links[0]!.relation,'challenges');
+  const locked=gate(),release=gate(),writer=new KnowledgeRepository(held(f.a,locked,release),f.policy);
+  const writing=writer.recordEvidenceLinks(f.context,2,f.d.source,{claim:f.selected.claim,expectedRevision:1,links:[]},'remove-challenge');
+  const selected={...f.selected,links:{...f.selected.links,revision:2}};
+  let pending:ReturnType<KnowledgeRepository['prepareClaimDossier']>|undefined;
+  try {
+    await Promise.race([locked.promise,writing]);
+    pending=f.sb.prepareClaimDossier(f.context,selected);
+    const outcome=pending.then(value=>({value}),error=>({error}));
+    await observedWait(f.id);release.resolve();const written=await writing;
+    const result=await outcome;assert.ok('value' in result);const read=result.value;
+    assert.deepEqual(written.record,selected.links);
+    assert.equal(read.knowledgeStorage.revision,2);assert.equal(read.linksStorage.revision,3);
+    assert.equal(read.dossier.citations.links.length,0);assert.equal(read.dossier.historicalChallenges.length,1);
+    assert.deepEqual(read.dossier.historicalChallenges[0]!.citationSet,f.selected.links);
+    assert.deepEqual(read.sourceObligations[0]!.selector,baseline.sourceObligations[0]!.selector);
+    await f.b.close();const fresh=f.connect('fresh'),repo=new KnowledgeRepository(fresh,f.policy);
+    assert.deepEqual(await repo.prepareClaimDossier(f.context,selected),read);
+    await scoped(fresh,f.context,async tx=>assert.ok(verifyAudit(await tx.audits())));
+  } finally {release.resolve();await writing;await pending?.catch(()=>{});}
+});
+test('owning dossier full-basis admission after independently observed public append wait rejects unchanged selected refs on changed history',
+  {timeout:20000},async t=>{
+  const f=await dossier(t,'knowledge-dossier-basis'),baseline=await f.sb.prepareClaimDossier(f.context,f.selected);
+  const locked=gate(),release=gate(),writer=new KnowledgeRepository(held(f.a,locked,release),f.policy);
+  const writing=writer.append(f.context,2,{...entity,id:'other-entity'},'other-entity');
+  let pending:ReturnType<KnowledgeRepository['prepareClaimDossier']>|undefined;
+  try {
+    await Promise.race([locked.promise,writing]);
+    let admitted=false;
+    pending=f.sb.prepareClaimDossier(f.context,f.selected,undefined,10000,basis=>{
+      admitted=true;assert.equal(basis.knowledgeRevision,baseline.knowledgeStorage.revision);
+    });
+    const outcome=pending.then(value=>({value}),error=>({error}));
+    await observedWait(f.id);release.resolve();await writing;
+    const result=await outcome;assert.ok('error' in result);assert.equal((result.error as {code:string}).code,'dossier_unavailable');assert(admitted);
+    await f.b.close();const fresh=f.connect('fresh'),repo=new KnowledgeRepository(fresh,f.policy);
+    const current=await repo.prepareClaimDossier(f.context,f.selected);
+    assert.equal(current.knowledgeStorage.revision,3);assert.equal(current.linksStorage.revision,2);
+    assert.deepEqual(current.dossier.claim,baseline.dossier.claim);assert.deepEqual(current.dossier.citations,baseline.dossier.citations);
+    await scoped(fresh,f.context,async tx=>{
+      const audits=await tx.audits();assert(verifyAudit(audits));
+      assert.equal(audits.filter(a=>a.type==='knowledge.claim-dossier.read_checked').length,2,'Denied locked read audit rolls back');
+    });
+  } finally {release.resolve();await writing;await pending?.catch(()=>{});}
+});
+test('owning dossier deadline expires during observed independent public writer lock wait and rolls back checked audit',
+  {timeout:20000},async t=>{
+  const f=await dossier(t,'knowledge-dossier-expiry'),locked=gate(),release=gate(),writer=new KnowledgeRepository(held(f.a,locked,release),f.policy);
+  const writing=writer.append(f.context,2,{...entity,id:'other-entity'},'other-entity');
+  let pending:ReturnType<KnowledgeRepository['prepareClaimDossier']>|undefined;
+  try {
+    await Promise.race([locked.promise,writing]);
+    pending=f.sb.prepareClaimDossier(f.context,f.selected,undefined,1000);
+    const outcome=pending.then(value=>({value}),error=>({error}));
+    await observedWait(f.id);await new Promise(r=>setTimeout(r,1100));release.resolve();await writing;
+    const result=await outcome;assert.ok('error' in result);assert.equal((result.error as {code:string}).code,'dossier_unavailable');
+    await scoped(f.b,f.context,async tx=>{
+      const audits=await tx.audits();assert(verifyAudit(audits));
+      assert.equal(audits.filter(a=>a.type==='knowledge.claim-dossier.read_checked').length,0);
+    });
+    await f.b.close();const fresh=f.connect('fresh'),repo=new KnowledgeRepository(fresh,f.policy);
+    assert.equal((await repo.prepareClaimDossier(f.context,f.selected)).knowledgeStorage.revision,3);
+  } finally {release.resolve();await writing;await pending?.catch(()=>{});}
+});
+test('lost actual owning dossier read COMMIT retains historical obligations and audit through a fresh pool without history effects',
+  {timeout:20000},async t=>{
+  const f=await dossier(t,'knowledge-dossier-lost');
+  const links=await f.sa.recordEvidenceLinks(f.context,2,f.d.source,{claim:f.selected.claim,expectedRevision:1,links:[]},'remove-challenge');
+  const selected={...f.selected,links:links.record},before=await f.sa.loadEvidenceLinks(f.context);let lost=false,effects=0;
+  const wrapped:Database={close:async()=>{},transaction:fn=>f.a.transaction(q=>fn({query:async<T>(sql:string,args?:unknown[])=>{
+    if(sql.includes('INSERT INTO public.evidence_outbox')||sql.includes('INSERT INTO public.evidence_record')||sql.includes('INSERT INTO public.evidence_head')||sql.includes('INSERT INTO public.evidence_idempotency'))effects++;
+    return q.query<T>(sql,args);
+  }})).then(value=>{lost=true;throw Error('fixture lost dossier read COMMIT acknowledgement');})};
+  await assert.rejects(new KnowledgeRepository(wrapped,f.policy).prepareClaimDossier(f.context,selected),/lost dossier read COMMIT/);
+  assert(lost);assert.equal(effects,0);await f.a.close();
+  const fresh=f.connect('fresh'),repo=new KnowledgeRepository(fresh,f.policy),read=await repo.prepareClaimDossier(f.context,selected);
+  assert.equal(read.knowledgeStorage.revision,2);assert.equal(read.linksStorage.revision,3);
+  assert.equal(read.dossier.citations.links.length,0);assert.equal(read.dossier.historicalChallenges.length,1);
+  assert.deepEqual(read.sourceObligations[0]!.citationSet,f.selected.links);
+  assert.deepEqual(await repo.loadEvidenceLinks(f.context),before);
+  await scoped(fresh,f.context,async tx=>{
+    const audits=await tx.audits();assert(verifyAudit(audits));
+    assert.equal(audits.filter(a=>a.type==='knowledge.claim-dossier.read_checked').length,2);
+    assert.equal(audits.filter(a=>a.type==='knowledge.evidence-links.recorded').length,2);
+  });
+});

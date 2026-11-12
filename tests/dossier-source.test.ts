@@ -143,7 +143,7 @@ test('historical claim edition remains exact after claim revision; empty latest 
 test('lost final actual owning COMMIT retains checked history but withholds output; explicit later read never repeats effects',async t=>{
  const f=await sourceFixture(t),transaction=f.knowledge.transaction.bind(f.knowledge);let count=0,effects=0;
  f.knowledge.transaction=fn=>transaction(q=>fn({query:async<T>(sql:string,args?:unknown[])=>{
-  if(sql.includes('INSERT INTO public.evidence_outbox')||sql.includes('INSERT INTO public.evidence_revisions'))effects++;
+  if(sql.includes('INSERT INTO public.evidence_outbox')||sql.includes('INSERT INTO public.evidence_record')||sql.includes('INSERT INTO public.evidence_head')||sql.includes('INSERT INTO public.evidence_idempotency'))effects++;
   return q.query<T>(sql,args);
  }})).then(value=>{if(++count===2)throw Error('private final lost COMMIT');return value;});
  await assert.rejects(f.makeReader().read(c,f.selected),e=>{assert.ok(!String(e).includes('COMMIT'));return (e as {code:string}).code==='dossier_unavailable';});

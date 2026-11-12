@@ -1,0 +1,15 @@
+{
+  "profile": "owning-dossier-postgres-verification-v1",
+  "limits": [
+    "New4PG17 scenarios authored/typechecked only; no local PostgreSQL/Docker/network execution.",
+    "Existing disposable empty loopback fixture/restricted LOGIN/canonical migration/no-reset safeguards unchanged.",
+    "Owning trusted Context/Synthetic source metadata not current Identity/SourceConsent/work/closure or distributed fence."
+  ],
+  "sha256": {
+    "integration/postgres-knowledge.test.ts": "4e2374ec1a6277bdfdb0880d8b8f1e7d58a1cc275bfb2d2b804616ebe690c417",
+    "tests/dossier-source.test.ts": "15fd5e463b5c895e8685ebbdaa2fe3d186407f7739f302e285fb8bfe53b9aa71",
+    "docs/DOSSIER_POSTGRES.md": "8afb5951ecd97798e529bac2f4fb7593f8a6f1ff0a6e4dd308fca959cf1cfed3",
+    "docs/ARCHITECTURE.md": "620b59aac9ecceec3678f5d7e00a1f720e03440cbc950a36cbf0ccf332f78058",
+    "registry/prs.json": "f7a26ed05d86f7150959c963a5b00b794632d6ae772e5aa3d37a1c3fbb608876"
+  }
+}

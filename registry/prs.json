@@ -525,8 +525,12 @@
       },
       "sourceDossier": {
         "docs": "docs/DOSSIER_SOURCE.md",
-        "status": "WIP; all12focused local groups qualified across11+4finaltargeted runs;10earlierpacked groups/types/3runtime matches pass. Final12packed/full/headCI running. Source-review clear bounded private SDK profile. No new TCP/HTTP/export/live/full-task acceptance.",
+        "status": "WIP PR35 source7aace917:12focusedlocal groups across11+4finaltargeted and12packed groups/types/3runtime8blobs qualified;13existingPG17 final-head pass; ordinary/full pending. No242full-local-installed or protectedHTTP/export/full-task acceptance.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/35"
+      },
+      "dossierPostgres": {
+        "docs": "docs/DOSSIER_POSTGRES.md",
+        "status": "WIP test-only:4new owning dossier scenarios extend13existingPG17; strictcompile-build-registry+unsafe-fixturechild LOCALpass. No local Postgres/Docker/new network qualification until exact-head CI raw evidence."
       }
     },
     {
