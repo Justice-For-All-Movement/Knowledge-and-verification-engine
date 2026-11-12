@@ -491,7 +491,8 @@
         33,
         34,
         35,
-        36
+        36,
+        37
       ],
       "dependsOn": [
         "AM-05-01"
@@ -536,7 +537,8 @@
       },
       "dossierAdmission": {
         "docs": "docs/DOSSIER_ADMISSION.md",
-        "status": "WIP;3focused fourDB local groups/typecheck/build/registry; package/full/headCI pending. Trusted synchronous outer request predicate only, no HTTP/export added."
+        "status": "WIP PR37;3focused local+3packed groups/types/runtime pass; final fourth group/full/headCI pending. Request predicate only, no HTTP/export.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/37"
       }
     },
     {

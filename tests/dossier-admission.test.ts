@@ -36,3 +36,17 @@ test('external request admission withholds post-credential data and closes signa
  assert.equal(f.count(),1);assert.equal(f.signal()?.aborted,true);
  await scoped(f.evidence,c,async tx=>assert.equal((await tx.audits()).filter(e=>e.type==='evidence.selectors.review_checked').length,0));
 });
+test('outer request expiry at final owning audit withholds the reviewed dossier and rolls back only that final read audit',async t=>{
+ const f=await sourceFixture(t),transaction=f.knowledge.transaction.bind(f.knowledge);let reads=0,deadline=Infinity;
+ f.knowledge.transaction=fn=>transaction(q=>fn({query:async<T>(sql:string,args?:unknown[])=>{
+  const result=await q.query<T>(sql,args);
+  if(sql.includes('INSERT INTO public.evidence_audit')&&++reads===2)deadline=performance.now()-1;
+  return result;
+ }}));
+ await assert.rejects(f.makeReader().read(c,f.selected,undefined,()=>{
+  if(performance.now()>=deadline)throw Error('private outer deadline');
+ }),{code:'dossier_unavailable'});
+ assert.equal(reads,2);assert.equal(f.count(),1);assert.equal(f.signal()?.aborted,true);
+ await scoped(f.knowledge,c,async tx=>assert.equal((await tx.audits()).filter(e=>e.type==='knowledge.claim-dossier.read_checked').length,1));
+ await scoped(f.evidence,c,async tx=>assert.equal((await tx.audits()).filter(e=>e.type==='evidence.selectors.review_checked').length,1));
+});
