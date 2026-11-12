@@ -60,7 +60,9 @@ export class IdentityClaimDossierReader {
       };
       const actual = await current(); gate();
       const output = await this.#read(actual,choice,owned.signal,remaining(),basis=>{
-        gate(); const value = admission?.(basis); gate(); return value;
+        gate(); const value: unknown = admission?.(basis);
+        if (value instanceof Promise) void value.catch(()=>{});
+        gate(); return value as void;
       });
       gate(); await current(); gate();
       invariant(Buffer.byteLength(canonical(output)) <= 512*1024,"dossier_unavailable","Whole dossier response exceeds budget");

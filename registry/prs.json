@@ -488,7 +488,8 @@
       "prs": [],
       "contributingPrs": [
         32,
-        33
+        33,
+        34
       ],
       "dependsOn": [
         "AM-05-01"
@@ -518,7 +519,8 @@
       },
       "identityDossier": {
         "docs": "docs/DOSSIER_IDENTITY.md",
-        "status": "Incomplete current stored Identity before/after actual owning dossier;5actual separate restricted twoDB local groups/typecheck pass. ALL-sourceEvidenceConsent/HTTP/export/closure/live guards remain pending; package/review/full/current-head CI pending."
+        "status": "WIP;7actual separate twoDB LOCAL+7PACKED publicexportgroups/types/2runtime matches. Source-review clear currentIdentity-only profile. Full/headCI pending. ALL-sourceEvidenceConsent/HTTP/export/closure/live still pending.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/34"
       }
     },
     {

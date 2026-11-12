@@ -9,7 +9,8 @@ import {scoped} from '@accountability/evidence-sql/database';
 import type {Database} from '@accountability/evidence-sql/database';
 async function setup(t:test.TestContext) {
  const f=await ready(t),identity=await fixture(t);let identityCalls=0;
- const db:Database={close:async()=>{},transaction:fn=>{identityCalls++;return identity.db.transaction(fn);}};
+ const identityHooks:{after:(()=>void)|null}={after:null};
+ const db:Database={close:async()=>{},transaction:async fn=>{identityCalls++;const result=await identity.db.transaction(fn);identityHooks.after?.();return result;}};
  const owner={...c,actor:{...c.actor,roles:['owner']}};
  const membership=new MembershipRegistry(db,{tenantId:c.tenantId,projectId:c.projectId,bootstrapOwnerIds:[c.actor.id]},()=>c.now);
  await membership.initialize(owner,'init');
@@ -17,7 +18,7 @@ async function setup(t:test.TestContext) {
  await membership.setResourcePolicy(owner,0,policy,'allow');
  const fixed={tenantId:c.tenantId,projectId:c.projectId,purpose:c.purpose};
  const selected={claim:f.d.knowledge.records[0]!.ref,links:f.input.linkRef};
- return {...f,owningPolicy:f.policy,identity,membership,owner,policy,fixed,selected,count:()=>identityCalls,reader:new IdentityClaimDossierReader(f.repo,membership,fixed)};
+ return {...f,owningPolicy:f.policy,identityHooks,identity,membership,owner,policy,fixed,selected,count:()=>identityCalls,reader:new IdentityClaimDossierReader(f.repo,membership,fixed)};
 }
 test('actual stored Identity permits empty caller roles; current withdrawal denies subsequent dossier read',async t=>{
  const f=await setup(t),incoming={...c,actor:{...c.actor,roles:[]}};
@@ -56,4 +57,30 @@ test('prototype binding ignores actual instance overrides and owning admission r
  assert.equal((await reader.read(c,f.selected)).sourceObligations.length,2);
  await assert.rejects(reader.read(c,f.selected,undefined,(()=>Promise.reject(Error('private callback'))) as never),{code:'dossier_unavailable'});
  await assert.rejects(reader.read(c,f.selected,undefined,(()=>true) as never),{code:'dossier_unavailable'});
+});
+test('lost actual Identity read COMMIT withholds dossier before own SQL; late Identity result also denies',async t=>{
+ const f=await setup(t);f.identityHooks.after=()=>{throw Error('private lost Identity COMMIT');};
+ await assert.rejects(f.reader.read(c,f.selected),{code:'dossier_unavailable'});
+ await scoped(f.db,c,async tx=>assert.equal((await tx.audits()).filter(e=>e.type==='knowledge.claim-dossier.read_checked').length,0));
+ f.identityHooks.after=()=>{const end=performance.now()+1100;while(performance.now()<end){};};
+ const short=new IdentityClaimDossierReader(f.repo,f.membership,f.fixed,1000);
+ await assert.rejects(short.read(c,f.selected),{code:'dossier_unavailable'});
+ await scoped(f.db,c,async tx=>assert.equal((await tx.audits()).filter(e=>e.type==='knowledge.claim-dossier.read_checked').length,0));
+ f.identityHooks.after=null;assert.equal((await f.reader.read(c,f.selected)).sourceObligations.length,2);
+});
+test('outer deadline reaches actual own checked lock and a late rejecting native admission is observed before denial',async t=>{
+ const f=await setup(t);let locked=false;
+ const wrapped:Database={close:async()=>{},transaction:fn=>f.db.transaction(async tx=>fn({query:async<T>(sql:string,values?:unknown[])=>{
+  const result=await tx.query<T>(sql,values);
+  if(sql.includes('INSERT INTO public.evidence_audit')){locked=true;const end=performance.now()+1100;while(performance.now()<end){};}
+  return result;
+ }}))};
+ const reader=new IdentityClaimDossierReader(new KnowledgeRepository(wrapped,f.owningPolicy),f.membership,f.fixed,1000);
+ await assert.rejects(reader.read(c,f.selected),{code:'dossier_unavailable'});assert.equal(locked,true);
+ await scoped(f.db,c,async tx=>assert.equal((await tx.audits()).filter(e=>e.type==='knowledge.claim-dossier.read_checked').length,0));
+ const ordinary=new IdentityClaimDossierReader(f.repo,f.membership,f.fixed,1000);
+ await assert.rejects(ordinary.read(c,f.selected,undefined,(()=>{
+  const rejection=Promise.reject(Error('private late admission'));const end=performance.now()+1100;while(performance.now()<end){};return rejection;
+ }) as never),{code:'dossier_unavailable'});
+ await new Promise(r=>setTimeout(r,0));
 });
