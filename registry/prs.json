@@ -508,7 +508,7 @@
         "Export includes contrary material, attribution limits and exact evidence versions within its authorized scope.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial private dossiers with owning/current Identity/ALL historical-current source-use guards accepted. Outer request-admission WIP; protected HTTP/export/full task/closure/correction impact/Editorial acceptance unfinished.",
+      "implementationStatus": "Partial owning/currentIdentity/ALL-source dossier and outer deadline admitted SDK accepted; protected private dossier HTTP WIP. Export/full-task/closure/correction impact/Editorial unfinished.",
       "legacyWorkUnitId": "AM-05.07",
       "claimDossier": {
         "docs": "docs/CLAIM_DOSSIER.md",
@@ -537,8 +537,12 @@
       },
       "dossierAdmission": {
         "docs": "docs/DOSSIER_ADMISSION.md",
-        "status": "WIP PR37;3focused local+3packed groups/types/runtime pass; final fourth group/full/headCI pending. Request predicate only, no HTTP/export.",
+        "status": "Accepted PR37 source45c7a09 mergee8aacd60/all4headchecks/raw246ordinary+17existingPG17;4focused local-packed/types/runtime6blobs. No246full-local-installed claim.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/37"
+      },
+      "dossierHttp": {
+        "docs": "docs/DOSSIER_HTTP.md",
+        "status": "WIP;4initial actual fourDB nativeFetch LOCAL groups/typecheck/build/registry pass. Expanded6/package/full/headCI pending; no deployed HTTP/TLS/browserAT/full-task acceptance."
       }
     },
     {
