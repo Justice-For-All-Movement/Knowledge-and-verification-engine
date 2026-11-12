@@ -43,3 +43,31 @@ test('pre-cancellation and expired locked admission deny; lost read COMMIT stays
  const fresh=new KnowledgeRepository(f.db,f.policy);assert.equal((await fresh.prepareClaimDossier(c,q)).dossier.citations.links.length,2);
  await scoped(f.db,c,async tx=>{const a=await tx.audits();assert.equal(a.filter(e=>e.type==='knowledge.claim-dossier.read_checked').length,2);assert.equal((await tx.get(KNOWLEDGE_KIND,KNOWLEDGE_KEY))?.revision,1);assert.equal((await tx.get(EVIDENCE_LINKS_KIND,EVIDENCE_LINKS_KEY))?.revision,1);});
 });
+test('actual checked audit precedes history reads; held admission captures caller inputs and cancellation rolls audit back',async t=>{
+ const f=await ready(t),q=select(f);let release!:()=>void,began!:()=>void;
+ const locked=new Promise<void>(r=>began=r),released=new Promise<void>(r=>release=r);const sqls:string[]=[];
+ const wrapped={close:async()=>{},transaction:<T>(fn:Parameters<typeof f.db.transaction<T>>[0])=>f.db.transaction(async tx=>fn({query:async<R>(sql:string,values?:unknown[])=>{
+   sqls.push(sql);const r=await tx.query<R>(sql,values);
+   if(sql.includes('INSERT INTO public.evidence_audit')){began();await released;}
+   return r;
+ }}))};
+ const context=structuredClone(c),choice=structuredClone(q);
+ const reading=new KnowledgeRepository(wrapped,f.policy).prepareClaimDossier(context,choice);
+ await locked;(context.actor as {id:string}).id='mutated';(choice.claim as {id:string}).id='mutated';release();
+ const result=await reading;assert.deepEqual(result.dossier.basis.claim,q.claim);
+ const audit=sqls.findIndex(s=>s.includes('INSERT INTO public.evidence_audit'));
+ const history=sqls.findIndex(s=>s.includes('FROM public.evidence_record'));assert.ok(audit>=0&&history>audit);
+ const ac=new AbortController();
+ const cancelled={close:async()=>{},transaction:<T>(fn:Parameters<typeof f.db.transaction<T>>[0])=>f.db.transaction(async tx=>fn({query:async<R>(sql:string,values?:unknown[])=>{
+  const r=await tx.query<R>(sql,values);if(sql.includes('INSERT INTO public.evidence_audit'))ac.abort();return r;
+ }}))};
+ await assert.rejects(new KnowledgeRepository(cancelled,f.policy).prepareClaimDossier(c,q,ac.signal));
+ await scoped(f.db,c,async tx=>assert.equal((await tx.audits()).filter(e=>e.type==='knowledge.claim-dossier.read_checked').length,1));
+});
+test('corrupt owning citation history remains stored and denied; failed dossier read never repairs or deletes history',async t=>{
+ const f=await ready(t),q=select(f);
+ await scoped(f.db,c,async tx=>{const stored=await tx.get(EVIDENCE_LINKS_KIND,EVIDENCE_LINKS_KEY);assert.ok(stored);await tx.put(EVIDENCE_LINKS_KIND,EVIDENCE_LINKS_KEY,1,stored.value);});
+ await assert.rejects(f.repo.prepareClaimDossier(c,q),{code:'invalid_links'});
+ await assert.rejects(f.repo.prepareClaimDossier(c,q),{code:'invalid_links'});
+ await scoped(f.db,c,async tx=>{assert.equal((await tx.get(EVIDENCE_LINKS_KIND,EVIDENCE_LINKS_KEY))?.revision,2);assert.equal((await tx.audits()).filter(e=>e.type==='knowledge.claim-dossier.read_checked').length,0);});
+});
