@@ -107,6 +107,10 @@
     "./correction-impact": {
       "types": "./dist/correction-impact.d.ts",
       "default": "./dist/correction-impact.js"
+    },
+    "./correction-impact-identity": {
+      "types": "./dist/correction-impact-identity.d.ts",
+      "default": "./dist/correction-impact-identity.js"
     }
   },
   "engines": {
