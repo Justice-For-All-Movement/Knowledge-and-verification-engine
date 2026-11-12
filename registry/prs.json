@@ -505,7 +505,7 @@
         "Export includes contrary material, attribution limits and exact evidence versions within its authorized scope.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial captured private claim dossier: exact latest claim/citation selection within supplied complete histories; ALL current and historical contrary links/selector-family metadata/limitations retained; changed historical subjects explicit. Eight focused local groups/types/build/registry qualified; all8 packed public-export groups/strict declarations/runtime byte match qualified; final full current-head CI pending. No current authorization, export, closure/full correction impact or full task acceptance.",
+      "implementationStatus": "Partial private dossier: captured, coherent owning and current Identity foundations accepted. ALL-current-and-historical source/use coordinator WIP; protected HTTP/export/full task/closure/correction impact/Editorial acceptance remain pending.",
       "legacyWorkUnitId": "AM-05.07",
       "claimDossier": {
         "docs": "docs/CLAIM_DOSSIER.md",
@@ -519,8 +519,12 @@
       },
       "identityDossier": {
         "docs": "docs/DOSSIER_IDENTITY.md",
-        "status": "WIP;7actual separate twoDB LOCAL+7PACKED publicexportgroups/types/2runtime matches. Source-review clear currentIdentity-only profile. Full/headCI pending. ALL-sourceEvidenceConsent/HTTP/export/closure/live still pending.",
+        "status": "Accepted PR34 source6f773140 merged2196af8 after230ordinary+13existingPG17 final-head CI;7focused local-packed/types/2runtime bytes. No230full-local-installed claim; source guard separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/34"
+      },
+      "sourceDossier": {
+        "docs": "docs/DOSSIER_SOURCE.md",
+        "status": "WIP;4actual four-restricted-DB focused local groups/typecheck/build/registry pass. Expanded qualification/package/full/final-head CI pending. No HTTP/export/live acceptance."
       }
     },
     {
