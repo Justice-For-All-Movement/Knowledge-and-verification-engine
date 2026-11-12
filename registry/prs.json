@@ -553,7 +553,8 @@
       "origin": "original",
       "prs": [],
       "contributingPrs": [
-        39
+        39,
+        40
       ],
       "dependsOn": [
         "AM-05-01",
@@ -585,7 +586,9 @@
       },
       "owningCorrectionImpact": {
         "docs": "docs/OWNING_CORRECTION_IMPACT.md",
-        "status": "WIP actual checked ownDB whole-history read; focused LOCAL verification underway; packed/full/current-head CI pending. Host Context ONLY/currentIdentity-SourceConsent separate."
+        "status": "WIP PR40;6focusedLOCAL+6PACKED/typecheckbuildregistry/types/repositoryruntimeMATCH;source-review clear. FullLOCAL/currentheadCI pending. HostContextONLY; currentIdentitySourceConsent/TCP/fullworkflow separate.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/40",
+        "verification": "docs/owning-correction-impact-verification.json"
       }
     }
   ],

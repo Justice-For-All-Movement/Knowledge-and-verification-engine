@@ -1,0 +1,23 @@
+{
+  "status": "incomplete_until_final_head_CI",
+  "focusedLocal": {
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0
+  },
+  "packed": {
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0,
+    "strictDeclarations": "passed",
+    "repositoryRuntimeByteMatch": true,
+    "dependencies": "copied/hardlinked prepared dependencies, not fresh install"
+  },
+  "remaining": "currentIdentity/ALLSourceConsent/HTTPVisual/TCP/findingsdrafts/fullworkflow/live separate",
+  "sha256": {
+    "src/repository.ts": "7c198980f33986d7ac4a76bfcff43405d133e00a1b90fe314ac3110f250842f2",
+    "tests/correction-impact-repository.test.ts": "301f803a37c046bb77e60b39273a6f8659741647a3d2d4a0bb02ad128dcb0e12",
+    "docs/ARCHITECTURE.md": "84e3a45a4665895c87c50a7f71baf2030ced8f9e12a9660f5412972c8947c9a8",
+    "docs/OWNING_CORRECTION_IMPACT.md": "b57670bd0f62384df1827b88f04793f1779f1a9e0816b6d6d29171f6c758f401"
+  }
+}
