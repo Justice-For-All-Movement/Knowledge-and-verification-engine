@@ -492,7 +492,8 @@
         34,
         35,
         36,
-        37
+        37,
+        38
       ],
       "dependsOn": [
         "AM-05-01"
@@ -542,7 +543,8 @@
       },
       "dossierHttp": {
         "docs": "docs/DOSSIER_HTTP.md",
-        "status": "WIP;4initial actual fourDB nativeFetch LOCAL groups/typecheck/build/registry pass. Expanded6/package/full/headCI pending; no deployed HTTP/TLS/browserAT/full-task acceptance."
+        "status": "WIP PR38;all7focused LOCAL+7PACKED across6+1runs/types/runtime qualified; source-review clear private read-only profile. Full253local-installed/headCI pending. Host/TLS/browserAT/live/full-task separate.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/38"
       }
     },
     {

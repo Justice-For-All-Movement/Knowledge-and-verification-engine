@@ -77,3 +77,15 @@ test('stalled body is finished before fresh authentication and current resource 
  const ac=new AbortController();ac.abort();const before=f.signals.length;
  assert.equal((await f.handler(new Request(base+'/session',{signal:ac.signal}))).status,503);assert.equal(f.signals.length,before);
 });
+test('stored human disable during stalled body denies fresh session admission before owning dossier or source credentials',async t=>{
+ const f=await setup(t);
+ await f.membership.apply(c,1,{type:'set-member',id:'second-owner',kind:'human',roles:['owner']},'second-owner');
+ let stream!:ReadableStreamDefaultController<Uint8Array>;
+ const body=new ReadableStream<Uint8Array>({start(q){stream=q;}});
+ const pending=f.handler(new Request(base+'/read',{method:'POST',headers,body,duplex:'half'} as RequestInit));
+ await f.membership.apply(c,2,{type:'disable-member',id:c.actor.id},'disable-requester');
+ assert.equal(f.signals.length,0);
+ stream.enqueue(Buffer.from(JSON.stringify({selected:f.selected})));stream.close();
+ assert.equal((await pending).status,503);assert.equal(f.signals.length,1);assert.equal(f.count(),0);
+ await scoped(f.knowledge,c,async tx=>assert.equal((await tx.audits()).filter(e=>e.type==='knowledge.claim-dossier.read_checked').length,0));
+});
