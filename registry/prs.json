@@ -487,7 +487,8 @@
       "origin": "original",
       "prs": [],
       "contributingPrs": [
-        32
+        32,
+        33
       ],
       "dependsOn": [
         "AM-05-01"
@@ -507,8 +508,13 @@
       "legacyWorkUnitId": "AM-05.07",
       "claimDossier": {
         "docs": "docs/CLAIM_DOSSIER.md",
-        "status": "Eight local+eight packed focused groups/strict public declarations/runtime byte match qualified. No full final-runtime local claim; source review clear bounded captured metadata profile. Current-head CI required. Operational authenticated report/use permissions must cover historical challenges as well as current citations; not a completed workflow.",
+        "status": "Accepted PR32 sourcee6a16537 merge00b74324 after217ordinary+13existingPG17 final-head CI;8focused local-packed/types/runtime qualified. Source captures not authentication; full task remains partial.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/32"
+      },
+      "owningDossier": {
+        "docs": "docs/OWNING_CLAIM_DOSSIER.md",
+        "status": "WIP host-trusted coherent own-DB dossier;6focused local+6PACKED groups/types/2runtime matches. Source-review clear. Full/current-head CI pending. NO actual current Identity/ALL-sourceConsent guarded coordinator/HTTP/export/live/fulltask acceptance.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/33"
       }
     },
     {

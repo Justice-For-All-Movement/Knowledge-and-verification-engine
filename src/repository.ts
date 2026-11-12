@@ -1,3 +1,5 @@
+import { createCapturedClaimDossier } from "./claim-dossier.ts";
+import type { CapturedClaimDossier } from "./claim-dossier.ts";
 import { inspectStoredProposalAcceptance } from "./proposal-acceptance-record.ts";
 import { copyJson } from "@accountability/consent-rights";
 import {
@@ -73,6 +75,12 @@ export type ProposalAcceptanceAcknowledgement = Readonly<{
   claim: Ref;
   links: Ref;
 }>;
+export type ClaimDossierBasis = Readonly<{
+  knowledgeRevision: number;
+  linksRevision: number;
+  dossier: CapturedClaimDossier;
+}>;
+export type ClaimDossierAdmission = (basis: ClaimDossierBasis) => void;
 export type KnowledgeAppend = Readonly<{
   id: string;
   expectedRevision: number;
@@ -160,6 +168,62 @@ export class KnowledgeRepository {
       await tx.audit("knowledge.read_checked", {});
       return structuredClone(await this.#load(tx, c));
     });
+  }
+  /** Owning private metadata only; host Context is trusted. Current Identity/source/use guards remain mandatory externally. */
+  async prepareClaimDossier(
+    context: Context,
+    selection: Readonly<{claim: Ref; links: Ref}>,
+    signal?: AbortSignal,
+    timeoutMs = 10000,
+    admission?: ClaimDossierAdmission,
+  ) {
+    const started = performance.now();
+    invariant(Number.isSafeInteger(timeoutMs) && timeoutMs >= 1 && timeoutMs <= 30000,
+      "invalid_policy", "Bounded dossier read deadline required");
+    const gate = () => invariant(!signal?.aborted && performance.now() - started < timeoutMs,
+      "dossier_unavailable", "Owning dossier read unavailable");
+    gate();
+    const c = this.#context(context), choice = copyJson(selection);
+    invariant(choice !== null && typeof choice === "object" && Object.keys(choice).length === 2 && Object.hasOwn(choice,"claim") && Object.hasOwn(choice,"links"),
+      "invalid_dossier", "Exact dossier selection required");
+    for (const [r,kind] of [[choice.claim,"claim"],[choice.links,"knowledge-evidence-links"]] as const) {
+      validateRef(r); requireScope(c,r);
+      invariant(r.kind === kind && Number.isSafeInteger(r.revision) && r.revision > 0,
+        "invalid_reference", "Positive exact dossier selection required");
+    }
+    gate();
+    const output = await scoped(this.#db,c,async tx => {
+      // Same project lock as every owning writer, before BOTH histories are read.
+      await tx.audit("knowledge.claim-dossier.read_checked",{}); gate();
+      const knowledge = await this.#load(tx,c), links = await this.#links(tx,c); gate();
+      const dossier = createCapturedClaimDossier(c,JSON.stringify({knowledge:knowledge.state,links:links.state}),choice);
+      gate();
+      if (admission) {
+        let result: unknown;
+        try { result = admission(structuredClone({knowledgeRevision:knowledge.revision,linksRevision:links.revision,dossier})); }
+        catch { invariant(false,"dossier_unavailable","Owning dossier admission denied"); }
+        if (result instanceof Promise) void result.catch(()=>{});
+        invariant(result === undefined,"dossier_unavailable","Synchronous void dossier admission required");
+      }
+      gate();
+      const ref = (kind:string,id:string,revision:number):Ref => ({tenantId:c.tenantId,projectId:c.projectId,kind,id,revision});
+      // Every disclosed citation observation remains an obligation, including removed historical challenges.
+      const observations = [
+        ...dossier.citations.links.map(link=>({citationSet:dossier.citations.ref,link})),
+        ...dossier.historicalChallenges.map(item=>({citationSet:item.citationSet,link:item.link})),
+      ];
+      const result = {
+        profile: "owning-claim-dossier-v1" as const,
+        knowledgeStorage: ref(KNOWLEDGE_KIND,KNOWLEDGE_KEY,knowledge.revision),
+        linksStorage: ref(EVIDENCE_LINKS_KIND,EVIDENCE_LINKS_KEY,links.revision),
+        dossier,
+        sourceObligations: observations.map(({citationSet,link})=>({citationSet,linkId:link.id,selector:link.selector})),
+      };
+      invariant(Buffer.byteLength(canonical(result)) <= 512*1024,"dossier_full","Whole owning dossier exceeds512KiB");
+      gate(); return structuredClone(result);
+    });
+    // Await begun SQL; cancelled/late/lost read acknowledgement is withheld, never rollback proof.
+    gate(); const result = structuredClone(output); gate(); return result;
   }
   async append(
     context: Context,

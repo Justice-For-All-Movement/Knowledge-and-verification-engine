@@ -1,0 +1,17 @@
+{
+  "profile": "owning-claim-dossier-verification-v1",
+  "limits": [
+    "Six actual restricted-migration local and six packed compiled public-export groups pass; no TCP/browser/live claim.",
+    "Consumer hard-links copied normally prepared dependencies, not fresh install.",
+    "Host-trusted owning SDK only. Current Identity and ALL disclosed historical/current SourceConsent authorization coordinator and protected HTTP remain pending.",
+    "Full/final-head CI pending until actual raw footers confirm."
+  ],
+  "sha256": {
+    "src/repository.ts": "d4919aef88754638402568644afe0ca9df769034b14d664923faf797ee57c535",
+    "tests/dossier-repository.test.ts": "b18e8609e64a93f0d62089c2c4ef386565156ffcd23385764e5de2c0b77bd452",
+    "tests/dossier-owning-fixture.ts": "850e15c808bdb39c91f94e588be03904ac0a815f6a0e1f79d44ddc15a5ada7c3",
+    "registry/prs.json": "207005ee890d28623c9914b71e429431e7ce9f9debf921e7e2c94f9716c0f62c",
+    "docs/ARCHITECTURE.md": "3be98ed764b9a8876532c2432c02ea8ad04b0b5e5ff4cc7b996b66279173a03c",
+    "docs/OWNING_CLAIM_DOSSIER.md": "194a4848fc4505b6af0e6a28a90dd589dd9f44a0ab8de2627643b19cc3f9832c"
+  }
+}

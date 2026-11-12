@@ -73,3 +73,5 @@ PROPOSAL_ACCEPTANCE_HTTP.md records incomplete private selected acceptance nativ
 PR29/30 are accepted0895ff36/a89646b1 with final196/203 tests and13 PostgreSQL scenarios. Older pending notes are historical. PROPOSAL_ACCEPTANCE_WRITE_HTTP.md describes incomplete protected acceptance commands over the accepted same-human coordinator; host/live/full workflow remain pending.
 
 PR31 acceptedbc5d4f06 after exact-head209+13CI. Visual27 explicit private acceptance/replay controls accepted0c0237990ab2b06a3bc733e6a09863651ad3bbd1 after175current-head CI; memory-only recovery/browserATlive remain separate. CLAIM_DOSSIER.md documents partial captured private report metadata; full AM-05.07/shared closure/correction-impact/Editorial gates remain unmet.
+
+OWNING_CLAIM_DOSSIER.md records incomplete coherent own-DB dossier reads with explicit current and historical source obligations. Current Identity/ALL-source Consent/Evidence admission and operational protected interfaces remain pending; never reuse latest-only guards for historical disclosed challenges.
