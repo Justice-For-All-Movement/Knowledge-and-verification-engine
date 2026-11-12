@@ -513,8 +513,12 @@
       },
       "owningDossier": {
         "docs": "docs/OWNING_CLAIM_DOSSIER.md",
-        "status": "WIP host-trusted coherent own-DB dossier;6focused local+6PACKED groups/types/2runtime matches. Source-review clear. Full/current-head CI pending. NO actual current Identity/ALL-sourceConsent guarded coordinator/HTTP/export/live/fulltask acceptance.",
+        "status": "Accepted PR33 sourcef3560885 merge628dbb61 after223ordinary+13existingPG17 final-head CI;6focused local-packed/types/2runtime bytes. No full223local-installed claim; current guards separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/33"
+      },
+      "identityDossier": {
+        "docs": "docs/DOSSIER_IDENTITY.md",
+        "status": "Incomplete current stored Identity before/after actual owning dossier;5actual separate restricted twoDB local groups/typecheck pass. ALL-sourceEvidenceConsent/HTTP/export/closure/live guards remain pending; package/review/full/current-head CI pending."
       }
     },
     {
