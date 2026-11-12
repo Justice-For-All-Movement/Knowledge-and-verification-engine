@@ -490,7 +490,8 @@
         32,
         33,
         34,
-        35
+        35,
+        36
       ],
       "dependsOn": [
         "AM-05-01"
@@ -530,7 +531,8 @@
       },
       "dossierPostgres": {
         "docs": "docs/DOSSIER_POSTGRES.md",
-        "status": "WIP test-only:4new owning dossier scenarios extend13existingPG17; strictcompile-build-registry+unsafe-fixturechild LOCALpass. No local Postgres/Docker/new network qualification until exact-head CI raw evidence."
+        "status": "WIP PR36:initial sourcea57f4f61 actual17PG17 pass0fail0skip/job131033793654 raw all4new cases inspected; strictcompile-build-registry/unsafechildLOCAL+1strengthenedLOCAL-PACKED pass. Final docs-head ordinary/PGCI+35dependency pending. No local Postgres/Docker/currentIdentityTCP/live qualification.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/36"
       }
     },
     {
