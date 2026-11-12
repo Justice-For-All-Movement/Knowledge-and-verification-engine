@@ -579,9 +579,13 @@
       "legacyWorkUnitId": "AM-05.08",
       "capturedCorrectionImpact": {
         "docs": "docs/CAPTURED_CORRECTION_IMPACT.md",
-        "status": "WIP PR39;8focusedLOCAL+8PACKED/types/runtimebytesPASS0fail0skip including valid-own-history edge/outputcaps. Source-review clear pure metadata; fullLOCAL/headCI pending; copiedprepareddepsNOTfreshinstall. No current authority/fullworkflow claim.",
+        "status": "Accepted PR39 source099e5679cc381fb166ab742a5d276da9ab3ec083 merge1b8543d703ac32041cb2ddd39d8aec1637317ef9 after all4headchecks/raw261ordinary+17existingPG17PASS;8local-packed/types/runtime qualified. Full261local footer unavailable; no fullinstalled/currentauthority claim.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/39",
         "verification": "docs/captured-correction-impact-verification.json"
+      },
+      "owningCorrectionImpact": {
+        "docs": "docs/OWNING_CORRECTION_IMPACT.md",
+        "status": "WIP actual checked ownDB whole-history read; focused LOCAL verification underway; packed/full/current-head CI pending. Host Context ONLY/currentIdentity-SourceConsent separate."
       }
     }
   ],
