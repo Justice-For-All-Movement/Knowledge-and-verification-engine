@@ -91,6 +91,10 @@
     "./claim-dossier": {
       "types": "./dist/claim-dossier.d.ts",
       "default": "./dist/claim-dossier.js"
+    },
+    "./dossier-identity": {
+      "types": "./dist/dossier-identity.d.ts",
+      "default": "./dist/dossier-identity.js"
     }
   },
   "engines": {

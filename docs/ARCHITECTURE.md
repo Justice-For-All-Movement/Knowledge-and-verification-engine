@@ -75,3 +75,5 @@ PR29/30 are accepted0895ff36/a89646b1 with final196/203 tests and13 PostgreSQL s
 PR31 acceptedbc5d4f06 after exact-head209+13CI. Visual27 explicit private acceptance/replay controls accepted0c0237990ab2b06a3bc733e6a09863651ad3bbd1 after175current-head CI; memory-only recovery/browserATlive remain separate. CLAIM_DOSSIER.md documents partial captured private report metadata; full AM-05.07/shared closure/correction-impact/Editorial gates remain unmet.
 
 OWNING_CLAIM_DOSSIER.md records incomplete coherent own-DB dossier reads with explicit current and historical source obligations. Current Identity/ALL-source Consent/Evidence admission and operational protected interfaces remain pending; never reuse latest-only guards for historical disclosed challenges.
+
+DOSSIER_IDENTITY.md records incomplete actual current stored Identity around accepted owning dossier reads. Source obligations are retained but not authorized by Identity alone; ALL historical/current Evidence/Consent guarded coordinator and protected interfaces remain pending.

@@ -488,7 +488,8 @@
       "prs": [],
       "contributingPrs": [
         32,
-        33
+        33,
+        34
       ],
       "dependsOn": [
         "AM-05-01"
@@ -513,8 +514,13 @@
       },
       "owningDossier": {
         "docs": "docs/OWNING_CLAIM_DOSSIER.md",
-        "status": "WIP host-trusted coherent own-DB dossier;6focused local+6PACKED groups/types/2runtime matches. Source-review clear. Full/current-head CI pending. NO actual current Identity/ALL-sourceConsent guarded coordinator/HTTP/export/live/fulltask acceptance.",
+        "status": "Accepted PR33 sourcef3560885 merge628dbb61 after223ordinary+13existingPG17 final-head CI;6focused local-packed/types/2runtime bytes. No full223local-installed claim; current guards separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/33"
+      },
+      "identityDossier": {
+        "docs": "docs/DOSSIER_IDENTITY.md",
+        "status": "WIP;7actual separate twoDB LOCAL+7PACKED publicexportgroups/types/2runtime matches. Source-review clear currentIdentity-only profile. Full/headCI pending. ALL-sourceEvidenceConsent/HTTP/export/closure/live still pending.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/34"
       }
     },
     {
