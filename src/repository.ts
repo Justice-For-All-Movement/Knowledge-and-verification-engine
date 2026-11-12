@@ -1,3 +1,4 @@
+import { inspectCapturedKnowledgeCorrectionImpact } from "./correction-impact.ts";
 import { createCapturedClaimDossier } from "./claim-dossier.ts";
 import type { CapturedClaimDossier } from "./claim-dossier.ts";
 import { inspectStoredProposalAcceptance } from "./proposal-acceptance-record.ts";
@@ -225,6 +226,61 @@ export class KnowledgeRepository {
     // Await begun SQL; cancelled/late/lost read acknowledgement is withheld, never rollback proof.
     gate(); const result = structuredClone(output); gate(); return result;
   }
+  /** Owning history only. Host Context/admission are trusted, not current Identity/source authorization. */
+  async loadCorrectionImpact(
+    context: Context,
+    before: Ref,
+    after: Ref,
+    signal?: AbortSignal,
+    timeoutMs = 10000,
+    admission?: () => void,
+  ) {
+    const started = performance.now();
+    invariant(Number.isSafeInteger(timeoutMs) && timeoutMs >= 1 && timeoutMs <= 30000,
+      "invalid_policy", "Bounded impact read deadline required");
+    const check = () => invariant(!signal?.aborted && performance.now() - started < timeoutMs,
+      "impact_unavailable", "Owning correction impact unavailable");
+    const gate = () => {
+      check();
+      let result: unknown;
+      try { result = admission?.(); }
+      catch { invariant(false, "impact_unavailable", "Owning impact admission denied"); }
+      if (result instanceof Promise) void result.catch(() => {});
+      invariant(result === undefined, "impact_unavailable", "Synchronous void impact admission required");
+      check();
+    };
+    gate();
+    const c = this.#context(context), choice = copyJson({ before, after });
+    for (const r of [choice.before, choice.after]) {
+      validateRef(r); requireScope(c, r);
+      invariant(Object.keys(r).sort().join(',') === 'id,kind,projectId,revision,tenantId' &&
+        Number.isSafeInteger(r.revision) && r.revision > 0 &&
+        ['entity', 'event', 'relationship', 'claim'].includes(r.kind),
+        "invalid_reference", "Exact positive Knowledge reference required");
+    }
+    invariant(choice.before.kind === choice.after.kind && choice.before.id === choice.after.id &&
+      choice.after.revision === choice.before.revision + 1, "invalid_impact", "Consecutive correction editions required");
+    gate();
+    const output = await scoped(this.#db, c, async tx => {
+      // Acquire the SAME project lock as owning writers before the actual history read.
+      await tx.audit("knowledge.correction-impact.read_checked", {}); gate();
+      const knowledge = await this.#load(tx, c); gate();
+      const impact = inspectCapturedKnowledgeCorrectionImpact(c, JSON.stringify(knowledge.state), choice.before, choice.after);
+      gate();
+      const frame = {
+        profile: "owning-knowledge-correction-impact-v1" as const,
+        knowledgeStorage: { tenantId: c.tenantId, projectId: c.projectId,
+          kind: KNOWLEDGE_KIND, id: KNOWLEDGE_KEY, revision: knowledge.revision },
+        impact,
+      };
+      invariant(Buffer.byteLength(canonical(frame)) <= 512 * 1024,
+        "impact_full", "Complete owning impact exceeds budget");
+      gate(); const copy = structuredClone(frame); gate(); return copy;
+    });
+    // Await begun SQL; late/cancelled/lost read acknowledgements are not rollback proof.
+    gate(); const copy = structuredClone(output); gate(); return copy;
+  }
+
   async append(
     context: Context,
     expectedStorageRevision: number,

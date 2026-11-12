@@ -87,3 +87,5 @@ PR35/36 accepted78e38b39/59717d66 after242ordinary+13/17PG17 final-head qualific
 PR37 accepted e8aacd60 after246ordinary+17PG17 final-head CI. DOSSIER_HTTP.md records incomplete private exact-selection Fetch read integration over actual current all-source reader; no export/list/write/publication or deployed qualification.
 
 CAPTURED_CORRECTION_IMPACT.md records incomplete pure all-Knowledge/claim-edition dependency impact, including claims not loaded by investigation plans. Metadata only, never actual decision invalidation, current permission, findings/draft/closure or full shared task acceptance.
+
+OWNING_CORRECTION_IMPACT.md records partial checked owning whole-Knowledge dependency reads. Actual containing revisions, request admission and read uncertainty do not authenticate Context or authorize sources/use. Captured PR39 accepted1b8543d7 after261ordinary+17existingPG17 CI; prior pending notes are historical.
