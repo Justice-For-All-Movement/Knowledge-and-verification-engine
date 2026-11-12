@@ -103,6 +103,10 @@
     "./dossier-http": {
       "types": "./dist/dossier-http.d.ts",
       "default": "./dist/dossier-http.js"
+    },
+    "./correction-impact": {
+      "types": "./dist/correction-impact.d.ts",
+      "default": "./dist/correction-impact.js"
     }
   },
   "engines": {
