@@ -95,6 +95,10 @@
     "./dossier-identity": {
       "types": "./dist/dossier-identity.d.ts",
       "default": "./dist/dossier-identity.js"
+    },
+    "./dossier-source": {
+      "types": "./dist/dossier-source.d.ts",
+      "default": "./dist/dossier-source.js"
     }
   },
   "engines": {
