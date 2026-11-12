@@ -491,7 +491,8 @@
         33,
         34,
         35,
-        36
+        36,
+        37
       ],
       "dependsOn": [
         "AM-05-01"
@@ -507,7 +508,7 @@
         "Export includes contrary material, attribution limits and exact evidence versions within its authorized scope.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial private dossier: captured, coherent owning and current Identity foundations accepted. ALL-current-and-historical source/use coordinator WIP; protected HTTP/export/full task/closure/correction impact/Editorial acceptance remain pending.",
+      "implementationStatus": "Partial private dossiers with owning/current Identity/ALL historical-current source-use guards accepted. Outer request-admission WIP; protected HTTP/export/full task/closure/correction impact/Editorial acceptance unfinished.",
       "legacyWorkUnitId": "AM-05.07",
       "claimDossier": {
         "docs": "docs/CLAIM_DOSSIER.md",
@@ -526,13 +527,18 @@
       },
       "sourceDossier": {
         "docs": "docs/DOSSIER_SOURCE.md",
-        "status": "WIP PR35 source7aace917:12focusedlocal groups across11+4finaltargeted and12packed groups/types/3runtime8blobs qualified;13existingPG17 final-head pass; ordinary/full pending. No242full-local-installed or protectedHTTP/export/full-task acceptance.",
+        "status": "Accepted PR35 source7aace917 merge78e38b39/all6headchecks/raw242ordinary+13PG17;12focused local/12packed/types/3runtime8blobs. No242full-local-installed claim.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/35"
       },
       "dossierPostgres": {
         "docs": "docs/DOSSIER_POSTGRES.md",
-        "status": "WIP PR36:initial sourcea57f4f61 actual17PG17 pass0fail0skip/job131033793654 raw all4new cases inspected; strictcompile-build-registry/unsafechildLOCAL+1strengthenedLOCAL-PACKED pass. Final docs-head ordinary/PGCI+35dependency pending. No local Postgres/Docker/currentIdentityTCP/live qualification.",
+        "status": "Accepted PR36 sourcefcbbea7 merge59717d66 after retargetmain/all4headchecks/raw242ordinary+17PG17 pass. Strengthened1local-packed group/types/3runtime6blobs. No local PostgreSQL/live claim.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/36"
+      },
+      "dossierAdmission": {
+        "docs": "docs/DOSSIER_ADMISSION.md",
+        "status": "WIP PR37;3focused local+3packed groups/types/runtime pass; final fourth group/full/headCI pending. Request predicate only, no HTTP/export.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/37"
       }
     },
     {
