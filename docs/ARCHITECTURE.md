@@ -83,3 +83,5 @@ PR34 accepted d2196af8 after230ordinary+13existingPG17 CI. DOSSIER_SOURCE.md rec
 DOSSIER_POSTGRES.md adds explicitly incomplete test-only independent-session owning dossier qualification. No runtime/profile authority, source/use coordination, protected HTTP/export or deployment qualification is implied; all-source guard PR35 remains separate.
 
 PR35/36 accepted78e38b39/59717d66 after242ordinary+13/17PG17 final-head qualification. DOSSIER_ADMISSION.md records incomplete outer request deadline admission work for guarded dossier reads; protected HTTP/export and full shared task acceptance remain pending.
+
+PR37 accepted e8aacd60 after246ordinary+17PG17 final-head CI. DOSSIER_HTTP.md records incomplete private exact-selection Fetch read integration over actual current all-source reader; no export/list/write/publication or deployed qualification.
