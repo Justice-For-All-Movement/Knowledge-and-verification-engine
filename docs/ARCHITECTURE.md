@@ -79,3 +79,5 @@ OWNING_CLAIM_DOSSIER.md records incomplete coherent own-DB dossier reads with ex
 DOSSIER_IDENTITY.md records incomplete actual current stored Identity around accepted owning dossier reads. Source obligations are retained but not authorized by Identity alone; ALL historical/current Evidence/Consent guarded coordinator and protected interfaces remain pending.
 
 PR34 accepted d2196af8 after230ordinary+13existingPG17 CI. DOSSIER_SOURCE.md records explicitly incomplete ALL-current-and-historical same-human Evidence/Consent dossier coordinator work; no protected HTTP/export route is added. Original task IDs/dependencies/pins/contracts remain unchanged.
+
+DOSSIER_POSTGRES.md adds explicitly incomplete test-only independent-session owning dossier qualification. No runtime/profile authority, source/use coordination, protected HTTP/export or deployment qualification is implied; all-source guard PR35 remains separate.
