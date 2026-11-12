@@ -489,7 +489,8 @@
       "contributingPrs": [
         32,
         33,
-        34
+        34,
+        35
       ],
       "dependsOn": [
         "AM-05-01"
@@ -524,7 +525,8 @@
       },
       "sourceDossier": {
         "docs": "docs/DOSSIER_SOURCE.md",
-        "status": "WIP;4actual four-restricted-DB focused local groups/typecheck/build/registry pass. Expanded qualification/package/full/final-head CI pending. No HTTP/export/live acceptance."
+        "status": "WIP; all12focused local groups qualified across11+4finaltargeted runs;10earlierpacked groups/types/3runtime matches pass. Final12packed/full/headCI running. Source-review clear bounded private SDK profile. No new TCP/HTTP/export/live/full-task acceptance.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/35"
       }
     },
     {

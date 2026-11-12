@@ -1,17 +1,18 @@
 {
   "profile": "current-dossier-source-verification-v1",
   "limits": [
-    "Initial4 focused local groups pass; expanded/package/full/headCI pending.",
+    "All12focused local groups qualified across11+4finaltargeted runs;10earlierpacked groups pass. Final12packed/full/headCI pending.",
+    "Consumer HARD-LINKS copied prepared dependencies, not fresh install.",
     "Actual restricted PGlite/encrypted temporary Evidence with synthetic scanner/directory not TCP/browser/live.",
     "Current sequential checks not a distributed fence or source truth/work/closure qualification."
   ],
   "sha256": {
     "src/dossier-source.ts": "fc677f02c6b23e3daaa3c6e125914bed6a1c57ab1a66d47a4fa08906335a6361",
     "tests/dossier-source-fixture.ts": "d700f2c1d44fb3209b2932fa45a632719ff22cc670ee58553b09002ed5c1b811",
-    "tests/dossier-source.test.ts": "0c191357a8b049f4c8b358916daadfdd4a0ec58a06e1547f3ded84135a3a73d6",
+    "tests/dossier-source.test.ts": "77bb165a07f7241daef3d185bb3c4ebd52f7b15576a6d641c121759785019269",
     "package.json": "64e95d5c60052c1d4c0d60f191b29ca247599a149dcbc0c2eddd61158f6daa7d",
-    "registry/prs.json": "5fd4125d839ba7b0b96db413277f97e7a1b616dc31bb2c1bc0744448da6b8c17",
+    "registry/prs.json": "438fdc59c2b930b98d7496f5bd5f4a43a4dd5d21dcfb710effefef2fff554580",
     "docs/ARCHITECTURE.md": "b15307c0628649707fa9100ad973a932d00c458391b52321a7a1fa901a7dcadd",
-    "docs/DOSSIER_SOURCE.md": "c669175b2fe0fac78a8f6ac69fc92acb12ef518ad90d3ce3644ca0ffa3e16d09"
+    "docs/DOSSIER_SOURCE.md": "0c8114d03458479e93460777af67e5e4a2c5d8784d9200f727f85103f247d633"
   }
 }
