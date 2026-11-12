@@ -89,3 +89,5 @@ PR37 accepted e8aacd60 after246ordinary+17PG17 final-head CI. DOSSIER_HTTP.md re
 CAPTURED_CORRECTION_IMPACT.md records incomplete pure all-Knowledge/claim-edition dependency impact, including claims not loaded by investigation plans. Metadata only, never actual decision invalidation, current permission, findings/draft/closure or full shared task acceptance.
 
 OWNING_CORRECTION_IMPACT.md records partial checked owning whole-Knowledge dependency reads. Actual containing revisions, request admission and read uncertainty do not authenticate Context or authorize sources/use. Captured PR39 accepted1b8543d7 after261ordinary+17existingPG17 CI; prior pending notes are historical.
+
+CORRECTION_IMPACT_IDENTITY.md records incomplete actual current stored Identity around owning all-claim impact. Accepted PR40 merge304ae27b after267ordinary+17existingPG17 CI; prior pending notes historical. Source/use authority and protected interfaces remain separate.

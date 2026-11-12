@@ -586,9 +586,13 @@
       },
       "owningCorrectionImpact": {
         "docs": "docs/OWNING_CORRECTION_IMPACT.md",
-        "status": "WIP PR40;6focusedLOCAL+6PACKED/typecheckbuildregistry/types/repositoryruntimeMATCH;source-review clear. FullLOCAL/currentheadCI pending. HostContextONLY; currentIdentitySourceConsent/TCP/fullworkflow separate.",
+        "status": "Accepted PR40 sourcec3b2f4626e73d6e18fb16cebfecd1e56df4fc45c merge304ae27bfbc994af2f59550519afba6cd422eda0/all4headchecks/raw267ordinary+17existingPG17PASS0fail0skip;6local-packed/types/runtime/ALL153blobs qualified. No267fullLOCAL-installed claim; current authority separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/40",
         "verification": "docs/owning-correction-impact-verification.json"
+      },
+      "identityCorrectionImpact": {
+        "docs": "docs/CORRECTION_IMPACT_IDENTITY.md",
+        "status": "WIP actualprototype/currentstoredIdentity beforeAFTER owning impact;7focused verification underway/packed-full-headCI pending. NoSourceConsent/distributedfence/fullworkflow acceptance."
       }
     }
   ],
