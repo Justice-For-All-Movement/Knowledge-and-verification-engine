@@ -543,7 +543,7 @@
       },
       "dossierHttp": {
         "docs": "docs/DOSSIER_HTTP.md",
-        "status": "WIP PR38;all7focused LOCAL+7PACKED across6+1runs/types/runtime qualified; source-review clear private read-only profile. Full253local-installed/headCI pending. Host/TLS/browserAT/live/full-task separate.",
+        "status": "Accepted PR38 source321e27f499783ea9d7792b8e19735c824dfc6736 mergea7ebc3437f75fc4c9776555ead13a5697ab1d476 after all4headchecks/raw253ordinary+17existingPG17PASS0fail0skip;7local-packed/types/HTTPbytes qualified. Older pending notes historical;hostfullworkflow separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/38"
       }
     },
@@ -552,7 +552,9 @@
       "title": "Correction impact computation",
       "origin": "original",
       "prs": [],
-      "contributingPrs": [],
+      "contributingPrs": [
+        39
+      ],
       "dependsOn": [
         "AM-05-01",
         "AM-05-02",
@@ -573,8 +575,14 @@
         "A corrected date finds all affected claims, findings and draft outputs while leaving unrelated work usable.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-05.08"
+      "implementationStatus": "Partial captured all-Knowledge claim dependency metadata WIP; original dependencies/decision invalidation/findings/draft impact/closure/Editorial remain unmet.",
+      "legacyWorkUnitId": "AM-05.08",
+      "capturedCorrectionImpact": {
+        "docs": "docs/CAPTURED_CORRECTION_IMPACT.md",
+        "status": "WIP PR39;8focusedLOCAL+8PACKED/types/runtimebytesPASS0fail0skip including valid-own-history edge/outputcaps. Source-review clear pure metadata; fullLOCAL/headCI pending; copiedprepareddepsNOTfreshinstall. No current authority/fullworkflow claim.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/39",
+        "verification": "docs/captured-correction-impact-verification.json"
+      }
     }
   ],
   "pullRequests": [],

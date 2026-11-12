@@ -85,3 +85,5 @@ DOSSIER_POSTGRES.md adds explicitly incomplete test-only independent-session own
 PR35/36 accepted78e38b39/59717d66 after242ordinary+13/17PG17 final-head qualification. DOSSIER_ADMISSION.md records incomplete outer request deadline admission work for guarded dossier reads; protected HTTP/export and full shared task acceptance remain pending.
 
 PR37 accepted e8aacd60 after246ordinary+17PG17 final-head CI. DOSSIER_HTTP.md records incomplete private exact-selection Fetch read integration over actual current all-source reader; no export/list/write/publication or deployed qualification.
+
+CAPTURED_CORRECTION_IMPACT.md records incomplete pure all-Knowledge/claim-edition dependency impact, including claims not loaded by investigation plans. Metadata only, never actual decision invalidation, current permission, findings/draft/closure or full shared task acceptance.
