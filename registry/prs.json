@@ -593,9 +593,13 @@
       },
       "identityCorrectionImpact": {
         "docs": "docs/CORRECTION_IMPACT_IDENTITY.md",
-        "status": "WIP PR41;ALL7focusedFINALLOCAL+7PACKED/types/runtimeMATCH0fail0skip;source-review clear currentIdentity metadata. Actual2restrictedDBs NOTnetwork/browser/live. FullfinalLOCAL/headCIpending; fullSourceConsent-workflow separate.",
+        "status": "Accepted PR41 sourceccdf310b2fc409a4e81967a3c0d22ae26cd05c45 merge54a9a7c8ea5df7292c7c5ccd9921791842b414ff/all4headchecks/raw274ordinary+17existingPG17PASS0fail0skip;7local-packed/types/runtime/ALL158blobs qualified. No274fullLOCAL-installed claim; SourceConsent/TCP/HTTPVisual separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/41",
         "verification": "docs/correction-impact-identity-verification.json"
+      },
+      "correctionImpactPostgres": {
+        "docs": "docs/CORRECTION_IMPACT_POSTGRES.md",
+        "status": "WIP test-only4new+17priorPG17 scenarios;strictcompile/build/local unsafe-fixture qualification underway. Actual network CI pending. No runtime/currentIdentitySourceConsentTCP qualification."
       }
     }
   ],

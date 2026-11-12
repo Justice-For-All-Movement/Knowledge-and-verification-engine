@@ -851,3 +851,280 @@ test('lost actual owning dossier read COMMIT retains historical obligations and 
     assert.equal(audits.filter(a=>a.type==='knowledge.evidence-links.recorded').length,2);
   });
 });
+async function correctionImpactFixture(t: test.TestContext, id: string) {
+  const f = await fixture(t, id);
+  const person = await f.sa.append(f.context, 0, entity, "person");
+  const eventValue: KnowledgeAppend["value"] = {
+    type: "event",
+    label: "Fictional event",
+    description: "Unverified fixture",
+    time: { earliest: null, latest: null },
+    entityRefs: [person.record],
+  };
+  const before = await f.sa.append(
+    f.context,
+    1,
+    { id: "event", expectedRevision: 0, value: eventValue },
+    "event",
+  );
+  const unplanned = await f.sa.append(
+    f.context,
+    2,
+    {
+      ...claim,
+      value: {
+        ...claim.value,
+        subjectRefs: [before.record],
+      } as KnowledgeAppend["value"],
+    },
+    "unplanned",
+  );
+  const after = await f.sa.append(
+    f.context,
+    3,
+    {
+      id: "event",
+      expectedRevision: 1,
+      value: {
+        ...eventValue,
+        time: { earliest: "2026-01-02T00:00:00Z", latest: null },
+      },
+    },
+    "corrected-date",
+  );
+  return {
+    ...f,
+    before: before.record,
+    after: after.record,
+    eventValue,
+    unplanned: unplanned.record,
+  };
+}
+for (const mode of ["append", "correct-again"] as const)
+  test(
+    `owning correction impact reads actual ${mode} history only after independently observed public writer lock wait`,
+    { timeout: 20000 },
+    async (t) => {
+      const f = await correctionImpactFixture(t, "knowledge-impact-" + mode);
+      const baseline = await f.sb.loadCorrectionImpact(
+        f.context,
+        f.before,
+        f.after,
+      );
+      assert.equal(baseline.impact.claims[0]!.status, "review-required");
+      const locked = gate(),
+        release = gate(),
+        writer = new KnowledgeRepository(held(f.a, locked, release), f.policy);
+      const writing =
+        mode === "append"
+          ? writer.append(
+              f.context,
+              4,
+              { ...claim, id: "new-unplanned" },
+              "new-unplanned",
+            )
+          : writer.append(
+              f.context,
+              4,
+              { id: "event", expectedRevision: 2, value: f.eventValue },
+              "another-correction",
+            );
+      let pending:
+        ReturnType<KnowledgeRepository["loadCorrectionImpact"]> | undefined;
+      try {
+        await Promise.race([locked.promise, writing]);
+        pending = f.sb.loadCorrectionImpact(f.context, f.before, f.after);
+        const outcome = pending.then(
+          (value) => ({ value }),
+          (error) => ({ error }),
+        );
+        await observedWait(f.id);
+        release.resolve();
+        const written = await writing;
+        const read = await outcome;
+        if (mode === "append") {
+          assert.ok("value" in read);
+          assert.deepEqual(read.value.knowledgeStorage, written.storage);
+          assert.equal(read.value.impact.knowledgeRecordCount, 5);
+          assert.deepEqual(
+            read.value.impact.claims.map((x) => ({
+              ref: x.claim,
+              status: x.status,
+            })),
+            [
+              { ref: f.unplanned, status: "review-required" },
+              { ref: written.record, status: "no-captured-dependency" },
+            ],
+          );
+          assert.deepEqual(read.value.impact.before, f.before);
+          assert.deepEqual(read.value.impact.after, f.after);
+        } else {
+          assert.ok("error" in read);
+          assert.equal(
+            (read.error as { code: string }).code,
+            "stale_reference",
+          );
+        }
+        await f.b.close();
+        const fresh = f.connect("fresh"),
+          repo = new KnowledgeRepository(fresh, f.policy);
+        if (mode === "append")
+          assert.deepEqual(
+            await repo.loadCorrectionImpact(f.context, f.before, f.after),
+            "value" in read ? read.value : null,
+          );
+        else
+          await assert.rejects(
+            repo.loadCorrectionImpact(f.context, f.before, f.after),
+            { code: "stale_reference" },
+          );
+        await scoped(fresh, f.context, async (tx) => {
+          const audits = await tx.audits();
+          assert(verifyAudit(audits));
+          assert.equal(
+            audits.filter(
+              (a) => a.type === "knowledge.correction-impact.read_checked",
+            ).length,
+            mode === "append" ? 3 : 1,
+          );
+          assert.equal(
+            audits.filter((a) => a.type === "knowledge.appended").length,
+            5,
+          );
+        });
+      } finally {
+        release.resolve();
+        await writing;
+        await pending?.catch(() => {});
+      }
+    },
+  );
+test(
+  "owning correction impact deadline expires during required observed lock wait and checked audit rolls back",
+  { timeout: 20000 },
+  async (t) => {
+    const f = await correctionImpactFixture(t, "knowledge-impact-expiry"),
+      locked = gate(),
+      release = gate();
+    const writer = new KnowledgeRepository(
+      held(f.a, locked, release),
+      f.policy,
+    );
+    const writing = writer.append(
+      f.context,
+      4,
+      { ...entity, id: "another-person" },
+      "another-person",
+    );
+    let pending:
+      ReturnType<KnowledgeRepository["loadCorrectionImpact"]> | undefined;
+    try {
+      await Promise.race([locked.promise, writing]);
+      pending = f.sb.loadCorrectionImpact(
+        f.context,
+        f.before,
+        f.after,
+        undefined,
+        1000,
+      );
+      const outcome = pending.then(
+        (value) => ({ value }),
+        (error) => ({ error }),
+      );
+      await observedWait(f.id);
+      await new Promise((r) => setTimeout(r, 1100));
+      release.resolve();
+      await writing;
+      const read = await outcome;
+      assert.ok("error" in read);
+      assert.equal((read.error as { code: string }).code, "impact_unavailable");
+      await scoped(f.b, f.context, async (tx) => {
+        const a = await tx.audits();
+        assert(verifyAudit(a));
+        assert.equal(
+          a.filter((x) => x.type === "knowledge.correction-impact.read_checked")
+            .length,
+          0,
+        );
+      });
+      await f.b.close();
+      const fresh = f.connect("fresh");
+      assert.equal(
+        (
+          await new KnowledgeRepository(fresh, f.policy).loadCorrectionImpact(
+            f.context,
+            f.before,
+            f.after,
+          )
+        ).knowledgeStorage.revision,
+        5,
+      );
+    } finally {
+      release.resolve();
+      await writing;
+      await pending?.catch(() => {});
+    }
+  },
+);
+test(
+  "lost actual owning correction-impact read COMMIT preserves whole history and both checked audits through a fresh pool",
+  { timeout: 20000 },
+  async (t) => {
+    const f = await correctionImpactFixture(t, "knowledge-impact-lost"),
+      before = await f.sa.load(f.context);
+    let lost = false,
+      effects = 0;
+    const wrapped: Database = {
+      close: async () => {},
+      transaction: (fn) =>
+        f.a
+          .transaction((q) =>
+            fn({
+              query: async <T>(sql: string, args?: unknown[]) => {
+                if (
+                  sql.includes("INSERT INTO public.evidence_outbox") ||
+                  sql.includes("INSERT INTO public.evidence_record") ||
+                  sql.includes("INSERT INTO public.evidence_head") ||
+                  sql.includes("INSERT INTO public.evidence_idempotency")
+                )
+                  effects++;
+                return q.query<T>(sql, args);
+              },
+            }),
+          )
+          .then((value) => {
+            lost = true;
+            throw Error(
+              "fixture lost owning impact read COMMIT acknowledgement",
+            );
+          }),
+    };
+    await assert.rejects(
+      new KnowledgeRepository(wrapped, f.policy).loadCorrectionImpact(
+        f.context,
+        f.before,
+        f.after,
+      ),
+      /lost owning impact read COMMIT/,
+    );
+    assert(lost);
+    assert.equal(effects, 0);
+    await f.a.close();
+    const fresh = f.connect("fresh"),
+      repo = new KnowledgeRepository(fresh, f.policy);
+    const read = await repo.loadCorrectionImpact(f.context, f.before, f.after);
+    assert.equal(read.knowledgeStorage.revision, 4);
+    assert.deepEqual(read.impact.claims[0]!.claim, f.unplanned);
+    assert.deepEqual(await repo.load(f.context), before);
+    await scoped(fresh, f.context, async (tx) => {
+      const a = await tx.audits();
+      assert(verifyAudit(a));
+      assert.equal(
+        a.filter((x) => x.type === "knowledge.correction-impact.read_checked")
+          .length,
+        2,
+      );
+      assert.equal(a.filter((x) => x.type === "knowledge.appended").length, 4);
+    });
+  },
+);
