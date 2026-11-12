@@ -211,3 +211,59 @@ test("5MiB UTF8 input boundary is whole and exact; oversized or invalid JSON can
   for (const s of ["{", "null", "[]"])
     assert.throws(() => impact(c, s, f.event, f.after));
 });
+
+import { assertKnowledgeState } from "../src/index.ts";
+test("complete graph edge budget fails before partial output even for a valid bounded owning history", () => {
+  const f = fixture(),
+    state = structuredClone(f.state),
+    refs: Ref[] = [];
+  for (let i = 0; i < 128; i++) {
+    const ref = { ...f.person, id: `wide-person-${i}` };
+    refs.push(ref);
+    (state.records as any[]).push({
+      ...state.records[0],
+      ref,
+      supersedes: null,
+      value: entity,
+    });
+  }
+  for (let i = 0; i < 65; i++)
+    (state.records as any[]).push({
+      ...state.records[0],
+      ref: { ...f.event, id: `wide-event-${i}` },
+      supersedes: null,
+      value: {
+        type: "event",
+        label: "Fictional wide event",
+        description: "Unverified",
+        time: { earliest: null, latest: null },
+        entityRefs: refs,
+      },
+    });
+  assertKnowledgeState(state);
+  const json = JSON.stringify(state);
+  assert.throws(() => impact(c, json, f.event, f.after), {
+    code: "impact_full",
+    message: "Whole graph edge budget exceeded",
+  });
+  assert.equal(JSON.stringify(state), json);
+});
+test("whole512KiB report budget denies a valid large claim history instead of returning a truncated list", () => {
+  const f = fixture(),
+    state = structuredClone(f.state);
+  for (let i = 0; i < 1400; i++)
+    (state.records as any[]).push({
+      ...state.records[0],
+      ref: { ...f.unrelated, id: `unplanned-${i}` },
+      supersedes: null,
+      value: claim([]),
+    });
+  assertKnowledgeState(state);
+  const json = JSON.stringify(state);
+  assert.throws(() => impact(c, json, f.event, f.after), {
+    code: "impact_full",
+    message: "Complete captured impact exceeds budget",
+  });
+  assert.equal(state.records.length, 1408);
+  assert.equal(JSON.stringify(state), json);
+});

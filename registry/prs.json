@@ -552,7 +552,9 @@
       "title": "Correction impact computation",
       "origin": "original",
       "prs": [],
-      "contributingPrs": [],
+      "contributingPrs": [
+        39
+      ],
       "dependsOn": [
         "AM-05-01",
         "AM-05-02",
@@ -577,7 +579,9 @@
       "legacyWorkUnitId": "AM-05.08",
       "capturedCorrectionImpact": {
         "docs": "docs/CAPTURED_CORRECTION_IMPACT.md",
-        "status": "Initial6focusedLOCAL/typecheckbuildregistryPASS; edge-outputbudgets/packed/full/headCI/source-review pending. No owning current authority or workflow acceptance."
+        "status": "WIP PR39;8focusedLOCAL+8PACKED/types/runtimebytesPASS0fail0skip including valid-own-history edge/outputcaps. Source-review clear pure metadata; fullLOCAL/headCI pending; copiedprepareddepsNOTfreshinstall. No current authority/fullworkflow claim.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/39",
+        "verification": "docs/captured-correction-impact-verification.json"
       }
     }
   ],
