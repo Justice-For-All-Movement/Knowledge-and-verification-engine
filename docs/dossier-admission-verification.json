@@ -1,0 +1,15 @@
+{
+  "profile": "dossier-request-admission-v1",
+  "limits": [
+    "Three focused fourDB local groups; package/full/headCI pending.",
+    "PGlite/synthetic directory-scanner not TCP/browser/AT/live qualification.",
+    "Predicate is synchronous host state only, never authority or external I/O under SQL."
+  ],
+  "sha256": {
+    "src/dossier-source.ts": "b4941a19eb3e06d4da6443517af73d66e71eab00c7c3e2d46d3e2573c140e8fc",
+    "tests/dossier-admission.test.ts": "979f1f75f7f1511a813dced65d78b854cbdf9ff2cc1af6f68407807878cfbc21",
+    "docs/DOSSIER_ADMISSION.md": "0159d53d5bf168044402aea5117212cffc3d2d34f2e859803a5f4d5223fbc201",
+    "registry/prs.json": "8c5c75eebdb353cffdbcebeebad947da13eab2860c261f23a4a132f7696530ee",
+    "docs/ARCHITECTURE.md": "64ed36b700231137f75cd199e1779dc617476e9c3895a504489e6bc6f2e05d14"
+  }
+}

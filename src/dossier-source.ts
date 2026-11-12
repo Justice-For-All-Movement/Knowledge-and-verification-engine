@@ -30,12 +30,22 @@ export class CurrentClaimDossierReader {
     this.#authorize = CurrentEvidenceUse.prototype.authorize.bind(permissions);
     this.#credential = credential; this.#timeout = timeoutMs;
   }
-  async read(context: Context, selection: Readonly<{claim: Ref; links: Ref}>, signal?: AbortSignal): Promise<Dossier> {
+  async read(context: Context, selection: Readonly<{claim: Ref; links: Ref}>, signal?: AbortSignal, admission?: () => void): Promise<Dossier> {
     const started = performance.now(), owned = new AbortController(), abort = () => owned.abort();
     signal?.addEventListener("abort", abort, {once:true}); if (signal?.aborted) abort();
     const timer = setTimeout(abort, this.#timeout);
-    const gate = () => invariant(!owned.signal.aborted && performance.now()-started < this.#timeout,
-      "dossier_unavailable", "Current dossier source review unavailable");
+    const gate = () => {
+      const current = () => invariant(!owned.signal.aborted && performance.now()-started < this.#timeout,
+        "dossier_unavailable", "Current dossier source review unavailable");
+      current();
+      invariant(admission === undefined || typeof admission === "function",
+        "dossier_unavailable", "Trusted synchronous request admission required");
+      // A host deadline/cancellation predicate only: no external I/O under owning SQL.
+      const value: unknown = admission?.();
+      if (value instanceof Promise) void value.catch(() => {});
+      invariant(value === undefined, "dossier_unavailable", "Synchronous void request admission required");
+      current();
+    };
     try {
       gate();
       const c = copyJson(context), choice = copyJson(selection), principal = {...c,actor:{...c.actor,roles:[]}};
