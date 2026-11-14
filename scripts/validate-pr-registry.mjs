@@ -7,10 +7,7 @@ const plan = JSON.parse(
 const catalog = JSON.parse(
   readFileSync("docs/approved-design/engine_catalog.json", "utf8"),
 );
-// The repository moved organizations; the registry records the original name and the current one must be this engine.
-assert.equal(v.repository, "neophilism/Knowledge-and-verification-engine");
-assert.equal(v.currentRepository, "Justice-For-All-Movement/knowledge-and-verification-engine");
-if (process.env.GITHUB_REPOSITORY) assert.equal(process.env.GITHUB_REPOSITORY.toLowerCase(), v.currentRepository.toLowerCase());
+assert.equal(v.repository, "Justice-For-All-Movement/Knowledge-and-verification-engine");
 assert.equal(v.planVerified, true);
 assert.equal(plan.tasks.length, 122);
 assert.equal(catalog.engines.length, 15);

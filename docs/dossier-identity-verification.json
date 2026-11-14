@@ -1,0 +1,18 @@
+{
+  "profile": "identity-claim-dossier-verification-v1",
+  "limits": [
+    "Seven actual separate restricted Identity/Knowledge local and seven packed public-export groups pass. PGlite not TCP.",
+    "Consumer HARD-LINKS copied prepared dependencies, not fresh install.",
+    "Current Identity only. ALL current/historical same-human Evidence/Consent guard and protected HTTP/export remain pending.",
+    "Full local/final-head CI pending until actual footer evidence."
+  ],
+  "sha256": {
+    "src/dossier-identity.ts": "f4461cf9ac482ce27cc02b8895fc42e6444b4f64d97535fbc45212ed71945749",
+    "tests/dossier-identity.test.ts": "58677c2ddbc394d3253a1ff4b4af3178a1dc882e1440d2807c4198c106bdbde0",
+    "tests/dossier-identity-fixture.ts": "1ed377ac25868e943f3c1bf4a7659b8c28e0593ecb9d78398931a12a9610a78f",
+    "package.json": "f0d29f57c7a49b90b63725cca308cbbf2f46a0c5fa6cf95a28feb9f714de1cb2",
+    "registry/prs.json": "ac73ea8ab24908fde26f9e28f22d7831ed270afbe42176efede9217887f70c82",
+    "docs/ARCHITECTURE.md": "94ddb300171ce08c4d45572cdff2b3ada2bc4e7294cd133f1181a4e6f37a60d7",
+    "docs/DOSSIER_IDENTITY.md": "831bc00b99ae1c3102f6419217bb63606b0140a564c9b862fcf967698631a025"
+  }
+}

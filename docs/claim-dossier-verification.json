@@ -1,0 +1,14 @@
+{
+  "profile": "captured-claim-dossier-v1",
+  "localEvidence": "Eight final focused local and eight packed compiled public-export groups/strict declarations/runtime byte match pass. Broad local run predates test assertion correction; no full final local claim.",
+  "review": "Clear for bounded captured metadata profile. Full operational authorization/export/workflow and current-head CI pending.",
+  "limits": "Pure host-authorized capture; no new SQL/TCP/browser/live qualification. Historical source permissions require future protected composition, not latest-only guard reuse.",
+  "sha256": {
+    "src/claim-dossier.ts": "cb0403c9787b4c8c444c7d2ea248fc7f9339b5f849d318eade43021a00f83864",
+    "tests/claim-dossier.test.ts": "d6d16d8f8c931200e01c87a7aa1fdf1aa40772a18ab06c96ed4ebb4aa87de55c",
+    "package.json": "1bb37557b97fadea6f6c40253d97a8fda97a484bfe0e3de1248abb447478fc10",
+    "registry/prs.json": "249fd51159e4a104c64fcb4c33aaedd668e19fdd50bb90502442a4628655859d",
+    "docs/CLAIM_DOSSIER.md": "c3e48d3be4de60ddba30c97bfd74f136956e82a6c861e25ac2b866c4184535e9",
+    "docs/ARCHITECTURE.md": "09aebf15d1906dd41bb49438bbc41d2bffd67f9c4f36934384de554f5c2ea3f8"
+  }
+}

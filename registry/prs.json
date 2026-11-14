@@ -1,7 +1,6 @@
 {
   "schemaVersion": 1,
-  "repository": "neophilism/Knowledge-and-verification-engine",
-  "currentRepository": "Justice-For-All-Movement/knowledge-and-verification-engine",
+  "repository": "Justice-For-All-Movement/Knowledge-and-verification-engine",
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
@@ -318,7 +317,13 @@
       "contributingPrs": [
         16,
         17,
-        20
+        20,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
       ],
       "dependsOn": [
         "AM-05-01",
@@ -354,6 +359,36 @@
         "status": "Six actual four-DB/encrypted-root local+installed groups; full118 local plus separate sixth group/typecheck/build/registry pass; expanded source6cc29b5 CI41929903130 passes119+7priorPG17. Final documentation-head CI required; no single full119 local/installed claim. Legacy profiles unchanged; partial unit only.",
         "verification": "docs/human-source-review-verification.json",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/20"
+      },
+      "capturedProposalAcceptance": {
+        "docs": "docs/PROPOSAL_ACCEPTANCE.md",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/26",
+        "status": "Accepted bounded pure profile PR26 merge985956d7b8a7d0ea247cbdd19ebef4bb03a86786 after source0bbc3c3 all4checksPASS169+10existingPG17/rawlogs0fail0skip. Eight focused local+packed/declarations/module-byte pass. Durable/current-source acceptance remains separate."
+      },
+      "durableProposalAcceptance": {
+        "docs": "docs/DURABLE_PROPOSAL_ACCEPTANCE.md",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/27",
+        "status": "Accepted bounded host-context owning transaction PR27 mergec49806c7d28c529cb938d94e4d18bc34a4dffa78/source21c70cc; all4CI checks178+10existingPG17 PASS/rawlogs0fail0skip; full178local;9focused compiled groups/declarations/3modules pass. Current source/use admission remains separate."
+      },
+      "currentProposalAcceptance": {
+        "docs": "docs/CURRENT_PROPOSAL_ACCEPTANCE.md",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/28",
+        "status": "Accepted PR28 merge54ff6aaba98b58c346df266c1e1a5892fde02c23/source38a87d7; all4headchecksSUCCESS/raw PR check130484067121 pass187 and postgres130484066252 pass10existingPG17/0fail0skip. Full187local and9packed groups/declarations/4runtime bytes qualified. Initial stale-state automatic merge rejection resolved by fresh ready/clean/head/rules evidence; expected-head merge succeeded. Reader and protected HTTPUI/full workflow remain separate."
+      },
+      "proposalAcceptanceRead": {
+        "docs": "docs/PROPOSAL_ACCEPTANCE_READ.md",
+        "status": "Accepted PR29 merge0895ff36f12213fb8f130737a08ace67f12011ab/source8110841; all4headchecksSUCCESS/raw196+13PG17 PASS0fail0skip;9fixed-runtime packed groups/types/4modulebytes qualified. No host/live/fullworkflow completion.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/29"
+      },
+      "proposalAcceptanceHttp": {
+        "docs": "docs/PROPOSAL_ACCEPTANCE_HTTP.md",
+        "status": "Accepted PR30 mergea89646b1e08ba56f1b41a383051450c14f7b909c/source827e15; retargetedmain after29; all4headchecksSUCCESS/raw203+13PG17 PASS0fail0skip;7fixed-runtime packed groups/types/bytes qualified. No host/live/fullworkflow completion.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/30"
+      },
+      "proposalAcceptanceWriteHttp": {
+        "docs": "docs/PROPOSAL_ACCEPTANCE_WRITE_HTTP.md",
+        "status": "Accepted PR31 sourcea99e5757/mergebc5d4f06d92866ea20ba8305c45ead6bf17d9ba0; final-head209ordinary+13existingPG17 pass. Six focused local+packed/declarations/bytes qualified; no209full-local-installed or host/live/fullworkflow claim. Visual27 accepted0c0237990ab2b06a3bc733e6a09863651ad3bbd1 after exacthead6afcb40d CI175pass/0fail0skip; fixed11packed groups/types/3bytes qualified. Memory-only uncertainty/protected recovery/browserATlive remain separate.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/31"
       }
     },
     {
@@ -384,7 +419,7 @@
         "A contradicted or unresolved assertion cannot silently become a verified finding.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial: pure/own-SQL immutable unresolved review history; current Identity on owning reads/writes/replay; current same-human Consent/Evidence admission and complete locked basis comparison for guarded writes/selected reads; protected private Fetch read and write adapters. Observations remain unresolved/null tracks, never findings/answers/approvals. Protected browser write/replay controls, complete workflow/work proof/correction impact/shared E07/E08 dependency gates and host/browser/AT/live acceptance remain pending. See owning per-profile evidence for exact tests and current-head CI.",
+      "implementationStatus": "Partial: pure/own-SQL immutable unresolved review history; current Identity on owning reads/writes/replay; current same-human Consent/Evidence admission and complete locked basis comparison for guarded writes/selected reads; protected private Fetch read and write adapters. Observations remain unresolved/null tracks, never findings/answers/approvals. Protected browser write/replay controls accepted in Visual PR25 merge5d59b755106468c4110eb925b7fc7331d93c0149; complete workflow/work proof/correction impact/shared E07/E08 dependency gates and host/browser/AT/live acceptance remain pending. See owning per-profile evidence for exact tests and current-head CI.",
       "legacyWorkUnitId": "AM-05.05",
       "verificationReview": {
         "docs": "docs/VERIFICATION_REVIEW.md",
@@ -451,7 +486,15 @@
       "title": "Evidence reports and referral packages",
       "origin": "original",
       "prs": [],
-      "contributingPrs": [],
+      "contributingPrs": [
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38
+      ],
       "dependsOn": [
         "AM-05-01"
       ],
@@ -466,15 +509,54 @@
         "Export includes contrary material, attribution limits and exact evidence versions within its authorized scope.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-05.07"
+      "implementationStatus": "Partial owning/currentIdentity/ALL-source dossier and outer deadline admitted SDK accepted; protected private dossier HTTP WIP. Export/full-task/closure/correction impact/Editorial unfinished.",
+      "legacyWorkUnitId": "AM-05.07",
+      "claimDossier": {
+        "docs": "docs/CLAIM_DOSSIER.md",
+        "status": "Accepted PR32 sourcee6a16537 merge00b74324 after217ordinary+13existingPG17 final-head CI;8focused local-packed/types/runtime qualified. Source captures not authentication; full task remains partial.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/32"
+      },
+      "owningDossier": {
+        "docs": "docs/OWNING_CLAIM_DOSSIER.md",
+        "status": "Accepted PR33 sourcef3560885 merge628dbb61 after223ordinary+13existingPG17 final-head CI;6focused local-packed/types/2runtime bytes. No full223local-installed claim; current guards separate.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/33"
+      },
+      "identityDossier": {
+        "docs": "docs/DOSSIER_IDENTITY.md",
+        "status": "Accepted PR34 source6f773140 merged2196af8 after230ordinary+13existingPG17 final-head CI;7focused local-packed/types/2runtime bytes. No230full-local-installed claim; source guard separate.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/34"
+      },
+      "sourceDossier": {
+        "docs": "docs/DOSSIER_SOURCE.md",
+        "status": "Accepted PR35 source7aace917 merge78e38b39/all6headchecks/raw242ordinary+13PG17;12focused local/12packed/types/3runtime8blobs. No242full-local-installed claim.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/35"
+      },
+      "dossierPostgres": {
+        "docs": "docs/DOSSIER_POSTGRES.md",
+        "status": "Accepted PR36 sourcefcbbea7 merge59717d66 after retargetmain/all4headchecks/raw242ordinary+17PG17 pass. Strengthened1local-packed group/types/3runtime6blobs. No local PostgreSQL/live claim.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/36"
+      },
+      "dossierAdmission": {
+        "docs": "docs/DOSSIER_ADMISSION.md",
+        "status": "Accepted PR37 source45c7a09 mergee8aacd60/all4headchecks/raw246ordinary+17existingPG17;4focused local-packed/types/runtime6blobs. No246full-local-installed claim.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/37"
+      },
+      "dossierHttp": {
+        "docs": "docs/DOSSIER_HTTP.md",
+        "status": "Accepted PR38 source321e27f499783ea9d7792b8e19735c824dfc6736 mergea7ebc3437f75fc4c9776555ead13a5697ab1d476 after all4headchecks/raw253ordinary+17existingPG17PASS0fail0skip;7local-packed/types/HTTPbytes qualified. Older pending notes historical;hostfullworkflow separate.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/38"
+      }
     },
     {
       "id": "AM-05-08",
       "title": "Correction impact computation",
       "origin": "original",
       "prs": [],
-      "contributingPrs": [],
+      "contributingPrs": [
+        39,
+        40,
+        41
+      ],
       "dependsOn": [
         "AM-05-01",
         "AM-05-02",
@@ -495,8 +577,26 @@
         "A corrected date finds all affected claims, findings and draft outputs while leaving unrelated work usable.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-05.08"
+      "implementationStatus": "Partial captured all-Knowledge claim dependency metadata WIP; original dependencies/decision invalidation/findings/draft impact/closure/Editorial remain unmet.",
+      "legacyWorkUnitId": "AM-05.08",
+      "capturedCorrectionImpact": {
+        "docs": "docs/CAPTURED_CORRECTION_IMPACT.md",
+        "status": "Accepted PR39 source099e5679cc381fb166ab742a5d276da9ab3ec083 merge1b8543d703ac32041cb2ddd39d8aec1637317ef9 after all4headchecks/raw261ordinary+17existingPG17PASS;8local-packed/types/runtime qualified. Full261local footer unavailable; no fullinstalled/currentauthority claim.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/39",
+        "verification": "docs/captured-correction-impact-verification.json"
+      },
+      "owningCorrectionImpact": {
+        "docs": "docs/OWNING_CORRECTION_IMPACT.md",
+        "status": "Accepted PR40 sourcec3b2f4626e73d6e18fb16cebfecd1e56df4fc45c merge304ae27bfbc994af2f59550519afba6cd422eda0/all4headchecks/raw267ordinary+17existingPG17PASS0fail0skip;6local-packed/types/runtime/ALL153blobs qualified. No267fullLOCAL-installed claim; current authority separate.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/40",
+        "verification": "docs/owning-correction-impact-verification.json"
+      },
+      "identityCorrectionImpact": {
+        "docs": "docs/CORRECTION_IMPACT_IDENTITY.md",
+        "status": "WIP PR41;ALL7focusedFINALLOCAL+7PACKED/types/runtimeMATCH0fail0skip;source-review clear currentIdentity metadata. Actual2restrictedDBs NOTnetwork/browser/live. FullfinalLOCAL/headCIpending; fullSourceConsent-workflow separate.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/41",
+        "verification": "docs/correction-impact-identity-verification.json"
+      }
     }
   ],
   "pullRequests": [],

@@ -1,0 +1,28 @@
+{
+  "status": "incomplete_until_final_head_CI",
+  "profile": "captured-knowledge-correction-impact-v1",
+  "focusedLocal": {
+    "tests": 8,
+    "pass": 8,
+    "fail": 0,
+    "skipped": 0
+  },
+  "packed": {
+    "tests": 8,
+    "pass": 8,
+    "fail": 0,
+    "skipped": 0,
+    "strictDeclarations": "passed",
+    "runtimeByteMatch": true,
+    "dependencies": "copied/hardlinked prepared dependencies, not a fresh install",
+    "fullInstalledSuite": "not claimed"
+  },
+  "remaining": "owningSQL/currentIdentity-ALLSourceConsent/protectedHTTP-Visual/findings-draftimpact/fullworkflow/live remain separate",
+  "sha256": {
+    "src/correction-impact.ts": "623a16c00d7bb949c61f71ec4d90b5241d5c0e95d2221f1287d34ae9328bbed4",
+    "tests/correction-impact.test.ts": "a563b45880a405e4bd7be9617290e3395127858751ae28edf0f4dd0d84b11b22",
+    "package.json": "c0a8f274ebeda690854bcce49176a474acf303509c3870d88c395e7dbeaec632",
+    "docs/CAPTURED_CORRECTION_IMPACT.md": "86cf8fdd8a869e10cc8ad5ce18692781bca27ae1b32987419ee09dea4e130413",
+    "docs/ARCHITECTURE.md": "4bf776ecfb95b1f3537e815ef726ad62dcc0471a5c292cf16c379d97d769a3ae"
+  }
+}

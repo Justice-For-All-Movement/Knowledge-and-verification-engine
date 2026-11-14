@@ -1,0 +1,16 @@
+{
+  "profile": "private-dossier-http-verification-v1",
+  "limits": [
+    "ALL7focused LOCAL+7PACKED across6+1runs/types/runtime qualified. Full253local-installed/finalheadCI pending; copied prepared deps not fresh install.",
+    "Synthetic directory/session/scanner+PGlite/native Fetch not TCP/listening TLS/browserAT/live qualification.",
+    "Sequential current authority not distributed fence/truth/work/answers/closure."
+  ],
+  "sha256": {
+    "src/dossier-http.ts": "435821a0915e369fbf861421a80851845302f5dfc2b0d801777af8da4def646a",
+    "tests/dossier-http.test.ts": "690c6fadcbf319784903c62ff2dd68aeb25c4e958179800a29bf4220ab207a34",
+    "package.json": "7b2c3d80bd5b625c4fee2568a6fb67e5c1e8a4cf81089d42e65d732e53fa7859",
+    "registry/prs.json": "24da356d4fb31b80d6993b18f661093899cf72b1da7b72c94ff01eb4d6e252f9",
+    "docs/ARCHITECTURE.md": "70c23c7d5c7701e2928ce498e79d7acd47737d6b88260ad2d26786af554b57c1",
+    "docs/DOSSIER_HTTP.md": "27a89cb294bed9557a4f6e459052a6d246942d9e09282df7647d5d3193ac95b0"
+  }
+}

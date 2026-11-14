@@ -59,3 +59,35 @@ SELECTED_VERIFICATION_READ.md documents a narrow exact latest/current owning rev
 VERIFICATION_HTTP.md records an explicitly incomplete private read-only selected verification Fetch adapter; operational host authentication/TLS/current policy/browser qualification remains separate.
 
 VERIFICATION_WRITE_HTTP.md records explicitly incomplete private write HTTP work over the accepted current-source/use writer. Existing read routes remain unchanged.
+
+PROPOSAL_ACCEPTANCE.md documents a pure captured exact-span acceptance transition into private unassessed claims and quote-only citations. Durable/current-source admission remains pending; this profile does not authenticate supplied bundles or source truth.
+
+DURABLE_PROPOSAL_ACCEPTANCE.md records explicitly incomplete own-DB captured-proposal transaction/Identity work. Pure PR26 is accepted985956d; current same-human source/use admission and protected acceptance interfaces remain separate.
+
+CURRENT_PROPOSAL_ACCEPTANCE.md documents explicitly incomplete current same-human Identity/Consent/Evidence acceptance coordinator work over accepted atomic PR27. It compares complete source and actual writing bases under lock without rebasing historical replay.
+
+PR28 is accepted54ff6aaba98b58c346df266c1e1a5892fde02c23 after final source38a87d7 CI187+10existingPG17. Earlier pending qualification notes are historical. PROPOSAL_ACCEPTANCE_READ.md describes incomplete selected owning/current-source private receipt reads; protected acceptance HTTP/UI and full-workflow/live qualification remain pending.
+
+PROPOSAL_ACCEPTANCE_HTTP.md records incomplete private selected acceptance native Fetch routes over PR29 current reader. The adapter exposes session/read only; no acceptance command, grants or publication. Host authentication/TLS/rights and full deployment qualification remain separate.
+
+PR29/30 are accepted0895ff36/a89646b1 with final196/203 tests and13 PostgreSQL scenarios. Older pending notes are historical. PROPOSAL_ACCEPTANCE_WRITE_HTTP.md describes incomplete protected acceptance commands over the accepted same-human coordinator; host/live/full workflow remain pending.
+
+PR31 acceptedbc5d4f06 after exact-head209+13CI. Visual27 explicit private acceptance/replay controls accepted0c0237990ab2b06a3bc733e6a09863651ad3bbd1 after175current-head CI; memory-only recovery/browserATlive remain separate. CLAIM_DOSSIER.md documents partial captured private report metadata; full AM-05.07/shared closure/correction-impact/Editorial gates remain unmet.
+
+OWNING_CLAIM_DOSSIER.md records incomplete coherent own-DB dossier reads with explicit current and historical source obligations. Current Identity/ALL-source Consent/Evidence admission and operational protected interfaces remain pending; never reuse latest-only guards for historical disclosed challenges.
+
+DOSSIER_IDENTITY.md records incomplete actual current stored Identity around accepted owning dossier reads. Source obligations are retained but not authorized by Identity alone; ALL historical/current Evidence/Consent guarded coordinator and protected interfaces remain pending.
+
+PR34 accepted d2196af8 after230ordinary+13existingPG17 CI. DOSSIER_SOURCE.md records explicitly incomplete ALL-current-and-historical same-human Evidence/Consent dossier coordinator work; no protected HTTP/export route is added. Original task IDs/dependencies/pins/contracts remain unchanged.
+
+DOSSIER_POSTGRES.md adds explicitly incomplete test-only independent-session owning dossier qualification. No runtime/profile authority, source/use coordination, protected HTTP/export or deployment qualification is implied; all-source guard PR35 remains separate.
+
+PR35/36 accepted78e38b39/59717d66 after242ordinary+13/17PG17 final-head qualification. DOSSIER_ADMISSION.md records incomplete outer request deadline admission work for guarded dossier reads; protected HTTP/export and full shared task acceptance remain pending.
+
+PR37 accepted e8aacd60 after246ordinary+17PG17 final-head CI. DOSSIER_HTTP.md records incomplete private exact-selection Fetch read integration over actual current all-source reader; no export/list/write/publication or deployed qualification.
+
+CAPTURED_CORRECTION_IMPACT.md records incomplete pure all-Knowledge/claim-edition dependency impact, including claims not loaded by investigation plans. Metadata only, never actual decision invalidation, current permission, findings/draft/closure or full shared task acceptance.
+
+OWNING_CORRECTION_IMPACT.md records partial checked owning whole-Knowledge dependency reads. Actual containing revisions, request admission and read uncertainty do not authenticate Context or authorize sources/use. Captured PR39 accepted1b8543d7 after261ordinary+17existingPG17 CI; prior pending notes are historical.
+
+CORRECTION_IMPACT_IDENTITY.md records incomplete actual current stored Identity around owning all-claim impact. Accepted PR40 merge304ae27b after267ordinary+17existingPG17 CI; prior pending notes historical. Source/use authority and protected interfaces remain separate.

@@ -1,0 +1,25 @@
+{
+  "status": "explicitly incomplete WIP; positive recorded Evidence-edition fix requires current-head qualification",
+  "localFocused": "9 unique groups across focused runs; later-parent correction refinement separate pass",
+  "compiledPacked": "9pass/0fail/0skip; copied normal-prepared dependencies, not fresh consumer install",
+  "publicDeclarations": "strict pass",
+  "sourceReview": "clear for bounded selected metadata/source-use read",
+  "tcp": "3 new groups authored/typechecked; no local PG/Docker claim or cross-engine coordinator TCP claim; actual CI qualification pending",
+  "sha256": {
+    "docs/ARCHITECTURE.md": "ec58a0605f2c1df166de8e9a383046aa7bf9713cbd032e4578d76ab87eeb1612",
+    "docs/POSTGRES_TESTS.md": "d19b9d3599386220b19aa27c6a310e208b7baa1fab9970436fdd7c21942d5b91",
+    "docs/PROPOSAL_ACCEPTANCE_READ.md": "072a720a51456e776bce14380cf2ef5133ad66156ff5e3aac4d58ed8f8f2900f",
+    "integration/postgres-knowledge.test.ts": "3cd500a65092415fc3f11a6e9e4a43c6eaa6a356df9544a6a832e394c8e72fce",
+    "package.json": "faeae6516e9d73a012762d855b91f0b8daec6f3163685f406127b10b5adf06c6",
+    "registry/prs.json": "df1e093a317869ef9ea76cca9cbdb0d1cdc7f36eb61c65c68ac3c51ee497d754",
+    "src/identity-repository.ts": "bd2cb6a3722d4455f25b8bb490b3fbfdbbad2007951c4fb3e56c9611e3441082",
+    "src/proposal-acceptance-reader.ts": "954d9bbfc890d7088c24eea9d1f8692aeb9e6dddc2eab0b75dae034d8cfc477b",
+    "src/proposal-acceptance-record.ts": "739b6eb77692f8a442fc416a95c59141de0024e76d39a196646711523492c5ce",
+    "src/repository.ts": "20a065b8e1c9b54c9f0909feb092fe85cd81c648b04438ac90a2739c4f521bfc",
+    "tests/proposal-acceptance-fixture.ts": "ee6b22372c63b9b65952f963d3d74e913bdbd1c5dcf8afbf777ab364f46e837d",
+    "tests/proposal-acceptance-reader.test.ts": "528f3ab764fdf2a4c9730f0e1f1ee01a9ff8c68487c25349ee53536aa15a513e"
+  },
+  "oldRuntimeQualification": "7a7a069 full196local/13actualPG17 CI PASS;9packed groups+parent refinement pass",
+  "reproduction": "old compiled module accepted null capturedEvidenceRevision: Missing expected rejection; fixed owning eight-corruption-case group passes locally",
+  "currentFocused": "strict positive-edition fix:1focused group plus typecheck/build pass; fresh compiled/full/current-head CI pending"
+}

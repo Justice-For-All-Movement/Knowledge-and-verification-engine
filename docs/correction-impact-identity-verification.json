@@ -1,0 +1,25 @@
+{
+  "status": "incomplete_until_final_head_CI",
+  "focusedLocal": {
+    "pass": 7,
+    "fail": 0,
+    "skipped": 0
+  },
+  "packed": {
+    "pass": 7,
+    "fail": 0,
+    "skipped": 0,
+    "strictDeclarations": "passed",
+    "runtimeByteMatch": true,
+    "dependencies": "copied/hardlinked prepared dependencies, not fresh install"
+  },
+  "remaining": "SourceConsent/HTTPVisual/TCP/fullworkflow/findingsdrafts/closure/Editorial/hostlive separate",
+  "sha256": {
+    "src/correction-impact-identity.ts": "cda583ba4ea4cd681e69710240a32ef544ab7541c0078fe44a674e7ad4f40b15",
+    "tests/correction-impact-identity.test.ts": "145d97f63c3358c8805deea8ba4701cfb69c1f2251df18a720ad24ef42a1d9f1",
+    "tests/correction-impact-identity-fixture.ts": "66b99c972a83efae0352e10898a03c2906f40d2312c26e97de4a80cbffe84f3b",
+    "docs/CORRECTION_IMPACT_IDENTITY.md": "222a1b4529a1a4296ad6f28bdd37ef1df2e6f8c4d6d89f573765c13a600a1b42",
+    "docs/ARCHITECTURE.md": "08e57d570245ea59fa7db1da24950d4a1b3f768029355ce55e268b374212a6ad",
+    "package.json": "24ed708010ae63c2fd3869b49bad77ce2839db3abb07b18023e68334ced8c117"
+  }
+}

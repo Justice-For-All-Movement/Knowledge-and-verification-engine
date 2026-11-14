@@ -1,8 +1,16 @@
+import { inspectCapturedKnowledgeCorrectionImpact } from "./correction-impact.ts";
+import { createCapturedClaimDossier } from "./claim-dossier.ts";
+import type { CapturedClaimDossier } from "./claim-dossier.ts";
+import { inspectStoredProposalAcceptance } from "./proposal-acceptance-record.ts";
+import { copyJson } from "@accountability/consent-rights";
 import {
   createVerificationReviewState,
   inspectVerificationReviews,
   recordVerificationReview as appendVerificationReview,
 } from "./verification-review.ts";
+import { acceptCapturedClaimProposal, captureProposalAcceptanceInput } from "./proposal-acceptance.ts";
+import type { ProposalAcceptanceInput } from "./proposal-acceptance.ts";
+import { inspectClaimProposals } from "./claim-proposal-review.ts";
 import type {
   VerificationReviewState,
   VerificationReviewInput,
@@ -60,6 +68,20 @@ export const KNOWLEDGE_KIND = "knowledge-history";
 export const ENTITY_IDENTITY_KIND = "knowledge-entity-identity-history";
 export const ENTITY_IDENTITY_KEY = digest({ aggregate: ENTITY_IDENTITY_KIND });
 export const KNOWLEDGE_KEY = digest({ aggregate: KNOWLEDGE_KIND });
+export const PROPOSAL_ACCEPTANCE_KIND = "knowledge-proposal-acceptance";
+export type ProposalAcceptanceAcknowledgement = Readonly<{
+  knowledgeStorage: Ref;
+  linksStorage: Ref;
+  acceptance: Ref;
+  claim: Ref;
+  links: Ref;
+}>;
+export type ClaimDossierBasis = Readonly<{
+  knowledgeRevision: number;
+  linksRevision: number;
+  dossier: CapturedClaimDossier;
+}>;
+export type ClaimDossierAdmission = (basis: ClaimDossierBasis) => void;
 export type KnowledgeAppend = Readonly<{
   id: string;
   expectedRevision: number;
@@ -75,6 +97,7 @@ export type VerificationWriteBasis = Readonly<{
   revision: EvidenceLinksState["records"][number];
 }>;
 export type VerificationAdmission = (basis: VerificationWriteBasis) => void;
+export type ProposalAcceptanceAdmission = (basis: VerificationWriteBasis, phase: "checked" | "write") => void;
 export type KnowledgeAcknowledgement = Readonly<{ storage: Ref; record: Ref }>;
 const json = (v: unknown): Json => JSON.parse(canonical(v));
 function admitVerification(
@@ -147,6 +170,117 @@ export class KnowledgeRepository {
       return structuredClone(await this.#load(tx, c));
     });
   }
+  /** Owning private metadata only; host Context is trusted. Current Identity/source/use guards remain mandatory externally. */
+  async prepareClaimDossier(
+    context: Context,
+    selection: Readonly<{claim: Ref; links: Ref}>,
+    signal?: AbortSignal,
+    timeoutMs = 10000,
+    admission?: ClaimDossierAdmission,
+  ) {
+    const started = performance.now();
+    invariant(Number.isSafeInteger(timeoutMs) && timeoutMs >= 1 && timeoutMs <= 30000,
+      "invalid_policy", "Bounded dossier read deadline required");
+    const gate = () => invariant(!signal?.aborted && performance.now() - started < timeoutMs,
+      "dossier_unavailable", "Owning dossier read unavailable");
+    gate();
+    const c = this.#context(context), choice = copyJson(selection);
+    invariant(choice !== null && typeof choice === "object" && Object.keys(choice).length === 2 && Object.hasOwn(choice,"claim") && Object.hasOwn(choice,"links"),
+      "invalid_dossier", "Exact dossier selection required");
+    for (const [r,kind] of [[choice.claim,"claim"],[choice.links,"knowledge-evidence-links"]] as const) {
+      validateRef(r); requireScope(c,r);
+      invariant(r.kind === kind && Number.isSafeInteger(r.revision) && r.revision > 0,
+        "invalid_reference", "Positive exact dossier selection required");
+    }
+    gate();
+    const output = await scoped(this.#db,c,async tx => {
+      // Same project lock as every owning writer, before BOTH histories are read.
+      await tx.audit("knowledge.claim-dossier.read_checked",{}); gate();
+      const knowledge = await this.#load(tx,c), links = await this.#links(tx,c); gate();
+      const dossier = createCapturedClaimDossier(c,JSON.stringify({knowledge:knowledge.state,links:links.state}),choice);
+      gate();
+      if (admission) {
+        let result: unknown;
+        try { result = admission(structuredClone({knowledgeRevision:knowledge.revision,linksRevision:links.revision,dossier})); }
+        catch { invariant(false,"dossier_unavailable","Owning dossier admission denied"); }
+        if (result instanceof Promise) void result.catch(()=>{});
+        invariant(result === undefined,"dossier_unavailable","Synchronous void dossier admission required");
+      }
+      gate();
+      const ref = (kind:string,id:string,revision:number):Ref => ({tenantId:c.tenantId,projectId:c.projectId,kind,id,revision});
+      // Every disclosed citation observation remains an obligation, including removed historical challenges.
+      const observations = [
+        ...dossier.citations.links.map(link=>({citationSet:dossier.citations.ref,link})),
+        ...dossier.historicalChallenges.map(item=>({citationSet:item.citationSet,link:item.link})),
+      ];
+      const result = {
+        profile: "owning-claim-dossier-v1" as const,
+        knowledgeStorage: ref(KNOWLEDGE_KIND,KNOWLEDGE_KEY,knowledge.revision),
+        linksStorage: ref(EVIDENCE_LINKS_KIND,EVIDENCE_LINKS_KEY,links.revision),
+        dossier,
+        sourceObligations: observations.map(({citationSet,link})=>({citationSet,linkId:link.id,selector:link.selector})),
+      };
+      invariant(Buffer.byteLength(canonical(result)) <= 512*1024,"dossier_full","Whole owning dossier exceeds512KiB");
+      gate(); return structuredClone(result);
+    });
+    // Await begun SQL; cancelled/late/lost read acknowledgement is withheld, never rollback proof.
+    gate(); const result = structuredClone(output); gate(); return result;
+  }
+  /** Owning history only. Host Context/admission are trusted, not current Identity/source authorization. */
+  async loadCorrectionImpact(
+    context: Context,
+    before: Ref,
+    after: Ref,
+    signal?: AbortSignal,
+    timeoutMs = 10000,
+    admission?: () => void,
+  ) {
+    const started = performance.now();
+    invariant(Number.isSafeInteger(timeoutMs) && timeoutMs >= 1 && timeoutMs <= 30000,
+      "invalid_policy", "Bounded impact read deadline required");
+    const check = () => invariant(!signal?.aborted && performance.now() - started < timeoutMs,
+      "impact_unavailable", "Owning correction impact unavailable");
+    const gate = () => {
+      check();
+      let result: unknown;
+      try { result = admission?.(); }
+      catch { invariant(false, "impact_unavailable", "Owning impact admission denied"); }
+      if (result instanceof Promise) void result.catch(() => {});
+      invariant(result === undefined, "impact_unavailable", "Synchronous void impact admission required");
+      check();
+    };
+    gate();
+    const c = this.#context(context), choice = copyJson({ before, after });
+    for (const r of [choice.before, choice.after]) {
+      validateRef(r); requireScope(c, r);
+      invariant(Object.keys(r).sort().join(',') === 'id,kind,projectId,revision,tenantId' &&
+        Number.isSafeInteger(r.revision) && r.revision > 0 &&
+        ['entity', 'event', 'relationship', 'claim'].includes(r.kind),
+        "invalid_reference", "Exact positive Knowledge reference required");
+    }
+    invariant(choice.before.kind === choice.after.kind && choice.before.id === choice.after.id &&
+      choice.after.revision === choice.before.revision + 1, "invalid_impact", "Consecutive correction editions required");
+    gate();
+    const output = await scoped(this.#db, c, async tx => {
+      // Acquire the SAME project lock as owning writers before the actual history read.
+      await tx.audit("knowledge.correction-impact.read_checked", {}); gate();
+      const knowledge = await this.#load(tx, c); gate();
+      const impact = inspectCapturedKnowledgeCorrectionImpact(c, JSON.stringify(knowledge.state), choice.before, choice.after);
+      gate();
+      const frame = {
+        profile: "owning-knowledge-correction-impact-v1" as const,
+        knowledgeStorage: { tenantId: c.tenantId, projectId: c.projectId,
+          kind: KNOWLEDGE_KIND, id: KNOWLEDGE_KEY, revision: knowledge.revision },
+        impact,
+      };
+      invariant(Buffer.byteLength(canonical(frame)) <= 512 * 1024,
+        "impact_full", "Complete owning impact exceeds budget");
+      gate(); const copy = structuredClone(frame); gate(); return copy;
+    });
+    // Await begun SQL; late/cancelled/lost read acknowledgements are not rollback proof.
+    gate(); const copy = structuredClone(output); gate(); return copy;
+  }
+
   async append(
     context: Context,
     expectedStorageRevision: number,
@@ -205,6 +339,72 @@ export class KnowledgeRepository {
           return json(result);
         },
       )) as KnowledgeAcknowledgement;
+    });
+  }
+  /** Own-DB atomicity for captured proposals. Source permissions are not authenticated by this host-context API. */
+  async acceptCapturedProposal(
+    context: Context,
+    bundle: unknown,
+    input: ProposalAcceptanceInput,
+    commandId: string,
+    admission?: ProposalAcceptanceAdmission,
+  ): Promise<ProposalAcceptanceAcknowledgement> {
+    const c = this.#context(context), b = inspectClaimProposals(c, bundle),
+      q = captureProposalAcceptanceInput(input), admit = admission;
+    nonempty(commandId, "Command", 128);
+    return scoped(this.#db, c, async tx => {
+      // Same project lock as all owning writers, before current reads AND historical cache lookup.
+      await tx.audit("knowledge.proposal-acceptance.checked", {});
+      const knowledge = await this.#load(tx, c), links = await this.#links(tx, c);
+      const basis = {
+        knowledgeRevision: knowledge.revision,
+        linksRevision: links.revision,
+        revision: selectCurrentEvidenceLinks(c, knowledge.state, links.state, b.basis.linkRef),
+      };
+      if (admit) admitVerification(b => admit(b, "checked"), basis);
+      return await tx.idempotent(commandId, json({
+        operation: "proposal-acceptance", actorKind: c.actor.kind, actorId: c.actor.id,
+        purpose: c.purpose, bundle: b, input: q,
+      }), async () => {
+        const result = acceptCapturedClaimProposal(c, knowledge.state, links.state, b, q);
+        if (admit) admitVerification(b => admit(b, "write"), basis);
+        const knowledgeStored = await tx.put(KNOWLEDGE_KIND, KNOWLEDGE_KEY, knowledge.revision, result.knowledge);
+        const linksStored = await tx.put(EVIDENCE_LINKS_KIND, EVIDENCE_LINKS_KEY, links.revision, result.links);
+        const id = digest({ claim: result.acceptance.claim });
+        const accepted = await tx.put(PROPOSAL_ACCEPTANCE_KIND, id, 0, result.acceptance);
+        const ref = (kind: string, id: string, revision: number): Ref => ({ tenantId: c.tenantId, projectId: c.projectId, kind, id, revision });
+        const ack: ProposalAcceptanceAcknowledgement = {
+          knowledgeStorage: ref(KNOWLEDGE_KIND, KNOWLEDGE_KEY, knowledgeStored.revision),
+          linksStorage: ref(EVIDENCE_LINKS_KIND, EVIDENCE_LINKS_KEY, linksStored.revision),
+          acceptance: ref(PROPOSAL_ACCEPTANCE_KIND, id, accepted.revision),
+          claim: result.acceptance.claim, links: result.acceptance.links,
+        };
+        await tx.audit("knowledge.proposal-acceptance.recorded", json(ack));
+        await tx.enqueue("knowledge.proposal-acceptance.recorded", json(ack));
+        return json(ack);
+      }) as unknown as ProposalAcceptanceAcknowledgement;
+    });
+  }
+  /** Checked read only; immutable metadata is validated against actual retained histories under the project lock. */
+  async prepareProposalAcceptance(context: Context, selected: Ref, admission?: VerificationAdmission) {
+    const c = this.#context(context), choice = validateRef(copyJson(selected));
+    requireScope(c, choice);
+    invariant(choice.kind === PROPOSAL_ACCEPTANCE_KIND && choice.revision === 1,
+      "invalid_acceptance", "Exact immutable acceptance reference required");
+    return scoped(this.#db, c, async tx => {
+      await tx.audit("knowledge.proposal-acceptance.read_checked", {});
+      const knowledge = await this.#load(tx, c), links = await this.#links(tx, c);
+      const stored = await tx.get<unknown>(choice.kind, choice.id);
+      invariant(stored && stored.revision === 1, "invalid_acceptance", "Exact retained acceptance edition required");
+      const result = inspectStoredProposalAcceptance(c, knowledge.state, links.state, choice, stored.value);
+      if (admission) admitVerification(admission, { knowledgeRevision: knowledge.revision,
+        linksRevision: links.revision, revision: result.citation });
+      const ref = (kind: string, id: string, revision: number): Ref => ({ ...choice, kind, id, revision });
+      const output = { acceptance: choice, ...result,
+        knowledgeStorage: ref(KNOWLEDGE_KIND, KNOWLEDGE_KEY, knowledge.revision),
+        linksStorage: ref(EVIDENCE_LINKS_KIND, EVIDENCE_LINKS_KEY, links.revision) };
+      invariant(Buffer.byteLength(canonical(output)) <= 512 * 1024, "invalid_acceptance", "Acceptance read exceeds budget");
+      return structuredClone(output);
     });
   }
   async #identities(tx: UnitOfWork, c: Context) {

@@ -68,6 +68,50 @@
       "types": "./dist/verification-write-http.d.ts",
       "default": "./dist/verification-write-http.js"
     },
+    "./proposal-acceptance": {
+      "types": "./dist/proposal-acceptance.d.ts",
+      "default": "./dist/proposal-acceptance.js"
+    },
+    "./proposal-acceptance-writer": {
+      "types": "./dist/proposal-acceptance-writer.d.ts",
+      "default": "./dist/proposal-acceptance-writer.js"
+    },
+    "./proposal-acceptance-reader": {
+      "types": "./dist/proposal-acceptance-reader.d.ts",
+      "default": "./dist/proposal-acceptance-reader.js"
+    },
+    "./proposal-acceptance-http": {
+      "types": "./dist/proposal-acceptance-http.d.ts",
+      "default": "./dist/proposal-acceptance-http.js"
+    },
+    "./proposal-acceptance-write-http": {
+      "types": "./dist/proposal-acceptance-write-http.d.ts",
+      "default": "./dist/proposal-acceptance-write-http.js"
+    },
+    "./claim-dossier": {
+      "types": "./dist/claim-dossier.d.ts",
+      "default": "./dist/claim-dossier.js"
+    },
+    "./dossier-identity": {
+      "types": "./dist/dossier-identity.d.ts",
+      "default": "./dist/dossier-identity.js"
+    },
+    "./dossier-source": {
+      "types": "./dist/dossier-source.d.ts",
+      "default": "./dist/dossier-source.js"
+    },
+    "./dossier-http": {
+      "types": "./dist/dossier-http.d.ts",
+      "default": "./dist/dossier-http.js"
+    },
+    "./correction-impact": {
+      "types": "./dist/correction-impact.d.ts",
+      "default": "./dist/correction-impact.js"
+    },
+    "./correction-impact-identity": {
+      "types": "./dist/correction-impact-identity.d.ts",
+      "default": "./dist/correction-impact-identity.js"
+    },
     "./engine": {
       "types": "./dist/engine/index.d.ts",
       "default": "./dist/engine/index.js"
