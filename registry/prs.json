@@ -599,7 +599,8 @@
       },
       "correctionImpactPostgres": {
         "docs": "docs/CORRECTION_IMPACT_POSTGRES.md",
-        "status": "WIP test-only4new+17priorPG17 scenarios;strictcompile/build/local unsafe-fixture qualification underway. Actual network CI pending. No runtime/currentIdentitySourceConsentTCP qualification."
+        "status": "Test-only: 4 new + 17 prior PostgreSQL scenarios pass locally (PostgreSQL 16.15, 21/21, three runs); CI runs them on PostgreSQL 17. No runtime/current Identity/SourceConsent/TCP qualification.",
+        "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/42"
       }
     }
   ],

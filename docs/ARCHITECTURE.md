@@ -92,4 +92,4 @@ OWNING_CORRECTION_IMPACT.md records partial checked owning whole-Knowledge depen
 
 CORRECTION_IMPACT_IDENTITY.md records incomplete actual current stored Identity around owning all-claim impact. Accepted PR40 merge304ae27b after267ordinary+17existingPG17 CI; prior pending notes historical. Source/use authority and protected interfaces remain separate.
 
-CORRECTION_IMPACT_POSTGRES.md records incomplete test-only independent-session owning impact qualification. Accepted PR41 merge54a9a7c8 after274ordinary+17existingPG17 CI; earlier pending notes historical. Current Identity/SourceConsent network, protected interfaces and full task remain separate.
+CORRECTION_IMPACT_POSTGRES.md records test-only independent-session owning impact qualification. Accepted PR41 merge54a9a7c8 after274ordinary+17existingPG17 CI; earlier pending notes historical. Current Identity/SourceConsent network, protected interfaces and full task remain separate.
