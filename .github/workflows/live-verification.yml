@@ -1,0 +1,28 @@
+name: Live verification
+# Opt-in checks against DEPLOYED engines. Every check is reported as SKIPPED when the endpoints are not configured,
+# so this workflow is green without secrets. Configure (names only; values are never committed):
+#   repository variables: KNOWLEDGE_URL, EVIDENCE_URL, CONSENT_URL, KNOWLEDGE_LIVE_EVIDENCE_REF
+#   repository secrets:   KNOWLEDGE_SERVICE_TOKEN, KNOWLEDGE_TOKEN
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run verify:live
+        env:
+          KNOWLEDGE_URL: ${{ vars.KNOWLEDGE_URL }}
+          EVIDENCE_URL: ${{ vars.EVIDENCE_URL }}
+          CONSENT_URL: ${{ vars.CONSENT_URL }}
+          KNOWLEDGE_LIVE_EVIDENCE_REF: ${{ vars.KNOWLEDGE_LIVE_EVIDENCE_REF }}
+          KNOWLEDGE_SERVICE_TOKEN: ${{ secrets.KNOWLEDGE_SERVICE_TOKEN }}
+          KNOWLEDGE_TOKEN: ${{ secrets.KNOWLEDGE_TOKEN }}

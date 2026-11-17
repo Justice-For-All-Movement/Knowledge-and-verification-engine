@@ -129,6 +129,12 @@ export type EngineConfig = Readonly<{
   minRationaleLength?: number;
   /** PostgreSQL text search configuration (default `simple`, language-neutral). */
   searchConfig?: string;
+  /**
+   * Upper bound on the records of one kind that a project-wide computation (graph, gaps, chronology, dossier,
+   * propagation) loads. Scans page through every row; above this bound the call fails with `payload_too_large`
+   * instead of returning a silently incomplete result. Default 100000.
+   */
+  maxScanRecords?: number;
 }>;
 export type EnginePorts = Readonly<{ evidence?: Pick<EvidencePort, 'describe'>; useDecision?: UseDecisionPort; authorization?: AuthorizationPort }>;
 export type EngineDeps = Readonly<{ sql: Sql; ports?: EnginePorts; config?: EngineConfig }>;
@@ -140,6 +146,7 @@ export const DEFAULTS = {
   entityTypes: ['person', 'organization', 'place', 'object', 'document', 'account', 'vehicle', 'group', 'other', 'unknown'],
   minRationaleLength: 40,
   searchConfig: 'simple',
+  maxScanRecords: 100_000,
 } as const;
 
 // ───────────────────────────── Shared shapes ─────────────────────────────

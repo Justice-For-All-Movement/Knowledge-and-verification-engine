@@ -63,7 +63,7 @@ export function routes(engine: KnowledgeEngine): Route[] {
     post('/v1/proposals/links', (r, b) => e.proposeLinks(r.ctx, b)),
     route('POST', '/v1/proposals/:id/review', (r, b) => e.reviewProposal(r.ctx, r.params.id, b)),
     // queries
-    route('GET', '/v1/records/:kind', (r) => { const f = q(r, 'caseId', 'state', 'limit'); return e.list(r.ctx, r.params.kind, { ...f, ...(f.limit === undefined ? {} : { limit: Number(f.limit) }) }); }),
+    route('GET', '/v1/records/:kind', (r) => { const f = q(r, 'caseId', 'state', 'limit', 'after'); return e.list(r.ctx, r.params.kind, { ...f, ...(f.limit === undefined ? {} : { limit: Number(f.limit) }) }); }),
     route('GET', '/v1/records/:kind/:id', (r) => e.get(r.ctx, r.params.kind, r.params.id)),
     route('GET', '/v1/records/:kind/:id/history', (r) => e.history(r.ctx, r.params.kind, r.params.id)),
     route('GET', '/v1/graphs/evidence', async (r) => {

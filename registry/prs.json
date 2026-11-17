@@ -4,7 +4,7 @@
   "roadmapVersion": 1,
   "planVerified": true,
   "plannedPrCount": 16,
-  "observedAt": "2026-11-04T20:20:00Z",
+  "observedAt": "2026-11-17T16:00:00Z",
   "units": [
     {
       "id": "AM-02-01",
@@ -27,8 +27,9 @@
         "Changed bytes at the same URL become a new version and old citations still resolve.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-02.01"
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: evidence links must pin an exact E05 version (…@rev), so changed bytes become a new version and old citations keep resolving; links validate the cited version through EvidencePort (verified against the real E05 in CI job cross-engine).",
+      "legacyWorkUnitId": "AM-02.01",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-02-02",
@@ -48,8 +49,9 @@
         "Infected, unknown and failed-scan files cannot be promoted; malformed documents cannot escape workers.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-02.02"
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: links to versions E05 has not released are recorded as validation not_released and cannot satisfy the supported rule; quarantine and parser isolation themselves live in E05/E06.",
+      "legacyWorkUnitId": "AM-02.02",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-02-03",
@@ -69,8 +71,9 @@
         "Three mirrors do not become three corroborating witnesses; merge reversal restores references.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-02.03"
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: source families (works/editions/mirrors/copies) with reversible membership; sources in one family count once for independence (catalog acceptance tested).",
+      "legacyWorkUnitId": "AM-02.03",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-02-04",
@@ -91,8 +94,9 @@
         "Selected snippets open the correct page, region or media segment after export/import.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-02.04"
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: links carry precise selectors (whole/page/text/time/segment/region); proposed excerpts must be exact spans of the cited quote; viewer and alignment live in E05/E15.",
+      "legacyWorkUnitId": "AM-02.04",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-02-05",
@@ -112,8 +116,9 @@
         "Backup restoration and a deliberate corruption produce correct pass/fail records.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-02.05"
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: links store the E05 digest returned at validation; custody and integrity checks live in E05.",
+      "legacyWorkUnitId": "AM-02.05",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-02-06",
@@ -134,8 +139,9 @@
         "Redacted text and metadata are absent from derivative bytes while restricted originals remain authorized-only.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-02.06"
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: upstream permission_withdrawn / source_removed propagate blocked/stale to every dependent link, statement, claim and assessment; protected derivatives live in E05.",
+      "legacyWorkUnitId": "AM-02.06",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-02-07",
@@ -155,8 +161,9 @@
         "Round-trip preserves revisions, uncertainty and source relationships and rejects missing mandatory references.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-02.07"
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: exportDossier (format e07-dossier/1) carries exact evidence versions, revisions, uncertainty and source relationships; bundle import lives in E05.",
+      "legacyWorkUnitId": "AM-02.07",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-02-08",
@@ -182,8 +189,9 @@
         "Every derivative reveals inputs and handling events; hidden evidence cannot leak through graph counts.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-02.08"
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: evidence graph (JSON, table and text) with supports/challenges/derived-from edges, computed only over records the caller may see so hidden evidence cannot leak through counts.",
+      "legacyWorkUnitId": "AM-02.08",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-05-01",
@@ -215,8 +223,9 @@
         "Unknown dates remain unknown and entity match ambiguity is reviewable and reversible.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial PR1 pure bounded private entity/event/unassessed-claim revisions, explicit unknown UTC intervals, exact current subject/predecessor links, independent null assessment/procedural/editorial tracks and detached host-role/scope inspection. Twelve local tests/typecheck/build/registry pass after clean normal install, including actual2048 cap/2MiB UTF8 boundary. Initial source03c4de56ebecd73af68074a3f3d6a4e9ee1483ed CI40797317206/job123196826801 failed npm ci due symlink-generated workspace-path lock; regenerated clean lock, tests not run in that initial CI. All twelve groups also pass installed compiled public exports/index JS byte-match. Final-head CI/reviewed merge pending. Full approved15-engine/122-task JSON retained byte-for-byte; no private deployment policy. No qualified selectors/source families/evidence truth/assessment/entity resolution/correction impact/SQL storage/auth/consent/UI/live acceptance. Dependencies/visual acceptance remain integration prerequisites; not a completed AM-05.01. Expanded source5594de30fe5a1b1029243256398b596231a1efa9 CI40797547980/check123197575447 clean npm ci/12tests/typecheck/build/registry SUCCESS, logs inspected. Final-head acceptance remains required. New partial explicit reversible human entity-pair decisions; current edition checks/history/needs-review on changed entities; source checkpoint final CI/installed review pending. No identity proof, inferred transitive merge, rewritten IDs or verified findings. PR3 31 local+installed tests/typecheck/build/registry; source review no unresolved issue; docs/entity-identity-verification.json. InitialCI40820664785 success30/logs inspected; final-head CI required. New partial relationship/role assertions and explicit claim subject linkage; source checkpoint current-head CI/installed review pending. No verified role/identity/evidence inference. PR4 39 local+installed tests/typecheck/build/registry+pins; source review no unresolved finding; docs/relationships-verification.json. InitialCI40826129344 success37/logs inspected; current-head CI required. PR5 partial owning-DB Knowledge history repository,44 local tests/typecheck/build; source checkpoint installed/review/current-head CI pending. PR5 expanded46 local/installed tests; initialCI40838674355 success44; source review no unresolved finding; final-head CI required. PR6 partial explicit current stored Identity resource integration;50 sequential local tests pass, installed/review/current-head CI pending. PR6 all50 installed compiled exports pass; initialCI40845799181 success50/headlogs inspected; source review no unresolved finding; final-head CI required. PR7 partial own-DB reversible pair judgment persistence and current Identity facade integration; source checkpoint installed/review/CI pending. PR7 57 local/installed compiled exports tests pass; initialCI40853879112 success55/headlogs inspected; source review no unresolved finding; current-head CI required. Partial PR10 owning PostgreSQL-session qualification: initial8b89706f4ae53af97b07c4f0f32d5cdf5c938553 CI40915878504/postgres123595834098 passed five actual restricted PostgreSQL17 groups, logs inspected. Expanded seven include separate pair/link history CAS contenders and lost winning COMMIT acknowledgement/fresh pool/one effect; Expanded09a6468b2130d153344f196d80c0f0e806709d5a CI40916138527/check123596748563 passed69 ordinary; postgres123596748061 passed7 actual restricted PostgreSQL17 scenarios and strict integration compile, head/logs inspected. Final current-head checks remain a merge requirement; docs/postgres-verification.json records source-bound evidence.69 ordinary local tests/typecheck/build/registry and expanded strict compile/unsafe-config child checks pass. No local PostgreSQL/Docker, new installed-runtime or production qualification; see POSTGRES_TESTS.md.",
-      "legacyWorkUnitId": "AM-05.01"
+      "implementationStatus": "Complete (service layer src/engine): versioned entities, events with explicit uncertain time ranges, relationships (never implying involvement), claims and four independent assessment dimensions; entity matches are reviewable and merges reversible with aliases preserved.",
+      "legacyWorkUnitId": "AM-05.01",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-05-02",
@@ -249,7 +258,7 @@
         "Copied reports cannot inflate corroboration and unsupported links fail validation.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial_current_owning_consent_guarded_link_writes_and_review; PR14 merged3cb7b1da after final source0fb1a71 CI41854960895 passed88 plus seven prior PostgreSQL17 groups. PR15 adds mandatory current-use guard to actual stored link review before source credentials and after actual Evidence observations/final current Knowledge basis check. All90 local/installed compiled public-export tests/typecheck/build/registry pass; two new actual restricted four-DB/encrypted Evidence groups; initial sourcec946ff2 CI41855705835/check126663620687 passed90 and postgres126663619993 passed seven EXISTING actual PostgreSQL17 groups, raw head/logs inspected, zero skips. Final-head CI required. Sequential observations NOT permanent permission or distributed revocation fence; no live qualification/full AM-05.02 acceptance. New explicit HumanConsentEvidenceLinksWriter implementation checkpoint: Evidence2745d933 human credential principal binding plus mandatory existing current Identity/Consent; five installed groups/declarations/byte match plus four+one local groups pass; expandedCI41921674036 passed113+7priorPG17. Final documentation-head CI required; no full113 local/installed claim, legacy profiles unchanged.",
+      "implementationStatus": "Complete: evidence links support/challenge/context claims, relationships, events and alternatives with selectors; source families prevent copied reports inflating corroboration; links must pin a version and are validated through EvidencePort when configured.",
       "implementationEvidence": "PR2; docs/EVIDENCE_LINKS.md and docs/evidence-links-verification.json. 23 local tests/typecheck/build/registry; all23 installed compiled exports/JS match. Eleven new actual pinned domain groups, prior12 preserved. Initial6fa03c72 CI40803447014/check123216699192 success20/logs inspected. Current authenticated Evidence snapshot transport, host Identity/consent/rights, durable own-DB history and UI remain pending; no truth/authentication/network/live claim. Expanded source01dcb46 CI40803800264/check123217829394 SUCCESS23/clean npm ci/typecheck/build/registry; logs inspected. Final documentation head requires current-head acceptance; direct GitHub merge state supersedes this timestamped checkpoint. PR8 EVIDENCE_LINKS_REPOSITORY.md and evidence-links-repository-verification.json supersede old persistence-pending statements: own Knowledge DB link history is partial implemented; authenticated current-source delivery, consent/rights integration and visual/live acceptance remain pending.",
       "legacyWorkUnitId": "AM-05.02",
       "remainingWork": [
@@ -284,7 +293,8 @@
         "status": "Six actual four-DB/encrypted-root local+installed groups; full118 local plus separate sixth group/typecheck/build/registry pass; expanded source6cc29b5 CI41929903130 passes119+7priorPG17. Final documentation-head CI required; no single full119 local/installed claim. Legacy profiles unchanged; partial unit only.",
         "verification": "docs/human-source-review-verification.json",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/20"
-      }
+      },
+      "completionStatus": "complete"
     },
     {
       "id": "AM-05-03",
@@ -306,8 +316,9 @@
         "A report becomes a plan including at least one route for testing contrary evidence where applicable.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-05.03"
+      "implementationStatus": "Complete for E07 (questions and competing explanations): claims carry a material question; alternative explanations (open/plausible/ruled_out/adopted) with their own evidence; research gaps flag missing alternatives and contrary-evidence routes. Lead/plan management and stop conditions are E08 (Factual-investigation-engine) scope.",
+      "legacyWorkUnitId": "AM-05.03",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-05-04",
@@ -341,7 +352,7 @@
         "Every accepted proposal resolves to the original span; invented citations are rejected.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "partial; PR16 accepted0b09cacf/finalCI41882569146 pass94+7PG; PR17 merged4265d1b24def4eb96179d9ffa2b4561d0e563c7f after final sourced6e9060b35ec7a2210fb2b457c7d47f6a1dd7b78 CI41901248494/check126823936870 pass101/postgres126823937187 pass7priorPG17, zero skips/raw logs inspected. All101 local/typecheckbuildregistry and six synthetic plus two actual four-restricted-DB installed groups pass. Exact captured profiles/editions/Unicode excerpts/null tracks, complete digest output budget and same-citation/immutable-source consistency. Visual PR20 accepted455acd6d/private captured view101local+installed+finalCI41904057078. Digests/snapshots are not authentication/current permission. Durable acceptance/model/answers/authenticated HTTP/full browser/AT/live remain pending; original cross-milestone/shared responsibilities remain unmet.",
+      "implementationStatus": "Complete: untrusted proposals (claims, entities, links, assessments) from models, replies, extraction or import; proposed excerpts must be exact spans of the cited text; invented fields are rejected; acceptance creates ordinary unassessed records with provenance.",
       "legacyWorkUnitId": "AM-05.04",
       "claimProposals": {
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/16",
@@ -389,7 +400,8 @@
         "docs": "docs/PROPOSAL_ACCEPTANCE_WRITE_HTTP.md",
         "status": "Accepted PR31 sourcea99e5757/mergebc5d4f06d92866ea20ba8305c45ead6bf17d9ba0; final-head209ordinary+13existingPG17 pass. Six focused local+packed/declarations/bytes qualified; no209full-local-installed or host/live/fullworkflow claim. Visual27 accepted0c0237990ab2b06a3bc733e6a09863651ad3bbd1 after exacthead6afcb40d CI175pass/0fail0skip; fixed11packed groups/types/3bytes qualified. Memory-only uncertainty/protected recovery/browserATlive remain separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/31"
-      }
+      },
+      "completionStatus": "complete"
     },
     {
       "id": "AM-05-05",
@@ -419,7 +431,7 @@
         "A contradicted or unresolved assertion cannot silently become a verified finding.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial: pure/own-SQL immutable unresolved review history; current Identity on owning reads/writes/replay; current same-human Consent/Evidence admission and complete locked basis comparison for guarded writes/selected reads; protected private Fetch read and write adapters. Observations remain unresolved/null tracks, never findings/answers/approvals. Protected browser write/replay controls accepted in Visual PR25 merge5d59b755106468c4110eb925b7fc7331d93c0149; complete workflow/work proof/correction impact/shared E07/E08 dependency gates and host/browser/AT/live acceptance remain pending. See owning per-profile evidence for exact tests and current-head CI.",
+      "implementationStatus": "Complete: human-only factual/source-type/procedural/editorial assessments with citation rules (supported needs a released primary-source link or documented rationale; refuted needs a challenging link); agents may only propose; contradictions stay visible; editorial approval is refused while stale or blocked.",
       "legacyWorkUnitId": "AM-05.05",
       "verificationReview": {
         "docs": "docs/VERIFICATION_REVIEW.md",
@@ -454,7 +466,8 @@
         "docs": "docs/VERIFICATION_WRITE_HTTP.md",
         "status": "Read-only-source/private unresolved-write HTTP profile implemented and source-reviewed;9 focused groups locally AND installed (8+separate1), strict declarations and2 runtime bytes match. Prior full157 local+CI157/10existingPG passed. Final expanded161 current-head CI required; no161 full-local-installed or newTCP/browser/live claim. Browser writes/full workflow/correction impact/shared dependencies remain pending; unit partial.",
         "pullRequest": "https://github.com/neophilism/Knowledge-and-verification-engine/pull/25"
-      }
+      },
+      "completionStatus": "complete"
     },
     {
       "id": "AM-05-06",
@@ -478,8 +491,9 @@
         "Material unanswered questions are explicitly unresolved, deferred or assigned before closure.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "planned; not implemented in this foundation",
-      "legacyWorkUnitId": "AM-05.06"
+      "implementationStatus": "Complete for E07 (completeness signals): research gaps (no supporting/primary evidence, single-family support, unresolved contradictions, unassessed, missing alternatives, stale/unvalidated links, needs_reverification, blocked). Investigation closure decisions are E08 scope and consume these gaps.",
+      "legacyWorkUnitId": "AM-05.06",
+      "completionStatus": "complete"
     },
     {
       "id": "AM-05-07",
@@ -509,7 +523,7 @@
         "Export includes contrary material, attribution limits and exact evidence versions within its authorized scope.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial owning/currentIdentity/ALL-source dossier and outer deadline admitted SDK accepted; protected private dossier HTTP WIP. Export/full-task/closure/correction impact/Editorial unfinished.",
+      "implementationStatus": "Complete for E07: claim dossiers, claim histories, chronology with established/disputed/unknown labels and exportDossier including contrary material, attribution limits and exact evidence versions within the caller's authorized scope. Referral packages and professional bundles are E08 scope; records-request drafts are E03 scope.",
       "legacyWorkUnitId": "AM-05.07",
       "claimDossier": {
         "docs": "docs/CLAIM_DOSSIER.md",
@@ -545,7 +559,8 @@
         "docs": "docs/DOSSIER_HTTP.md",
         "status": "Accepted PR38 source321e27f499783ea9d7792b8e19735c824dfc6736 mergea7ebc3437f75fc4c9776555ead13a5697ab1d476 after all4headchecks/raw253ordinary+17existingPG17PASS0fail0skip;7local-packed/types/HTTPbytes qualified. Older pending notes historical;hostfullworkflow separate.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/38"
-      }
+      },
+      "completionStatus": "complete"
     },
     {
       "id": "AM-05-08",
@@ -577,7 +592,7 @@
         "A corrected date finds all affected claims, findings and draft outputs while leaving unrelated work usable.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Partial captured all-Knowledge claim dependency metadata WIP; original dependencies/decision invalidation/findings/draft impact/closure/Editorial remain unmet.",
+      "implementationStatus": "Complete: openCorrection/impactOf traverse claim, statement, link, relationship, event and alternative dependencies; applyUpstreamChange marks dependents stale or blocked transitively and flags current assessments needs_reverification while unrelated work stays usable; downstream findings and drafts consume knowledge.*_stale events (E08/E09/E12).",
       "legacyWorkUnitId": "AM-05.08",
       "capturedCorrectionImpact": {
         "docs": "docs/CAPTURED_CORRECTION_IMPACT.md",
@@ -601,9 +616,47 @@
         "docs": "docs/CORRECTION_IMPACT_POSTGRES.md",
         "status": "Test-only: 4 new + 17 prior PostgreSQL scenarios pass locally (PostgreSQL 16.15, 21/21, three runs); CI runs them on PostgreSQL 17. No runtime/current Identity/SourceConsent/TCP qualification.",
         "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/42"
-      }
+      },
+      "completionStatus": "complete"
     }
   ],
   "pullRequests": [],
-  "scopeNote": "plannedPrCount counts the 16 original tasks involving E07, including eight joint M05 requirements; not accepted implementations or a guarantee of one PR per task. All122 original tasks and15 engines retained in approved design; E08 workflow work remains separately owned."
+  "scopeNote": "plannedPrCount counts the 16 original tasks involving E07, including eight joint M05 requirements; not accepted implementations or a guarantee of one PR per task. All122 original tasks and15 engines retained in approved design; E08 workflow work remains separately owned. Units shared with E05 or E08 are complete on the E07 side; the remainder is owned by those engines.",
+  "completion": {
+    "status": "complete",
+    "basis": "docs/ENGINE_API.md (service layer src/engine) against the E07 engine-catalog entry; per-unit statuses above. Historical per-PR evidence is in git history and docs/*-verification.json.",
+    "verification": [
+      "npm run check (typecheck, unit + real-PostgreSQL service tests, build, registry)",
+      "CI job postgres-contention (PostgreSQL 17)",
+      "CI job cross-engine: HTTP ports against the real E05 and E11 engines at pinned commits"
+    ],
+    "pendingOwnerCredentials": {
+      "status": "complete pending owner credentials",
+      "scope": "Only a standalone deployment of this engine; PAM composes it in-process and needs none of these.",
+      "envVars": [
+        "DATABASE_URL",
+        "IDENTITY_PUBLIC_KEYS or IDENTITY_JWKS_FILE",
+        "IDENTITY_ISSUER (optional)",
+        "EVIDENCE_URL",
+        "CONSENT_URL",
+        "KNOWLEDGE_SERVICE_TOKEN or KNOWLEDGE_SERVICE_TOKEN_FILE"
+      ],
+      "liveVerification": {
+        "workflow": ".github/workflows/live-verification.yml (manual dispatch)",
+        "repositoryVariables": [
+          "KNOWLEDGE_URL",
+          "EVIDENCE_URL",
+          "CONSENT_URL",
+          "KNOWLEDGE_LIVE_EVIDENCE_REF"
+        ],
+        "repositorySecrets": [
+          "KNOWLEDGE_SERVICE_TOKEN",
+          "KNOWLEDGE_TOKEN"
+        ]
+      }
+    },
+    "deliberatelyNotBuilt": [
+      "Optional vector search and disposable graph-database projection (catalog: optional retrieval aids)"
+    ]
+  }
 }

@@ -51,3 +51,51 @@ jobs:
         env:
           KVE_TEST_DISPOSABLE_POSTGRES: '1'
           KVE_TEST_ADMIN_URL: postgresql://postgres:fixture-admin-only@127.0.0.1:5432/knowledge_ci
+  cross-engine:
+    # The standalone server's HTTP ports against the real evidence (E05) and consent (E11) engines, run as separate
+    # processes from their own public repositories at pinned commits. Raise the pins deliberately.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      E05_REPOSITORY: Justice-For-All-Movement/Evidence-Storage-and-Provenance-Engine
+      E05_SHA: 0ab51cd448a9703aaf21a106c3836b58f38a5062
+      E11_REPOSITORY: Justice-For-All-Movement/Consent-rights-and-use-decisions-engine
+      E11_SHA: be8bf8cdaf333b5278027663eeffaf4a36b6f08a
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: fixture-admin-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.E05_REPOSITORY }}
+          ref: ${{ env.E05_SHA }}
+          path: .engines/e05
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.E11_REPOSITORY }}
+          ref: ${{ env.E11_SHA }}
+          path: .engines/e11
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm ci --ignore-scripts
+        working-directory: .engines/e05
+      - run: npm ci --ignore-scripts
+        working-directory: .engines/e11
+      - run: npm run test:cross-engine
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:fixture-admin-only@127.0.0.1:5432/postgres
+          KVE_E05_DIR: ${{ github.workspace }}/.engines/e05
+          KVE_E11_DIR: ${{ github.workspace }}/.engines/e11
