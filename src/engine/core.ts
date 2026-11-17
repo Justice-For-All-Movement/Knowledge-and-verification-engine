@@ -9,6 +9,8 @@ import { DEFAULTS, ENGINE_ID, SCHEMA, urefKey } from './model.ts';
 import type { EngineConfig, EngineDeps, Flag, Kind, Obj } from './model.ts';
 
 const S = SCHEMA;
+/** Page size of `list` and of the pages `scan` reads. */
+export const PAGE = 5000;
 const COLS = 'kind, id, revision, state, compartment, case_id, stale, blocked, flags, body, created_at, created_by, updated_at';
 const iso = (v: unknown): string => new Date(v as string | Date).toISOString();
 const toObj = (r: Record<string, unknown>): Obj => ({
@@ -62,6 +64,7 @@ export function createCore(deps: EngineDeps) {
   const sql = deps.sql;
   const cfg: Required<EngineConfig> = { ...DEFAULTS, ...(deps.config ?? {}) } as Required<EngineConfig>;
   invariant(/^[a-z_]{1,40}$/.test(cfg.searchConfig), 'invalid_config', 'searchConfig must be a PostgreSQL text search configuration name');
+  invariant(Number.isSafeInteger(cfg.maxScanRecords) && cfg.maxScanRecords >= 1, 'invalid_config', 'maxScanRecords must be a positive integer');
   const TS = `'${cfg.searchConfig}'::regconfig`;
   const scope = (ctx: ServiceContext): unknown[] => [ctx.tenantId, ctx.projectId];
   /** `$3` is the caller's compartment list; null (raw) bypasses the filter for internal propagation only. */
@@ -82,10 +85,30 @@ export function createCore(deps: EngineDeps) {
     return (await q.query(`select ${COLS} from ${S}.objects where tenant_id=$1 and project_id=$2 and ${VIS} and kind=$4 and id = any($5) order by created_at, id`, [...scope(ctx), cmp(ctx, o.raw), kind, [...ids]])).map(toObj);
   }
   /** Lists visible rows of a kind; `where` is trusted SQL over the objects columns with parameters starting at $5. */
-  async function list(q: Sql, ctx: ServiceContext, kind: Kind, o: { where?: string; params?: unknown[]; limit?: number; raw?: boolean } = {}): Promise<Obj[]> {
-    const limit = Math.min(Math.max(Math.trunc(Number(o.limit ?? 500)) || 500, 1), 5000);
-    return (await q.query(`select ${COLS} from ${S}.objects where tenant_id=$1 and project_id=$2 and ${VIS} and kind=$4${o.where === undefined ? '' : ` and (${o.where})`} order by created_at, id limit ${limit}`,
-      [...scope(ctx), cmp(ctx, o.raw), kind, ...(o.params ?? [])])).map(toObj);
+  /**
+   * `after` is the id of the last row of the previous page (keyset pagination over `created_at, id`); an id that does
+   * not exist or is not visible to the caller yields an empty page.
+   */
+  async function list(q: Sql, ctx: ServiceContext, kind: Kind, o: { where?: string; params?: unknown[]; limit?: number; raw?: boolean; after?: string } = {}): Promise<Obj[]> {
+    const limit = Math.min(Math.max(Math.trunc(Number(o.limit ?? 500)) || 500, 1), PAGE);
+    const params = [...scope(ctx), cmp(ctx, o.raw), kind, ...(o.params ?? [])];
+    const after = o.after === undefined ? '' : ` and (created_at, id) > (select c.created_at, c.id from ${S}.objects c where c.tenant_id=$1 and c.project_id=$2 and c.kind=$4 and ($3::text[] is null or c.compartment is null or c.compartment = any($3)) and c.id=$${params.length + 1})`;
+    return (await q.query(`select ${COLS} from ${S}.objects where tenant_id=$1 and project_id=$2 and ${VIS} and kind=$4${o.where === undefined ? '' : ` and (${o.where})`}${after} order by created_at, id limit ${limit}`,
+      o.after === undefined ? params : [...params, o.after])).map(toObj);
+  }
+  /**
+   * Every visible row of a kind matching `where`, paged so that nothing is silently dropped. Above `maxScanRecords`
+   * the computation fails closed (`payload_too_large`) rather than answering from an incomplete set.
+   */
+  async function scan(q: Sql, ctx: ServiceContext, kind: Kind, o: { where?: string; params?: unknown[]; raw?: boolean } = {}): Promise<Obj[]> {
+    const out: Obj[] = [];
+    for (;;) {
+      const last = out[out.length - 1];
+      const page = await list(q, ctx, kind, { ...o, limit: PAGE, ...(last === undefined ? {} : { after: last.id }) });
+      out.push(...page);
+      if (out.length > cfg.maxScanRecords) throw new DomainError('payload_too_large', `More than ${cfg.maxScanRecords} ${kind} records are in scope; narrow the request (for example by caseId) or raise maxScanRecords`);
+      if (page.length < PAGE) return out;
+    }
   }
 
   // ── protection / merges ──
@@ -238,5 +261,5 @@ export function createCore(deps: EngineDeps) {
     return { ...o, flags, stale: flag === 'stale' ? false : o.stale, blocked: flag === 'blocked' ? false : o.blocked };
   }
 
-  return { sql, cfg, TS, VIS, scope, cmp, load, need, many, list, protection, reader, readerFrom, reindexProject, create, revise, expect, setDeps, record, dependents, mark, clearFlags };
+  return { sql, cfg, TS, VIS, scope, cmp, load, need, many, list, scan, protection, reader, readerFrom, reindexProject, create, revise, expect, setDeps, record, dependents, mark, clearFlags };
 }

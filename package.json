@@ -135,7 +135,9 @@
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
     "test:postgres": "npm run typecheck && node --test integration/postgres-knowledge.test.ts",
-    "serve": "node src/engine/serve.ts"
+    "serve": "node src/engine/serve.ts",
+    "verify:live": "node scripts/verify-live-ports.ts",
+    "test:cross-engine": "node --test integration/cross-engine-ports.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.12",

@@ -3,8 +3,10 @@ import { readFileSync } from 'node:fs';
 import type { Server } from 'node:http';
 import pg from 'pg';
 import { DomainError, invariant } from '../contracts.ts';
-import { createHttpHandler, createTokenVerifier, engineClient, pgSql, serve } from '../service-kit.ts';
-import type { EvidencePort, EvidenceVersionInfo, ServiceContext, UseDecision, UseDecisionPort } from '../service-kit.ts';
+import { createHttpHandler, createTokenVerifier, pgSql, serve } from '../service-kit.ts';
+import type { EvidencePort, UseDecisionPort } from '../service-kit.ts';
+import { httpEvidencePort, httpUseDecisionPort, serviceTokenScope } from './http-ports.ts';
+export { httpEvidencePort, httpUseDecisionPort, serviceTokenScope } from './http-ports.ts';
 import { createEngine, manifest, migrate, routes } from './index.ts';
 import type { EngineConfig, EnginePorts, KnowledgeEngine } from './index.ts';
 
@@ -23,29 +25,42 @@ export function configFromEnv(env: Env): EngineConfig {
   return {
     ...pick('sourceTypes', listOf(env.KNOWLEDGE_SOURCE_TYPES)), ...pick('primarySourceTypes', listOf(env.KNOWLEDGE_PRIMARY_SOURCE_TYPES)),
     ...pick('proceduralVocabulary', listOf(env.KNOWLEDGE_PROCEDURAL_VOCABULARY)), ...pick('entityTypes', listOf(env.KNOWLEDGE_ENTITY_TYPES)),
-    ...pick('searchConfig', env.KNOWLEDGE_SEARCH_CONFIG), ...pick('minRationaleLength', env.KNOWLEDGE_MIN_RATIONALE_LENGTH === undefined ? undefined : Number(env.KNOWLEDGE_MIN_RATIONALE_LENGTH)),
+    ...pick('searchConfig', env.KNOWLEDGE_SEARCH_CONFIG), ...pick('maxScanRecords', env.KNOWLEDGE_MAX_SCAN_RECORDS === undefined || env.KNOWLEDGE_MAX_SCAN_RECORDS === '' ? undefined : Number(env.KNOWLEDGE_MAX_SCAN_RECORDS)), ...pick('minRationaleLength', env.KNOWLEDGE_MIN_RATIONALE_LENGTH === undefined ? undefined : Number(env.KNOWLEDGE_MIN_RATIONALE_LENGTH)),
   };
 }
+/** The service token, from `KNOWLEDGE_SERVICE_TOKEN` or (re-read on every call, so rotation needs no restart) `KNOWLEDGE_SERVICE_TOKEN_FILE`. */
+export function serviceTokenFromEnv(env: Env): (() => string) | null {
+  if (env.KNOWLEDGE_SERVICE_TOKEN_FILE !== undefined && env.KNOWLEDGE_SERVICE_TOKEN_FILE !== '') {
+    const file = env.KNOWLEDGE_SERVICE_TOKEN_FILE;
+    const read = (): string => { const t = readFileSync(file, 'utf8').trim(); invariant(t !== '', 'invalid_config', 'KNOWLEDGE_SERVICE_TOKEN_FILE is empty'); return t; };
+    read();
+    return read;
+  }
+  const token = env.KNOWLEDGE_SERVICE_TOKEN ?? '';
+  return token === '' ? null : () => token;
+}
+const httpUrl = (name: string, v: string): string => {
+  let u: URL;
+  try { u = new URL(v); } catch { throw new DomainError('invalid_config', `${name} must be an absolute http(s) URL`); }
+  invariant(u.protocol === 'https:' || u.protocol === 'http:', 'invalid_config', `${name} must be an absolute http(s) URL`);
+  return u.href;
+};
 /**
- * Optional HTTP ports to the evidence (E05) and consent (E11) engines. The caller's own bearer token is not available
- * here, so a service token is used: implemented, not verified against live E05/E11 deployments.
+ * Optional HTTP ports to the evidence (E05) and consent (E11) engines for a standalone deployment (see `http-ports.ts`).
+ * The caller's own bearer token is not forwarded; a service token scoped to one tenant/project is used instead.
  */
 export function portsFromEnv(env: Env): EnginePorts {
-  const token = env.KNOWLEDGE_SERVICE_TOKEN ?? '';
   const out: { evidence?: Pick<EvidencePort, 'describe'>; useDecision?: UseDecisionPort } = {};
-  if (env.EVIDENCE_URL !== undefined && env.EVIDENCE_URL !== '') {
-    invariant(token !== '', 'invalid_config', 'KNOWLEDGE_SERVICE_TOKEN is required when EVIDENCE_URL is set');
-    const client = engineClient(env.EVIDENCE_URL, () => token);
-    out.evidence = { async describe(_ctx: ServiceContext, ref: string): Promise<EvidenceVersionInfo | null> {
-      try { return await client.call<EvidenceVersionInfo>('GET', `/v1/versions/describe?ref=${encodeURIComponent(ref)}`); }
-      catch (error) { if (error instanceof DomainError && error.code === 'not_found') return null; throw error; }
-    } };
-  }
-  if (env.CONSENT_URL !== undefined && env.CONSENT_URL !== '') {
-    invariant(token !== '', 'invalid_config', 'KNOWLEDGE_SERVICE_TOKEN is required when CONSENT_URL is set');
-    const client = engineClient(env.CONSENT_URL, () => token);
-    out.useDecision = { decide: (_ctx, request) => client.call<UseDecision>('POST', '/v1/decisions', request) };
-  }
+  const evidenceUrl = env.EVIDENCE_URL ?? '', consentUrl = env.CONSENT_URL ?? '';
+  if (evidenceUrl === '' && consentUrl === '') return out;
+  const token = serviceTokenFromEnv(env);
+  invariant(token !== null, 'invalid_config', 'KNOWLEDGE_SERVICE_TOKEN or KNOWLEDGE_SERVICE_TOKEN_FILE is required when EVIDENCE_URL or CONSENT_URL is set');
+  serviceTokenScope(token());
+  const timeoutMs = env.KNOWLEDGE_PORT_TIMEOUT_MS === undefined || env.KNOWLEDGE_PORT_TIMEOUT_MS === '' ? undefined : Number(env.KNOWLEDGE_PORT_TIMEOUT_MS);
+  invariant(timeoutMs === undefined || (Number.isSafeInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 120_000), 'invalid_config', 'KNOWLEDGE_PORT_TIMEOUT_MS must be an integer between 100 and 120000');
+  const options = { token, ...(timeoutMs === undefined ? {} : { timeoutMs }) };
+  if (evidenceUrl !== '') out.evidence = httpEvidencePort({ ...options, baseUrl: httpUrl('EVIDENCE_URL', evidenceUrl) });
+  if (consentUrl !== '') out.useDecision = httpUseDecisionPort({ ...options, baseUrl: httpUrl('CONSENT_URL', consentUrl) });
   return out;
 }
 export type Running = Readonly<{ server: Server; engine: KnowledgeEngine; port: number; close(): Promise<void> }>;

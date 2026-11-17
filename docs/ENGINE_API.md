@@ -23,7 +23,10 @@ Standalone server: `npm run serve` (`node src/engine/serve.ts`). The engine has 
 | `KNOWLEDGE_SOURCE_TYPES`, `KNOWLEDGE_PRIMARY_SOURCE_TYPES`, `KNOWLEDGE_PROCEDURAL_VOCABULARY`, `KNOWLEDGE_ENTITY_TYPES` | Comma-separated deployment vocabularies. |
 | `KNOWLEDGE_SEARCH_CONFIG` | PostgreSQL text-search configuration (default `simple`). |
 | `KNOWLEDGE_MIN_RATIONALE_LENGTH` | Minimum length of a documented rationale (default 40). |
-| `EVIDENCE_URL`, `CONSENT_URL`, `KNOWLEDGE_SERVICE_TOKEN` | Optional HTTP ports to E05 / E11. **Implemented, not verified against live E05/E11**: the route paths used (`GET /v1/versions/describe?ref=`, `POST /v1/decisions`) are assumptions; in-process ports supplied by the host are the tested path. |
+| `KNOWLEDGE_MAX_SCAN_RECORDS` | Bound on records of one kind loaded by a project-wide computation (default 100000); above it the call fails with `payload_too_large` (HTTP 413) instead of answering from an incomplete set. |
+| `EVIDENCE_URL`, `CONSENT_URL` | Optional HTTP ports to E05 (`GET /v1/evidence/describe?ref=`) and E11 (`POST /v1/use-decisions`). Verified in CI against the real engines (see Status). |
+| `KNOWLEDGE_SERVICE_TOKEN` or `KNOWLEDGE_SERVICE_TOKEN_FILE` | Required with either URL: an E01 service token for ONE tenant/project with `evidence:read` and/or `consent:decide`. The file is re-read per call (rotation without restart). Requests whose context names another tenant/project are refused (`unavailable`) and never sent. |
+| `KNOWLEDGE_PORT_TIMEOUT_MS` | Per-call timeout of the HTTP ports (100–120000, default 15000). |
 
 No object store is used. `OBJECT_STORE*` variables are ignored.
 
@@ -119,7 +122,7 @@ proposeEntities(ctx, { origin, items: (EntityInput & { matchEntityId?, similarit
 proposeLinks(ctx, { origin, items: (LinkInput & { excerpt? })[] } & Placement): Promise<ObjectView[]>
 reviewProposal(ctx, id, { decision: 'accept'|'reject', reason, expectedRevision? }): Promise<ObjectView>
 // queries
-get(ctx, kind, id): Promise<ObjectView>;  list(ctx, kind, { caseId?, state?, limit? }): Promise<ObjectView[]>;  history(ctx, kind, id): Promise<{ ref, revisions, flags }>
+get(ctx, kind, id): Promise<ObjectView>;  list(ctx, kind, { caseId?, state?, limit? (≤5000), after? }): Promise<ObjectView[]>   // oldest first; next page: after = last id;  history(ctx, kind, id): Promise<{ ref, revisions, flags }>
 evidenceGraph(ctx, { claimId } | { entityId } | { caseId }): Promise<Graph>   // { nodes, edges, table{columns,rows}, text, notices }
 researchGaps(ctx, { caseId? }): Promise<{ gaps: [{ claim, title, status, gaps: [{ gap, detail }] }], counts, notice }>
 chronology(ctx, { caseId?, entityId?, from?, to? }): Promise<{ entries: [{ event, title, time, uncertainty, label: 'established'|'disputed'|'unknown', labelBasis, needsReverification, participants, claims }], notice }>
@@ -173,26 +176,37 @@ Bodies are the service inputs; `Idempotency-Key` header is accepted. Creation re
 | `POST /v1/source-families`, `PATCH /v1/source-families/:id`, `POST /v1/source-family-suggestions` | source families |
 | `POST /v1/contradictions`, `POST /v1/contradictions/:id/resolution`, `POST /v1/alternatives`, `PATCH /v1/alternatives/:id` | contradictions, alternatives |
 | `POST /v1/proposals/{claims,entities,links}`, `POST /v1/proposals/:id/review` | proposals |
-| `GET /v1/records/:kind`, `GET /v1/records/:kind/:id`, `GET /v1/records/:kind/:id/history` | list, get, history |
+| `GET /v1/records/:kind?caseId=&state=&limit=&after=`, `GET /v1/records/:kind/:id`, `GET /v1/records/:kind/:id/history` | list (keyset pages), get, history |
 | `GET /v1/graphs/evidence?claimId=|entityId=|caseId=[&format=text]` | evidenceGraph (JSON with table, or plain text) |
 | `GET /v1/research-gaps`, `GET /v1/chronology`, `POST /v1/impact`, `GET /v1/search/records`, `POST /v1/usability`, `GET /v1/exports/dossier` | queries |
 | `POST /v1/corrections`, `POST /v1/flags/resolve` (`{ target, flag, note }`) | openCorrection, resolveFlag |
 
 ## Ports
 
-- `EvidencePort.describe` (optional): checks that a cited E05 version exists and is released. Absent → links are accepted with `validation.state = 'unvalidated'`. Present and the version is unknown → `invalid_reference`; port failure → `unavailable` (the link is not created).
+- `EvidencePort.describe` (optional): checks that a cited E05 version exists and is released (E05's `available`: bytes present and scan released). Absent → links are accepted with `validation.state = 'unvalidated'`. Present and the version is unknown → `invalid_reference`; port failure → `unavailable` (the link is not created).
 - `UseDecisionPort` (optional): consulted when a statement is created/revised (`investigate`; `deny` → `consent_denied`) and by `usability`. Absent → statements record `use.decision = 'unchecked'` and `usability` answers `unchecked` for attributed claims. Permission refs returned by the port are stored so that their withdrawal blocks the statement.
 - `AuthorizationPort` (optional): see Capabilities.
 
 ## Status
 
-Implemented and tested locally on real PostgreSQL 16 (`tests/engine.test.ts`, `tests/engine-http.test.ts`): everything above, including catalog acceptance, tenant/project isolation, fail-closed authorization, idempotent replay, protected-identity withholding, reversible merges, transitive stale/blocked propagation and the HTTP server.
+**Complete against the E07 engine catalog entry and this API**, with the owner-only items listed below.
 
-Not implemented / not verified:
-- No vector search and no graph database projection; search is PostgreSQL full-text only.
-- The `EVIDENCE_URL` / `CONSENT_URL` HTTP adapters in `serve.ts` are not verified against the real E05/E11 services. Port behaviour is tested with in-process stand-ins, not with those engines.
-- Queries that scan a project (graph, gaps, chronology, family-change impact) load at most 5000 records per kind; there is no pagination beyond `limit` on `list`.
-- Gaps, graphs and independence are computed over the records the caller may see; material in compartments the caller lacks is not counted.
+Implemented and tested on real PostgreSQL 16/17 (`tests/engine.test.ts`, `tests/engine-http.test.ts`, `tests/engine-ports.test.ts`, `integration/*`): everything above, including catalog acceptance (copies of one report count as one source family; a contradicted claim stays visible with its contrary material; merges are reversible and keep aliases), tenant/project isolation, fail-closed authorization, idempotent replay, protected-identity withholding, transitive stale/blocked propagation, keyset pagination, complete paged project scans and the HTTP server.
+
+Cross-engine verification: the CI job `cross-engine` starts the real E05 and E11 engines from their public repositories at pinned commits (as separate processes, over HTTP only), stores and releases an original in E05, and checks through the standalone server that a link to it is `released` with E05's digest, that an unknown version is `invalid_reference`, that a released primary link satisfies the `supported` rule, that statements are decided by E11's policy, and that the single-scope service credential is never used for another tenant. `npm run test:cross-engine` runs it locally with `KVE_E05_DIR`, `KVE_E11_DIR`, `TEST_DATABASE_URL`.
+
+Deliberate limits (by design, not missing work):
+- Vector search and a graph-database projection are optional in the catalog ("disposable", "a retrieval aid, never a truth database") and are not built; search is PostgreSQL full-text and graphs are computed from the relational records.
+- Gaps, graphs and independence are computed over the records the caller may see; material in compartments the caller lacks is not counted (so hidden material cannot leak through counts).
 - Free-text redaction is name/alias based (see Protected identities).
+- Project-wide computations load at most `maxScanRecords` per kind and fail closed above it.
 - The earlier foundation modules (`src/index.ts`, `evidence-links.ts`, `verification-*.ts`, `claim-proposal*.ts` …) remain exported and tested but are not used by the service layer, because they import other engines' packages; only the proposal excerpt guard was ported.
-- No hosted deployment; no independent security review.
+- Under PAM the host supplies in-process ports; the HTTP ports are for a standalone deployment. Over HTTP the kit reports 5xx domain errors (such as `unavailable`) as `500 internal`.
+
+### Owner-only steps (complete pending owner credentials)
+
+Nothing below is needed for PAM, which composes this engine in-process. They apply only to a standalone deployment of this engine:
+1. Deploy (`npm run serve`) with `DATABASE_URL` and `IDENTITY_PUBLIC_KEYS` (or `IDENTITY_JWKS_FILE`), optionally `IDENTITY_ISSUER`, `KNOWLEDGE_*` vocabularies.
+2. To validate citations / consult consent from that deployment: `EVIDENCE_URL`, `CONSENT_URL` and an E01-issued service token as `KNOWLEDGE_SERVICE_TOKEN` (or `KNOWLEDGE_SERVICE_TOKEN_FILE`) scoped to the deployment's tenant/project with `evidence:read` and `consent:decide`.
+3. Live check of the deployed engines: run the **Live verification** workflow (manual dispatch) after setting repository variables `KNOWLEDGE_URL`, `EVIDENCE_URL`, `CONSENT_URL`, `KNOWLEDGE_LIVE_EVIDENCE_REF` and repository secrets `KNOWLEDGE_SERVICE_TOKEN`, `KNOWLEDGE_TOKEN`; or run `npm run verify:live` with the same names in the environment. Without them every check is reported SKIPPED.
+4. Independent human security review remains optional per AGENTS.md (not a blocker).

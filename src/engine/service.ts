@@ -148,7 +148,7 @@ export function createEngine(deps: EngineDeps) {
   // ───────────────────────────── links, families, independence ─────────────────────────────
   async function linksFor(q: Sql, ctx: ServiceContext, targetIds: readonly string[], o: { raw?: boolean; all?: boolean } = {}): Promise<Obj[]> {
     if (targetIds.length === 0) return [];
-    const rows = await core.list(q, ctx, 'evidence_link', { where: `body->'target'->>'id' = any($5)`, params: [[...targetIds]], limit: 5000, ...(o.raw === true ? { raw: true } : {}) });
+    const rows = await core.scan(q, ctx, 'evidence_link', { where: `body->'target'->>'id' = any($5)`, params: [[...targetIds]], ...(o.raw === true ? { raw: true } : {}) });
     return o.all === true ? rows : rows.filter((l) => l.state === 'active');
   }
   async function familyMap(q: Sql, ctx: ServiceContext, keys: readonly string[]): Promise<Map<string, { id: string; label: string }>> {
@@ -422,7 +422,7 @@ export function createEngine(deps: EngineDeps) {
   }
   async function dossiers(q: Sql, ctx: ServiceContext, claims: readonly Obj[], R: Reader): Promise<ObjectView[]> {
     const cids = claims.map((c) => c.id);
-    const [assess, links, alts, contras] = [await assessmentsOf(q, ctx, cids), await linksFor(q, ctx, cids), await core.list(q, ctx, 'alternative', { where: `body->>'claimId' = any($5)`, params: [cids], limit: 5000 }), await core.list(q, ctx, 'contradiction', { limit: 5000 })];
+    const [assess, links, alts, contras] = [await assessmentsOf(q, ctx, cids), await linksFor(q, ctx, cids), await core.scan(q, ctx, 'alternative', { where: `body->>'claimId' = any($5)`, params: [cids] }), await core.scan(q, ctx, 'contradiction')];
     const fam = await familyMap(q, ctx, links.flatMap(linkKeys));
     const statements = new Map((await core.many(q, ctx, 'statement', claims.flatMap((c) => (c.body.statementId ? [c.body.statementId as string] : [])))).map((s) => [s.id, s]));
     return claims.map((c) => {
@@ -638,7 +638,7 @@ export function createEngine(deps: EngineDeps) {
   // ───────────────────────────── source families ─────────────────────────────
   async function claimsCiting(tx: Sql, ctx: ServiceContext, keys: readonly string[]): Promise<{ claimId: string; linkRef: string }[]> {
     if (keys.length === 0) return [];
-    const links = await core.list(tx, ctx, 'evidence_link', { raw: true, limit: 5000, where: `state='active' and body->'target'->>'kind'='claim'` });
+    const links = await core.scan(tx, ctx, 'evidence_link', { raw: true, where: `state='active' and body->'target'->>'kind'='claim'` });
     return links.filter((l) => linkKeys(l).some((k) => keys.includes(k))).map((l) => ({ claimId: l.body.target.id as string, linkRef: objRef(l) }));
   }
   async function putFamily(tx: Sql, ctx: ServiceContext, fam: Obj, before: readonly string[], change: string): Promise<void> {
@@ -998,11 +998,13 @@ export function createEngine(deps: EngineDeps) {
     const R = await core.reader(sql, ctx);
     return R.deep(view(await core.need(sql, ctx, kind, id), R));
   }
-  async function list(ctx: ServiceContext, kind: Kind, filter: { caseId?: string; state?: string; limit?: number } = {}): Promise<ObjectView[]> {
+  /** Oldest first. To read the next page pass the last returned record's `id` as `after`. */
+  async function list(ctx: ServiceContext, kind: Kind, filter: { caseId?: string; state?: string; limit?: number; after?: string } = {}): Promise<ObjectView[]> {
     requireCapability(ctx, 'knowledge:read');
-    const f = strict<Record<string, unknown>>(filter, ['caseId', 'state', 'limit'], 'filter');
+    const f = strict<Record<string, unknown>>(filter, ['caseId', 'state', 'limit', 'after'], 'filter');
+    const after = label(f.after, 'after');
     const R = await core.reader(sql, ctx);
-    const rows = await core.list(sql, ctx, kindOf(kind), { where: '($5::text is null or case_id=$5) and ($6::text is null or state=$6)', params: [label(f.caseId, 'caseId'), label(f.state, 'state')], limit: Number(f.limit ?? 200) });
+    const rows = await core.list(sql, ctx, kindOf(kind), { where: '($5::text is null or case_id=$5) and ($6::text is null or state=$6)', params: [label(f.caseId, 'caseId'), label(f.state, 'state')], limit: Number(f.limit ?? 200), ...(after === null ? {} : { after }) });
     return R.deep(rows.map((o) => view(o, R)));
   }
   type RevisionView = { revision: number; state: string; at: string; actorId: string; actorKind: string; reason: string; requestId: string; body: Record<string, any> };
@@ -1048,7 +1050,7 @@ export function createEngine(deps: EngineDeps) {
     invariant([sc.claimId, sc.entityId, sc.caseId].filter((x) => x !== undefined && x !== null && x !== '').length === 1, 'invalid_input', 'Exactly one of claimId, entityId or caseId is required');
     const R = await core.reader(sql, ctx);
     const claims = new Map<string, Obj>(), rels = new Map<string, Obj>(), events = new Map<string, Obj>(), entityIds = new Set<string>();
-    const allClaims = await core.list(sql, ctx, 'claim', { limit: 5000 }), allRels = await core.list(sql, ctx, 'relationship', { limit: 5000 }), allEvents = await core.list(sql, ctx, 'event', { limit: 5000 });
+    const allClaims = await core.scan(sql, ctx, 'claim'), allRels = await core.scan(sql, ctx, 'relationship'), allEvents = await core.scan(sql, ctx, 'event');
     const scope: Record<string, string> = {};
     if (typeof sc.claimId === 'string' && sc.claimId !== '') {
       const c = await core.need(sql, ctx, 'claim', sc.claimId); scope.claimId = c.id; claims.set(c.id, c);
@@ -1068,10 +1070,10 @@ export function createEngine(deps: EngineDeps) {
       for (const e of allEvents) if (e.caseId === caseId) events.set(e.id, e);
     }
     const cids = [...claims.keys()];
-    const alts = await core.list(sql, ctx, 'alternative', { where: `body->>'claimId' = any($5)`, params: [cids], limit: 5000 });
+    const alts = await core.scan(sql, ctx, 'alternative', { where: `body->>'claimId' = any($5)`, params: [cids] });
     const links = await linksFor(sql, ctx, [...cids, ...rels.keys(), ...events.keys(), ...alts.map((a) => a.id)]);
     const linkIdSet = new Set(links.map((l) => l.id));
-    const contras = (await core.list(sql, ctx, 'contradiction', { limit: 5000 })).filter((x) => (x.body.members as ObjRef[]).some((m) => (m.kind === 'claim' && claims.has(m.id)) || (m.kind === 'evidence_link' && linkIdSet.has(m.id))));
+    const contras = (await core.scan(sql, ctx, 'contradiction')).filter((x) => (x.body.members as ObjRef[]).some((m) => (m.kind === 'claim' && claims.has(m.id)) || (m.kind === 'evidence_link' && linkIdSet.has(m.id))));
     const statements = await core.many(sql, ctx, 'statement', [...claims.values()].flatMap((c) => (c.body.statementId ? [c.body.statementId as string] : [])));
     for (const c of claims.values()) for (const s of c.body.subjects as ObjRef[]) if (s.kind === 'entity') entityIds.add(s.id);
     for (const r of rels.values()) { entityIds.add(r.body.from.id); if (r.body.to.kind === 'entity') entityIds.add(r.body.to.id); }
@@ -1120,7 +1122,7 @@ export function createEngine(deps: EngineDeps) {
     const f = strict<Record<string, unknown>>(filter, ['caseId'], 'filter');
     const caseId = label(f.caseId, 'caseId');
     const R = await core.reader(sql, ctx);
-    const claims = (await core.list(sql, ctx, 'claim', { where: '($5::text is null or case_id=$5)', params: [caseId], limit: 5000 })).filter((c) => c.state === 'active');
+    const claims = (await core.scan(sql, ctx, 'claim', { where: '($5::text is null or case_id=$5)', params: [caseId] })).filter((c) => c.state === 'active');
     const ds = await dossiers(sql, ctx, claims, R);
     const counts: Record<string, number> = {};
     const out = ds.map((d) => {
@@ -1150,10 +1152,10 @@ export function createEngine(deps: EngineDeps) {
     const group = typeof f.entityId === 'string' && f.entityId !== '' ? new Set(R.members((await core.need(sql, ctx, 'entity', f.entityId)).id)) : null;
     const bound = (v: unknown, n: string): string | null => (v === undefined || v === null || v === '' ? null : (invariant(typeof v === 'string' && Number.isFinite(Date.parse(v)), 'invalid_time', `${n} must be a timestamp`), new Date(v as string).toISOString()));
     const from = bound(f.from, 'from'), to = bound(f.to, 'to');
-    let events = (await core.list(sql, ctx, 'event', { where: '($5::text is null or case_id=$5)', params: [caseId], limit: 5000 })).filter((e) => e.state === 'active');
+    let events = (await core.scan(sql, ctx, 'event', { where: '($5::text is null or case_id=$5)', params: [caseId] })).filter((e) => e.state === 'active');
     if (group !== null) events = events.filter((e) => (e.body.participantEntityIds as string[]).some((p) => group.has(p)) || (e.body.placeEntityId !== null && group.has(e.body.placeEntityId)));
     events = events.filter((e) => { const t = e.body.time as TimeInterval; return (from === null || (t.latest ?? t.earliest ?? '9999') >= from) && (to === null || (t.earliest ?? t.latest ?? '0000') <= to); });
-    const allClaims = (await core.list(sql, ctx, 'claim', { limit: 5000 })).filter((c) => c.state === 'active');
+    const allClaims = (await core.scan(sql, ctx, 'claim')).filter((c) => c.state === 'active');
     const byEvent = new Map(events.map((e) => [e.id, allClaims.filter((c) => (e.body.claimIds as string[]).includes(c.id) || (c.body.subjects as ObjRef[]).some((s) => s.kind === 'event' && s.id === e.id))]));
     const ds = new Map((await dossiers(sql, ctx, [...new Set([...byEvent.values()].flat())], R)).map((d) => [d.id, d]));
     const key = (e: Obj): string => { const t = e.body.time as TimeInterval; return `${t.earliest ?? t.latest ?? '9999-99'}|${t.latest ?? ''}|${e.id}`; };
@@ -1186,7 +1188,7 @@ export function createEngine(deps: EngineDeps) {
     const of = (k: Kind): string[] => visible.filter((v) => v.o.kind === k).map((v) => objRef(v.o));
     const claimIds = visible.filter((v) => v.o.kind === 'claim').map((v) => v.o.id), linkIds = new Set(visible.filter((v) => v.o.kind === 'evidence_link').map((v) => v.o.id));
     const assess = await assessmentsOf(sql, ctx, claimIds);
-    const contras = (await core.list(sql, ctx, 'contradiction', { limit: 5000 })).filter((x) => (x.body.members as ObjRef[]).some((m) => (m.kind === 'claim' && claimIds.includes(m.id)) || (m.kind === 'evidence_link' && linkIds.has(m.id))));
+    const contras = (await core.scan(sql, ctx, 'contradiction')).filter((x) => (x.body.members as ObjRef[]).some((m) => (m.kind === 'claim' && claimIds.includes(m.id)) || (m.kind === 'evidence_link' && linkIds.has(m.id))));
     return {
       refs: seeds, evidenceLinks: of('evidence_link'), statements: of('statement'), claims: of('claim'),
       assessments: claimIds.flatMap((c) => { const cur = currentOf(c, assess.get(c) ?? []); return DIMENSIONS.filter((d) => cur[d].recorded).map((d) => ({ id: cur[d].id as string, claimId: c, dimension: d, value: cur[d].value })); }),

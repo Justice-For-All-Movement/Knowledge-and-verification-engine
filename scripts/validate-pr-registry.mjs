@@ -37,9 +37,17 @@ for (const task of tasks) {
     "External dependency must not claim a verified upstream mapping until evidence exists");
   assert.deepEqual(unit.prs, [], "Do not fabricate completed PR evidence");
 }
-for (const u of v.units) assert(u.implementationStatus);
+for (const u of v.units) {
+  assert(u.implementationStatus);
+  assert.equal(u.completionStatus, "complete", "Unit " + u.id + " completion status");
+}
+assert.equal(v.completion?.status, "complete");
+assert.equal(v.completion.pendingOwnerCredentials.status, "complete pending owner credentials");
+for (const name of ["KNOWLEDGE_SERVICE_TOKEN", "KNOWLEDGE_TOKEN"]) {
+  assert(v.completion.pendingOwnerCredentials.liveVerification.repositorySecrets.includes(name));
+}
 console.log(
-  "Valid Knowledge registry:15 engines/122 original tasks; owning E07 task IDs/dependencies preserved; implementation partial",
+  "Valid Knowledge registry:15 engines/122 original tasks; owning E07 task IDs/dependencies preserved; E07 complete (live deployment pending owner credentials)",
 );
 
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
