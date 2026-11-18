@@ -1,7 +1,12 @@
 {
   "status": "incomplete WIP; final-head CI required",
   "pr": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/47",
-  "prerequisite": 46,
+  "prerequisite": {
+    "pr": 46,
+    "source": "cf9f7e8ca2cb32147267e133e79d20a2960fac79",
+    "merge": "b145267b2ec7a2796be6c9058e47f0524c23f32f",
+    "allSourceHeadChecks": "success"
+  },
   "local": {
     "newResponseGroups": 10,
     "credentialGroups": 4,
@@ -30,6 +35,6 @@
   "sha256": {
     "src/engine/http-ports.ts": "1827f998d594e24a0d21fc8da365f6e40adfdf248f355655e8fad71dde47328a",
     "tests/http-port-response.test.ts": "701aeb2f437f11c0d41930e0ca84ffbb170beb0e6c32f7741e13c9310904798d",
-    "docs/HTTP_PORT_RESPONSE_BOUNDS.md": "6f04ff7d46723e6a64283e397a3ccb3fd183e46c4378919a4228a5f1ab2282fa"
+    "docs/HTTP_PORT_RESPONSE_BOUNDS.md": "7dbc1e42146a8b347f1483ad32104b59bc0d129c7c72abfdec35e1fe08a5f71c"
   }
 }
