@@ -19,7 +19,7 @@
       "dist/contracts.js"
     ]
   },
-  "review": "Clear: bounded actual bytes and all chunks; fatal UTF8; copied stream chunks; monotonic admission before/after host work and parsing; eventual promise rejections observed; owned signal/timer/listener cleanup; incomplete and late bodies cancelled without awaiting a noncooperative hook; exact one credential per call retained; positive exact cited revision, 64-hex SHA256 and safe nonnegative byte count required",
+  "review": "Clear: bounded actual bytes and all chunks; fatal UTF8; copied stream chunks; monotonic admission before/after host work and parsing; eventual promise rejections observed; owned signal/timer/listener cleanup; incomplete and late bodies cancelled without awaiting a noncooperative hook; exact one credential per call retained; positive exact cited revision, 64-hex SHA256 and safe nonnegative byte count required; native peer-cancellation check observes response close before EOF, not completion of the GET request",
   "limits": [
     "Six initial synthetic groups fail on PR46 source; one descriptor group additionally fails on initial bounded source. No old-source failure claim for positive boundary tests.",
     "native loopback HTTP is not TLS/deployed identity/current rights or PostgreSQL qualification",
@@ -29,7 +29,7 @@
   ],
   "sha256": {
     "src/engine/http-ports.ts": "1827f998d594e24a0d21fc8da365f6e40adfdf248f355655e8fad71dde47328a",
-    "tests/http-port-response.test.ts": "5ac26369c02483a795e5cfc69234aefbef55c59a4e7db18b3260d94d4511d733",
+    "tests/http-port-response.test.ts": "701aeb2f437f11c0d41930e0ca84ffbb170beb0e6c32f7741e13c9310904798d",
     "docs/HTTP_PORT_RESPONSE_BOUNDS.md": "6f04ff7d46723e6a64283e397a3ccb3fd183e46c4378919a4228a5f1ab2282fa"
   }
 }

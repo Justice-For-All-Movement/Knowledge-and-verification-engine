@@ -115,8 +115,10 @@ test('native loopback HTTP body overflow aborts the real transport before remote
   const { createServer } = await import('node:http');
   let closed!: () => void;
   const peerClosed = new Promise<void>(resolve => { closed = resolve; });
-  const server = createServer((req, res) => {
-    req.on('close', closed);
+  const server = createServer((_req, res) => {
+    // Response close, before end(), proves the peer stopped this unfinished response.
+    // Request close alone can mean the bodyless GET merely finished arriving.
+    res.on('close', closed);
     res.writeHead(200, { 'content-type': 'application/json' });
     res.write(JSON.stringify(valid) + ' '.repeat(512 * 1024)); // intentionally no EOF
   });
