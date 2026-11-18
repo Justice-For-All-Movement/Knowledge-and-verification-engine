@@ -83,3 +83,51 @@ test('owned fetch signals close after success and rejection; late fetch bodies a
   const pending = invoke(async () => { await sleep(160); return late; });
   await assert.rejects(pending, unavailable); await sleep(180); assert.equal(cancelled, true);
 });
+
+test('exact byte/chunk bounds and a UTF8 codepoint split across chunks remain valid', async () => {
+  const prefix = new TextEncoder().encode(JSON.stringify({ ...valid, filename: 'é.txt' }));
+  const bytes = Buffer.concat([prefix, Buffer.alloc(512 * 1024 - prefix.length, 32)]);
+  const split = bytes.indexOf(Buffer.from('é')) + 1;
+  let count = 0;
+  const body = new ReadableStream<Uint8Array>({ pull(c) {
+    if (++count <= 4094) c.enqueue(new Uint8Array());
+    else if (count === 4095) c.enqueue(bytes.subarray(0, split));
+    else { c.enqueue(bytes.subarray(split)); c.close(); }
+  } });
+  const result = await invoke(async () => new Response(body, { headers: { 'content-length': String(bytes.length) } }), 3000);
+  assert.equal(result?.filename, 'é.txt'); assert.equal(count, 4096);
+});
+
+test('uncooperative cancellation and throwing credential/stream callbacks cannot withhold the bounded rejection or leak diagnostics', async () => {
+  let cancelled = false;
+  const body = new ReadableStream<Uint8Array>({ start(c) { c.enqueue(new Uint8Array(512 * 1024 + 1)); },
+    cancel() { cancelled = true; return new Promise<void>(() => {}); } });
+  await assert.rejects(invoke(async () => new Response(body)), unavailable); assert.equal(cancelled, true);
+  const secret = 'SYNTHETIC_SECRET_CALLBACK';
+  const port = httpEvidencePort({ baseUrl: 'https://example.invalid', token: () => { throw new DomainError('invalid_config', secret); },
+    fetch: async () => { throw new Error('transport must not run'); } });
+  await assert.rejects(port.describe(context(), ref), e => unavailable(e) && !String(e).includes(secret));
+  await assert.rejects(invoke(async () => new Response(new ReadableStream({ pull() { throw new DomainError('scope_denied', secret); } }))),
+    e => unavailable(e) && !String(e).includes(secret));
+});
+
+test('native loopback HTTP body overflow aborts the real transport before remote EOF', async () => {
+  const { createServer } = await import('node:http');
+  let closed!: () => void;
+  const peerClosed = new Promise<void>(resolve => { closed = resolve; });
+  const server = createServer((req, res) => {
+    req.on('close', closed);
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.write(JSON.stringify(valid) + ' '.repeat(512 * 1024)); // intentionally no EOF
+  });
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address(); assert.ok(address !== null && typeof address === 'object');
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const port = httpEvidencePort({ baseUrl: `http://127.0.0.1:${address.port}`, token: () => token, timeoutMs: 3000 });
+    await assert.rejects(port.describe(context(), ref), unavailable);
+    await Promise.race([peerClosed, new Promise<never>((_resolve, reject) => { timer = setTimeout(() => reject(new Error('peer did not observe cancellation')), 3000); })]);
+  } finally {
+    clearTimeout(timer); server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve()));
+  }
+});
