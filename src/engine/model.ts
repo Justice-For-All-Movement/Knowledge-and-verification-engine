@@ -110,6 +110,8 @@ export const DIMENSIONS = ['factual', 'source_type', 'procedural', 'editorial'] 
 export type Dimension = typeof DIMENSIONS[number];
 export const PRECISIONS = ['instant', 'minute', 'hour', 'day', 'month', 'year', 'decade', 'approximate', 'unknown'] as const;
 export const SELECTOR_KINDS = ['whole', 'page', 'text', 'time', 'segment', 'region'] as const;
+/** Kinds of proposal an agent or service can submit. A `record` proposal is one entity with the claims that mention it. */
+export const PROPOSAL_TYPES = ['claim', 'entity', 'link', 'family', 'record'] as const;
 export const PROPOSAL_ORIGINS = ['model', 'reply', 'extraction', 'import', 'discovery', 'human'] as const;
 
 /** The standing notice attached to every relationship: a documented connection is not evidence of involvement. */
@@ -135,6 +137,11 @@ export type EngineConfig = Readonly<{
    * instead of returning a silently incomplete result. Default 100000.
    */
   maxScanRecords?: number;
+  /**
+   * Romanization equivalences used when comparing names for record linkage, applied in order to lowercase ASCII
+   * (for example `['kh', 'x']`). Defaults to a small language-neutral table; deployments may replace it.
+   */
+  nameEquivalences?: readonly (readonly [string, string])[];
 }>;
 export type EnginePorts = Readonly<{ evidence?: Pick<EvidencePort, 'describe'>; useDecision?: UseDecisionPort; authorization?: AuthorizationPort }>;
 export type EngineDeps = Readonly<{ sql: Sql; ports?: EnginePorts; config?: EngineConfig }>;
@@ -147,6 +154,7 @@ export const DEFAULTS = {
   minRationaleLength: 40,
   searchConfig: 'simple',
   maxScanRecords: 100_000,
+  nameEquivalences: [['kh', 'x'], ['gh', 'q'], ['sh', 'S'], ['ch', 'C'], ['zh', 'Z'], ['ph', 'f'], ['dh', 'z'], ['th', 't'], ['w', 'v'], ['c', 'k']],
 } as const;
 
 // ───────────────────────────── Shared shapes ─────────────────────────────

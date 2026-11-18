@@ -19,6 +19,14 @@ export function publicKeysFromEnv(env: Env): Record<string, string> {
   invariant(parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) && Object.values(parsed).every((v) => typeof v === 'string'), 'invalid_config', 'Identity public keys must be a JSON map of key id to PEM');
   return parsed as Record<string, string>;
 }
+/** `KNOWLEDGE_NAME_EQUIVALENCES`: a JSON list of [from, to] pairs of lowercase ASCII, for example [["kh","x"],["gh","q"]]. */
+function equivalencesOf(v: string | undefined): (readonly [string, string])[] | undefined {
+  if (v === undefined || v.trim() === '') return undefined;
+  let parsed: unknown;
+  try { parsed = JSON.parse(v); } catch { throw new DomainError('invalid_config', 'KNOWLEDGE_NAME_EQUIVALENCES must be JSON'); }
+  invariant(Array.isArray(parsed) && parsed.length <= 100 && parsed.every((p) => Array.isArray(p) && p.length === 2 && p.every((x) => typeof x === 'string' && /^[A-Za-z]{0,4}$/.test(x)) && p[0] !== ''), 'invalid_config', 'KNOWLEDGE_NAME_EQUIVALENCES must be a list of [from, to] letter pairs');
+  return parsed as [string, string][];
+}
 const listOf = (v: string | undefined): string[] | undefined => (v === undefined || v.trim() === '' ? undefined : v.split(',').map((x) => x.trim()).filter((x) => x !== ''));
 export function configFromEnv(env: Env): EngineConfig {
   const pick = <K extends keyof EngineConfig>(k: K, v: EngineConfig[K] | undefined): Partial<EngineConfig> => (v === undefined ? {} : { [k]: v });
@@ -26,6 +34,7 @@ export function configFromEnv(env: Env): EngineConfig {
     ...pick('sourceTypes', listOf(env.KNOWLEDGE_SOURCE_TYPES)), ...pick('primarySourceTypes', listOf(env.KNOWLEDGE_PRIMARY_SOURCE_TYPES)),
     ...pick('proceduralVocabulary', listOf(env.KNOWLEDGE_PROCEDURAL_VOCABULARY)), ...pick('entityTypes', listOf(env.KNOWLEDGE_ENTITY_TYPES)),
     ...pick('searchConfig', env.KNOWLEDGE_SEARCH_CONFIG), ...pick('maxScanRecords', env.KNOWLEDGE_MAX_SCAN_RECORDS === undefined || env.KNOWLEDGE_MAX_SCAN_RECORDS === '' ? undefined : Number(env.KNOWLEDGE_MAX_SCAN_RECORDS)), ...pick('minRationaleLength', env.KNOWLEDGE_MIN_RATIONALE_LENGTH === undefined ? undefined : Number(env.KNOWLEDGE_MIN_RATIONALE_LENGTH)),
+    ...pick('nameEquivalences', equivalencesOf(env.KNOWLEDGE_NAME_EQUIVALENCES)),
   };
 }
 /** The service token, from `KNOWLEDGE_SERVICE_TOKEN` or (re-read on every call, so rotation needs no restart) `KNOWLEDGE_SERVICE_TOKEN_FILE`. */

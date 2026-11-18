@@ -12,6 +12,7 @@ import { hasCapability, idempotent, listAudit, parseUref, readEvents, requireCap
 import type { AuditRecord, EngineEvent, Inspection, SearchHit, ServiceContext, Sql, StandardEngine, UpstreamChange, UseAction } from '../service-kit.ts';
 import { activeFlags, createCore, objRef, selfRef, statusOf } from './core.ts';
 import type { Reader } from './core.ts';
+import { createLinkage } from './linkage.ts';
 import {
   CLAIM_TYPES, DIMENSIONS, EDITORIAL_VALUES, FACTUAL_VALUES, KINDS, PROPOSAL_NOTICE, PROPOSAL_ORIGINS, RELATIONSHIP_NOTICE, SCHEMA, SIMILARITY_NOTICE, STANCES,
   describeSelector, idOf, ids, interval, label, manifest, oneOf, optText, selector, similarity, strict, text, urefKey, urefOf, urefs,
@@ -79,6 +80,11 @@ export function createEngine(deps: EngineDeps) {
     if (kind === 'proposal') {
       const it = b.item as Record<string, any>;
       const hide = b.proposalType === 'entity' && it.protectedIdentity === true && !(hasCapability(R.ctx, 'knowledge:disclose_identity') && (it.identityCompartment === null || R.ctx.compartments.includes(it.identityCompartment)));
+      const ent = b.proposalType === 'record' ? (it.entity as Record<string, any>) : null;
+      // A record proposal about a protected identity is withheld whole: its claims and quotations name the person.
+      if (ent !== null && ent.protectedIdentity === true && !(hasCapability(R.ctx, 'knowledge:disclose_identity') && (ent.identityCompartment === null || R.ctx.compartments.includes(ent.identityCompartment)))) {
+        return { ...b, item: { entity: { entityType: ent.entityType, name: '[identity withheld]', aliases: [], description: null, attributes: {}, identityRefs: [], protectedIdentity: true, identityWithheld: true }, claims: [], claimCount: (it.claims as unknown[]).length, matchEntityId: it.matchEntityId, identityWithheld: true } };
+      }
       return { ...b, item: hide ? { ...it, name: '[identity withheld]', aliases: [], description: null, attributes: {}, identityRefs: [], identityWithheld: true } : it };
     }
     return { ...b };
@@ -904,12 +910,23 @@ export function createEngine(deps: EngineDeps) {
       const v = vEvidence(i);
       return { target: vTarget(i.target), ...v, excerpt: checkExcerpt(v.selector as Selector, i.excerpt) };
     }
+    if (type === 'record') {
+      // One mention of an entity in a source: the entity and the claims made about it, each claim tied to exact quotations.
+      // The new entity becomes a subject of every claim on acceptance; other subjects must already exist.
+      const i = strict<Record<string, unknown>>(raw, ['entity', 'claims', 'matchEntityId', 'similarity'], 'proposed record');
+      invariant(Array.isArray(i.claims) && i.claims.length <= 20, 'invalid_input', 'claims must be a list of at most 20');
+      return {
+        entity: vEntity(strict<Record<string, unknown>>(i.entity, E_KEYS, 'proposed record entity')),
+        claims: (i.claims as unknown[]).map((c) => vProposalItem('claim', c)),
+        matchEntityId: i.matchEntityId === undefined || i.matchEntityId === null ? null : idOf(i.matchEntityId, 'matchEntityId'), similarity: similarity(i.similarity),
+      };
+    }
     const i = strict<Record<string, unknown>>(raw, ['refs', 'basis', 'label', 'similarity'], 'source family hint');
     const refs = urefs(i.refs, 'refs', 500);
     invariant(refs.length >= 2, 'invalid_input', 'A source family hint needs at least two source references');
     return { refs, basis: optText(i.basis, 'basis', 200) ?? 'suggested', label: optText(i.label, 'label', 500), similarity: similarity(i.similarity) };
   }
-  async function propose(ctx: ServiceContext, type: 'claim' | 'entity' | 'link' | 'family', input: { origin: ProposalOrigin; items: unknown[] } & Placement & Idem): Promise<ObjectView[]> {
+  async function propose(ctx: ServiceContext, type: 'claim' | 'entity' | 'link' | 'family' | 'record', input: { origin: ProposalOrigin; items: unknown[] } & Placement & Idem): Promise<ObjectView[]> {
     requireCapability(ctx, 'knowledge:propose');
     const i = strict<Record<string, unknown>>(input, ['origin', 'items', ...PLACE], 'proposal batch');
     const origin = vOrigin(i.origin);
@@ -930,6 +947,7 @@ export function createEngine(deps: EngineDeps) {
   }
   const proposeClaims = (ctx: ServiceContext, input: { origin: ProposalOrigin; items: (ClaimInput & { evidence?: (EvidenceInput & { excerpt?: { start: number; end: number; quote: string } })[] })[] } & Placement & Idem) => propose(ctx, 'claim', input);
   const proposeEntities = (ctx: ServiceContext, input: { origin: ProposalOrigin; items: (EntityInput & { matchEntityId?: string | null; similarity?: number | null })[] } & Placement & Idem) => propose(ctx, 'entity', input);
+  const proposeRecords = (ctx: ServiceContext, input: { origin: ProposalOrigin; items: { entity: EntityInput; claims: (ClaimInput & { evidence?: (EvidenceInput & { excerpt?: { start: number; end: number; quote: string } })[] })[]; matchEntityId?: string | null; similarity?: number | null }[] } & Placement & Idem) => propose(ctx, 'record', input);
   const proposeLinks = (ctx: ServiceContext, input: { origin: ProposalOrigin; items: (LinkInput & { excerpt?: { start: number; end: number; quote: string } })[] } & Placement & Idem) => propose(ctx, 'link', input);
   /** Mirror / content-family hints (for example from E04) become suggestions; sources are grouped only when a human accepts. */
   const suggestSourceFamilies = (ctx: ServiceContext, input: { origin: ProposalOrigin; hints: { refs: string[]; basis?: string; label?: string; similarity?: number | null }[] } & Placement & Idem) => {
@@ -946,7 +964,9 @@ export function createEngine(deps: EngineDeps) {
     const seen = await core.need(sql, ctx, 'proposal', id);
     const item = seen.body.item as Record<string, any>;
     const validations = new Map<string, Validation>();
-    if (decision === 'accept') for (const e of seen.body.proposalType === 'claim' ? (item.evidence as Record<string, any>[]) : seen.body.proposalType === 'link' ? [item] : []) validations.set(e.evidenceRef, await validateEvidence(ctx, e.evidenceRef));
+    const evidenceOf = (): Record<string, any>[] => seen.body.proposalType === 'claim' ? (item.evidence as Record<string, any>[]) : seen.body.proposalType === 'link' ? [item]
+      : seen.body.proposalType === 'record' ? (item.claims as Record<string, any>[]).flatMap((c) => c.evidence as Record<string, any>[]) : [];
+    if (decision === 'accept') for (const e of evidenceOf()) validations.set(e.evidenceRef, await validateEvidence(ctx, e.evidenceRef));
     await cmd(ctx, 'knowledge:review', `reviewProposal:${id}`, input, async (tx) => {
       const p = await core.need(tx, ctx, 'proposal', id, { lock: true });
       if (i.expectedRevision !== undefined) core.expect(p, i.expectedRevision);
@@ -965,6 +985,15 @@ export function createEngine(deps: EngineDeps) {
           const e = await mkEntity(tx, ctx, entity, place, provenance); results.push(objRef(e));
           // A suggested match stays an unresolved identity question; it is never turned into a merge here.
           if (matchEntityId !== null) results.push(objRef(await mkMatch(tx, ctx, e.id, matchEntityId, 'unresolved', `Suggested by proposal ${id}; not reviewed as an identity decision`, sim ?? null)));
+        } else if (p.body.proposalType === 'record') {
+          const ent = await mkEntity(tx, ctx, item.entity, place, provenance); results.push(objRef(ent));
+          if (item.matchEntityId !== null) results.push(objRef(await mkMatch(tx, ctx, ent.id, item.matchEntityId, 'unresolved', `Suggested by proposal ${id}; not reviewed as an identity decision`, item.similarity ?? null)));
+          for (const pc of item.claims as Record<string, any>[]) {
+            const { evidence, ...claim } = pc;
+            const subjects = [{ kind: 'entity', id: ent.id }, ...(claim.subjects as ObjRef[]).filter((s2) => !(s2.kind === 'entity' && s2.id === ent.id))];
+            const c = await mkClaim(tx, ctx, { ...claim, subjects }, place, provenance); results.push(objRef(c));
+            for (const e of evidence as Record<string, any>[]) results.push(objRef(await mkLink(tx, ctx, { kind: 'claim', id: c.id }, strip(e), validations.get(e.evidenceRef) as Validation, null, provenance)));
+          }
         } else if (p.body.proposalType === 'link') {
           const { target, ...e } = item;
           results.push(objRef(await mkLink(tx, ctx, target, strip(e), validations.get(e.evidenceRef) as Validation, null, provenance)));
@@ -1357,6 +1386,8 @@ export function createEngine(deps: EngineDeps) {
     catch { return { ok: false, detail: { schema: S, error: 'database unavailable' } }; }
   }
 
+  const linkage = createLinkage({ core, sql, equivalences: cfg.nameEquivalences, cmd, mkMatch, reviewProposal: (ctx, id, input) => reviewProposal(ctx, id, input) });
+
   const engine = {
     manifest,
     // entities, identity decisions, reversible merges
@@ -1367,7 +1398,9 @@ export function createEngine(deps: EngineDeps) {
     // source families, contradictions, alternatives
     createSourceFamily, reviseSourceFamily, suggestSourceFamilies, independence, recordContradiction, resolveContradiction, addAlternativeExplanation, reviseAlternativeExplanation,
     // assessments and proposals
-    proposeAssessment, recordAssessment, rejectAssessmentProposal, assessments, proposeClaims, proposeEntities, proposeLinks, reviewProposal,
+    proposeAssessment, recordAssessment, rejectAssessmentProposal, assessments, proposeClaims, proposeEntities, proposeLinks, proposeRecords, reviewProposal,
+    // record linkage across sources, roster, incidents, bulk human decisions, calendar conversion
+    ...linkage,
     // queries
     get, list, history, evidenceGraph, researchGaps, chronology, impactOf, searchRecords, exportDossier, usability,
     // corrections and flags

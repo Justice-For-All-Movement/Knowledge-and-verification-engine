@@ -14,6 +14,8 @@ function body(r: HttpRequest): Record<string, unknown> {
   const key = r.headers['idempotency-key'];
   return typeof key === 'string' && key !== '' && (b as Record<string, unknown>).idempotencyKey === undefined ? { ...(b as Record<string, unknown>), idempotencyKey: key } : (b as Record<string, unknown>);
 }
+/** Read-style POST routes take no idempotency key. */
+const noKey = (b: Record<string, unknown>): Record<string, unknown> => { const { idempotencyKey: _k, ...rest } = b; return rest; };
 const q = (r: HttpRequest, ...names: string[]): Record<string, string> => Object.fromEntries(names.flatMap((n) => { const v = r.query.get(n); return v === null || v === '' ? [] : [[n, v]]; }));
 
 export function routes(engine: KnowledgeEngine): Route[] {
@@ -61,7 +63,15 @@ export function routes(engine: KnowledgeEngine): Route[] {
     post('/v1/proposals/claims', (r, b) => e.proposeClaims(r.ctx, b)),
     post('/v1/proposals/entities', (r, b) => e.proposeEntities(r.ctx, b)),
     post('/v1/proposals/links', (r, b) => e.proposeLinks(r.ctx, b)),
+    post('/v1/proposals/records', (r, b) => e.proposeRecords(r.ctx, b)),
     route('POST', '/v1/proposals/:id/review', (r, b) => e.reviewProposal(r.ctx, r.params.id, b)),
+    route('POST', '/v1/proposal-reviews', (r, b) => e.reviewProposals(r.ctx, noKey(b))),
+    // record linkage across sources
+    route('POST', '/v1/entity-match-suggestions', (r, b) => e.suggestEntityMatches(r.ctx, noKey(b))),
+    route('POST', '/v1/entity-match-batches', (r, b) => e.recordEntityMatches(r.ctx, b)),
+    route('POST', '/v1/roster', (r, b) => e.roster(r.ctx, noKey(b))),
+    route('POST', '/v1/incidents', (r, b) => e.incidents(r.ctx, noKey(b))),
+    route('POST', '/v1/dates/convert', async (r, b) => e.convertDate(r.ctx, noKey(b))),
     // queries
     route('GET', '/v1/records/:kind', (r) => { const f = q(r, 'caseId', 'state', 'limit', 'after'); return e.list(r.ctx, r.params.kind, { ...f, ...(f.limit === undefined ? {} : { limit: Number(f.limit) }) }); }),
     route('GET', '/v1/records/:kind/:id', (r) => e.get(r.ctx, r.params.kind, r.params.id)),
