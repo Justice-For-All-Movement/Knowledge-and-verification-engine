@@ -141,6 +141,51 @@ inspect, search, audit, events, applyUpstreamChange, health
 
 Research-gap codes: `no_supporting_evidence, no_primary_support, single_family_support, unresolved_contradiction, unassessed, missing_alternative_explanations, stale_links, unvalidated_links, needs_reverification, blocked`.
 
+## Record linkage across sources
+
+For work in which many sources each list the same people (or places, organisations) under different spellings, scripts
+and romanizations, and disagree about details. Implemented in `src/engine/linkage.ts`, `names.ts` and `calendar.ts`;
+tested in `tests/engine-linkage.test.ts` (real PostgreSQL and the HTTP server).
+
+```ts
+proposeRecords(ctx, { origin, items: { entity: EntityInput; claims: (ClaimInput & { evidence?: (EvidenceInput & { excerpt? })[] })[]; matchEntityId?; similarity? }[] } & Placement): Promise<ObjectView[]>
+reviewProposals(ctx, { ids: string[] (≤500), decision: 'accept'|'reject', reason }): Promise<{ reviewed, failed, results[{ id, state, results?, error? }] }>   // human only
+suggestEntityMatches(ctx, { caseId?, entityType? ('person'), minSimilarity? (0.85), limit? (≤5000), includeDecided?, maxBlock? (400) }): Promise<{ candidates[], total, truncated, compared, skippedFrequentKeys[], notice }>
+recordEntityMatches(ctx, { decisions: { leftId, rightId, decision: 'same'|'different'|'unresolved', rationale, similarity? }[] (≤500) }): Promise<{ recorded, matches }>   // human only, one transaction
+roster(ctx, { caseId?, entityType?, expect?: string[], only?: 'conflicts'|'unresolved'|'missing', offset?, limit? (≤2000) }): Promise<{ groups[], total, offset, counts, notice }>
+incidents(ctx, { caseId?, entityType?, placeAttribute, dateAttribute, minSize? (2), limit? }): Promise<{ incidents[{ place, date, size, people[] }], total, groupsWithoutPlaceOrDate, notice }>
+convertDate(ctx, { calendar, year, month: number|name, day, weekday?, locales? }): Conversion   // { gregorian: 'YYYY-MM-DD', weekday, weekdayMatches, stated, notice }
+```
+
+- **Record proposal**: one mention of an entity in one source — the entity and the claims made about it, each with
+  evidence and an optional exact excerpt (the same excerpt rule as claim proposals). On acceptance the entity is created
+  and becomes the first subject of every claim; a `matchEntityId` becomes an `unresolved` match, never a merge. A record
+  proposal about a protected identity is withheld whole from callers without disclosure, because its quotations name the person.
+- **Candidates** (read-only, agents may call): written names, aliases and parenthesised alternatives (`Mehdi (Khabat) Kakaei`
+  also yields `Khabat Kakaei`) are reduced to a consonant skeleton. Arabic-script letter variants are folded and the
+  script is transliterated to the same skeleton; Latin forms pass through the configured romanization equivalences
+  (`nameEquivalences`, env `KNOWLEDGE_NAME_EQUIVALENCES`, default `kh→x, gh→q, sh, ch, zh, ph→f, dh→z, th→t, w→v, c→k`) and lose
+  vowels, `h`, `y` and `v`. Similarity is the larger of whole-name Jaro and a length-weighted, order-independent token
+  Jaro–Winkler. Records are compared only when they share a token skeleton; keys shared by more than `maxBlock` records
+  (common given names) are skipped and reported in `skippedFrequentKeys`. Each candidate lists the attributes on which
+  the two records agree and differ. Pairs with a recorded decision and records already merged are omitted unless
+  `includeDecided`. Suggesting records nothing.
+- **Roster**: person groups are the union of merge groups and human `same` decisions. Each group lists every written
+  name, each member record (attributes, provenance, the claims about it with their evidence references), every value of
+  every attribute with the records stating it, `conflicts` (attributes with more than one value after case/diacritic
+  folding), `missing` (requested `expect` attributes absent), and counts of `unresolved` and `different` decisions
+  touching it. No value is chosen. Withheld identities are absent for callers without disclosure.
+- **Incidents**: groups whose `placeAttribute` values (folded) and `dateAttribute` days (first ten characters) are equal.
+  A group with several stated places or dates appears under each combination with `conflicting: true`. This is a research
+  lead, not a finding that people were together.
+- **Dates**: ICU calendars of the runtime (`gregory, persian, islamic-civil, islamic-umalqura, islamic-tbla, coptic,
+  ethiopic, indian, buddhist, roc`); month names are read from ICU in any requested locale (`Dey`, `دی`). An impossible
+  date is `invalid_date`; a stated weekday that disagrees with the date is reported (`weekdayMatches: false`), never corrected.
+
+HTTP: `POST /v1/proposals/records`, `POST /v1/proposal-reviews`, `POST /v1/entity-match-suggestions`,
+`POST /v1/entity-match-batches`, `POST /v1/roster`, `POST /v1/incidents`, `POST /v1/dates/convert` (the last five are
+read-style POSTs; an `Idempotency-Key` header is ignored on them).
+
 ## Propagation
 
 `applyUpstreamChange(ctx, { eventId, kind, refs, reason })` (idempotent per project by `eventId`):
@@ -175,7 +220,8 @@ Bodies are the service inputs; `Idempotency-Key` header is accepted. Creation re
 | `POST /v1/relationships`, `PATCH /v1/relationships/:id`, `POST /v1/events`, `PATCH /v1/events/:id` | relationships, events |
 | `POST /v1/source-families`, `PATCH /v1/source-families/:id`, `POST /v1/source-family-suggestions` | source families |
 | `POST /v1/contradictions`, `POST /v1/contradictions/:id/resolution`, `POST /v1/alternatives`, `PATCH /v1/alternatives/:id` | contradictions, alternatives |
-| `POST /v1/proposals/{claims,entities,links}`, `POST /v1/proposals/:id/review` | proposals |
+| `POST /v1/proposals/{claims,entities,links,records}`, `POST /v1/proposals/:id/review`, `POST /v1/proposal-reviews` | proposals, bulk review |
+| `POST /v1/entity-match-suggestions`, `POST /v1/entity-match-batches`, `POST /v1/roster`, `POST /v1/incidents`, `POST /v1/dates/convert` | record linkage (see above) |
 | `GET /v1/records/:kind?caseId=&state=&limit=&after=`, `GET /v1/records/:kind/:id`, `GET /v1/records/:kind/:id/history` | list (keyset pages), get, history |
 | `GET /v1/graphs/evidence?claimId=|entityId=|caseId=[&format=text]` | evidenceGraph (JSON with table, or plain text) |
 | `GET /v1/research-gaps`, `GET /v1/chronology`, `POST /v1/impact`, `GET /v1/search/records`, `POST /v1/usability`, `GET /v1/exports/dossier` | queries |
@@ -191,7 +237,7 @@ Bodies are the service inputs; `Idempotency-Key` header is accepted. Creation re
 
 **Complete against the E07 engine catalog entry and this API**, with the owner-only items listed below.
 
-Implemented and tested on real PostgreSQL 16/17 (`tests/engine.test.ts`, `tests/engine-http.test.ts`, `tests/engine-ports.test.ts`, `integration/*`): everything above, including catalog acceptance (copies of one report count as one source family; a contradicted claim stays visible with its contrary material; merges are reversible and keep aliases), tenant/project isolation, fail-closed authorization, idempotent replay, protected-identity withholding, transitive stale/blocked propagation, keyset pagination, complete paged project scans and the HTTP server.
+Implemented and tested on real PostgreSQL 16/17 (`tests/engine.test.ts`, `tests/engine-http.test.ts`, `tests/engine-ports.test.ts`, `tests/engine-linkage.test.ts`, `integration/*`): everything above, including catalog acceptance (copies of one report count as one source family; a contradicted claim stays visible with its contrary material; merges are reversible and keep aliases), tenant/project isolation, fail-closed authorization, idempotent replay, protected-identity withholding, transitive stale/blocked propagation, keyset pagination, complete paged project scans and the HTTP server.
 
 Cross-engine verification: the CI job `cross-engine` starts the real E05 and E11 engines from their public repositories at pinned commits (as separate processes, over HTTP only), stores and releases an original in E05, and checks through the standalone server that a link to it is `released` with E05's digest, that an unknown version is `invalid_reference`, that a released primary link satisfies the `supported` rule, that statements are decided by E11's policy, and that the single-scope service credential is never used for another tenant. `npm run test:cross-engine` runs it locally with `KVE_E05_DIR`, `KVE_E11_DIR`, `TEST_DATABASE_URL`.
 
