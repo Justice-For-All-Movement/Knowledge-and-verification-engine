@@ -34,22 +34,98 @@ function checkScope(ctx: ServiceContext, token: string, engine: string): void {
   if (s.tid !== ctx.tenantId || s.pid !== ctx.projectId) throw new DomainError('unavailable', `The ${engine} service credential is scoped to a different tenant or project`);
 }
 
+const MAX_RESPONSE_BYTES = 512 * 1024;
+const MAX_RESPONSE_CHUNKS = 4096;
+
 async function call(o: HttpPortOptions, ctx: ServiceContext, engine: string, method: 'GET' | 'POST', path: string, body?: unknown): Promise<{ status: number; json: unknown }> {
-  // Rotation is observed once per request. The exact credential checked here must also be sent below.
-  const token = o.token();
-  checkScope(ctx, token, engine);
-  let response: Response;
+  const timeoutMs = o.timeoutMs ?? 15_000;
+  invariant(Number.isSafeInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 120_000,
+    'invalid_config', 'HTTP port timeout must be an integer from 100 to 120000 milliseconds');
+  const deadline = performance.now() + timeoutMs;
+  const controller = new AbortController();
+  const failed = () => new DomainError('unavailable', `The ${engine} engine request could not be completed`);
+  const check = () => {
+    if (controller.signal.aborted || performance.now() >= deadline) throw failed();
+  };
+  let rejectAbort!: (reason: unknown) => void;
+  const aborted = new Promise<never>((_resolve, reject) => { rejectAbort = reject; });
+  // A synchronous credential or transport callback can expire before the first race is installed.
+  void aborted.catch(() => {});
+  const onAbort = () => rejectAbort(failed());
+  controller.signal.addEventListener('abort', onAbort, { once: true });
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const wait = async <T>(pending: Promise<T>): Promise<T> => {
+    // A read is already begun when passed here; observe its eventual rejection even if admission expired.
+    void pending.catch(() => {});
+    check();
+    const value = await Promise.race([pending, aborted]);
+    check();
+    return value;
+  };
+  const cancelBody = (response: Response) => {
+    try { void response.body?.cancel().catch(() => {}); } catch { /* best-effort, never await a host cancel hook */ }
+  };
+  let response: Response | undefined;
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+  let complete = false;
   try {
-    response = await (o.fetch ?? fetch)(new URL(path, o.baseUrl), {
-      method, redirect: 'error', signal: AbortSignal.timeout(o.timeoutMs ?? 15_000),
-      headers: { authorization: `Bearer ${token}`, accept: 'application/json', ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    check();
+    // Rotation is observed once per request. The checked credential must also be sent below.
+    const token = o.token();
+    check();
+    checkScope(ctx, token, engine);
+    const url = new URL(path, o.baseUrl);
+    const encoded = body === undefined ? undefined : JSON.stringify(body);
+    check();
+    const transport = Promise.resolve().then(() => {
+      check();
+      return (o.fetch ?? fetch)(url, {
+        method, redirect: 'error', signal: controller.signal,
+        headers: { authorization: `Bearer ${token}`, accept: 'application/json', ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
+        ...(encoded === undefined ? {} : { body: encoded }),
+      });
     });
-  } catch { throw new DomainError('unavailable', `The ${engine} engine could not be reached`); }
-  let json: unknown = null;
-  try { json = await response.json(); } catch { /* non-JSON body */ }
-  return { status: response.status, json };
+    // An injected/noncooperative fetch may settle after this call has already timed out.
+    void transport.then(late => {
+      if (controller.signal.aborted || performance.now() >= deadline) cancelBody(late);
+    }, () => {});
+    response = await wait(transport);
+    const status = response.status;
+    const advertised = response.headers.get('content-length');
+    if (advertised !== null && (!/^\d+$/.test(advertised) || !Number.isSafeInteger(Number(advertised)) || Number(advertised) > MAX_RESPONSE_BYTES)) throw failed();
+    const chunks: Uint8Array[] = [];
+    let bytes = 0;
+    if (response.body !== null) {
+      reader = response.body.getReader();
+      for (;;) {
+        const part = await wait(reader.read());
+        if (part.done) break;
+        if (!(part.value instanceof Uint8Array) || chunks.length >= MAX_RESPONSE_CHUNKS || part.value.byteLength > MAX_RESPONSE_BYTES - bytes) throw failed();
+        bytes += part.value.byteLength;
+        chunks.push(part.value.slice());
+        check();
+      }
+    }
+    const text = new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks, bytes));
+    check();
+    const json: unknown = text === '' ? null : JSON.parse(text);
+    check();
+    complete = true;
+    return { status, json };
+  } catch {
+    // Host credential/fetch/stream/parse diagnostics may contain private data.
+    throw failed();
+  } finally {
+    clearTimeout(timer);
+    controller.abort();
+    controller.signal.removeEventListener('abort', onAbort);
+    if (reader !== undefined) {
+      if (!complete) { try { void reader.cancel().catch(() => {}); } catch { /* best-effort */ } }
+      try { reader.releaseLock(); } catch { /* a noncooperative host may still own a read */ }
+    } else if (response !== undefined && !complete) cancelBody(response);
+  }
 }
+
 const errorCode = (json: unknown): string | null => {
   const e = (json as { error?: { code?: unknown } } | null)?.error;
   return typeof e?.code === 'string' ? e.code : null;
@@ -65,8 +141,13 @@ export function httpEvidencePort(o: HttpPortOptions): Pick<EvidencePort, 'descri
       if (r.status === 404 || (r.status === 403 && errorCode(r.json) !== 'unauthenticated')) return null;
       if (r.status !== 200) throw new DomainError('unavailable', `The evidence engine answered ${r.status}`);
       const v = r.json;
-      if (!isObj(v) || typeof v.ref !== 'string' || typeof v.evidenceId !== 'string' || !Number.isSafeInteger(v.revision) || typeof v.sha256 !== 'string'
-        || typeof v.size !== 'number' || typeof v.mediaType !== 'string' || typeof v.filename !== 'string' || !(v.compartment === null || typeof v.compartment === 'string') || typeof v.available !== 'boolean') {
+      const requestedRevision = /@([1-9]\d*)$/.exec(ref)?.[1];
+      if (!isObj(v) || typeof v.ref !== 'string' || typeof v.evidenceId !== 'string'
+        || typeof v.revision !== 'number' || !Number.isSafeInteger(v.revision) || v.revision < 1
+        || requestedRevision === undefined || Number(requestedRevision) !== v.revision
+        || typeof v.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(v.sha256)
+        || typeof v.size !== 'number' || !Number.isSafeInteger(v.size) || v.size < 0
+        || typeof v.mediaType !== 'string' || typeof v.filename !== 'string' || !(v.compartment === null || typeof v.compartment === 'string') || typeof v.available !== 'boolean') {
         throw new DomainError('unavailable', 'The evidence engine returned an invalid version description');
       }
       // The answer must describe the version that was asked for, not, for example, the current one.
