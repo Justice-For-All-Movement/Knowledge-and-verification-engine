@@ -27,7 +27,7 @@
         "Changed bytes at the same URL become a new version and old citations still resolve.",
         "Provide the authorized visual or table view, source-bound test evidence and documented failure behavior."
       ],
-      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: evidence links must pin an exact E05 version (…@rev), so changed bytes become a new version and old citations keep resolving; links validate the cited version through EvidencePort (verified against the real E05 in CI job cross-engine).",
+      "implementationStatus": "Owned primarily by E05 (Evidence-Storage-and-Provenance-Engine); E07 side complete: evidence links must pin an exact E05 version (\u2026@rev), so changed bytes become a new version and old citations keep resolving; links validate the cited version through EvidencePort (verified against the real E05 in CI job cross-engine).",
       "legacyWorkUnitId": "AM-02.01",
       "completionStatus": "complete"
     },
@@ -658,5 +658,19 @@
     "deliberatelyNotBuilt": [
       "Optional vector search and disposable graph-database projection (catalog: optional retrieval aids)"
     ]
-  }
+  },
+  "maintenanceCheckpoints": [
+    {
+      "id": "http-port-credential-selection",
+      "status": "incomplete WIP; final-head CI and package qualification pending",
+      "baseCommit": "993e688136e900450fe597a0f75c3aaec4a90e99",
+      "documentation": "docs/HTTP_PORT_CREDENTIALS.md",
+      "localEvidence": "Four synthetic transport regressions fail on base and pass on fixed source; no live provider/authentication claim",
+      "remaining": [
+        "final-head CI and source/package review",
+        "standalone credential/host deployment qualification",
+        "suite-wide acceptance remains separate; operational PAM stopped"
+      ]
+    }
+  ]
 }
