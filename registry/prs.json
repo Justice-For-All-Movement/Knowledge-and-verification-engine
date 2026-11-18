@@ -673,6 +673,18 @@
       ],
       "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/46",
       "verification": "docs/http-port-credentials-verification.json"
+    },
+    {
+      "id": "http-port-response-bounds",
+      "status": "incomplete WIP; final-head checks, installed export and expanded review pending",
+      "dependsOn": "http-port-credential-selection (PR46)",
+      "documentation": "docs/HTTP_PORT_RESPONSE_BOUNDS.md",
+      "localEvidence": "6 new synthetic regressions fail on PR46 base; all6 +4 credential groups pass fixed source, 0 failures/skips",
+      "remaining": [
+        "source/package qualification and all final-head CI",
+        "host credentials/egress/deployment acceptance",
+        "suite-wide acceptance separate; operational PAM stopped"
+      ]
     }
   ]
 }
