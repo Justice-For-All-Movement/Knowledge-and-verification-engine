@@ -665,12 +665,14 @@
       "status": "incomplete WIP; final-head CI and package qualification pending",
       "baseCommit": "993e688136e900450fe597a0f75c3aaec4a90e99",
       "documentation": "docs/HTTP_PORT_CREDENTIALS.md",
-      "localEvidence": "Four synthetic transport regressions fail on base and pass on fixed source; no live provider/authentication claim",
+      "localEvidence": "4 final source + 4 packed public-export regression groups; 4 existing HTTP groups; typecheck/build/registry/declarations/runtime bytes pass; 0 failures/skips; no full local suite or live qualification",
       "remaining": [
         "final-head CI and source/package review",
         "standalone credential/host deployment qualification",
         "suite-wide acceptance remains separate; operational PAM stopped"
-      ]
+      ],
+      "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/46",
+      "verification": "docs/http-port-credentials-verification.json"
     }
   ]
 }
