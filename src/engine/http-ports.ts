@@ -34,8 +34,10 @@ function checkScope(ctx: ServiceContext, token: string, engine: string): void {
   if (s.tid !== ctx.tenantId || s.pid !== ctx.projectId) throw new DomainError('unavailable', `The ${engine} service credential is scoped to a different tenant or project`);
 }
 
-async function call(o: HttpPortOptions, engine: string, method: 'GET' | 'POST', path: string, body?: unknown): Promise<{ status: number; json: unknown }> {
+async function call(o: HttpPortOptions, ctx: ServiceContext, engine: string, method: 'GET' | 'POST', path: string, body?: unknown): Promise<{ status: number; json: unknown }> {
+  // Rotation is observed once per request. The exact credential checked here must also be sent below.
   const token = o.token();
+  checkScope(ctx, token, engine);
   let response: Response;
   try {
     response = await (o.fetch ?? fetch)(new URL(path, o.baseUrl), {
@@ -59,8 +61,7 @@ const strings = (v: unknown): v is string[] => Array.isArray(v) && v.every((x) =
 export function httpEvidencePort(o: HttpPortOptions): Pick<EvidencePort, 'describe'> {
   return {
     async describe(ctx: ServiceContext, ref: string): Promise<EvidenceVersionInfo | null> {
-      checkScope(ctx, o.token(), 'evidence');
-      const r = await call(o, 'evidence', 'GET', `/v1/evidence/describe?ref=${encodeURIComponent(ref)}`);
+      const r = await call(o, ctx, 'evidence', 'GET', `/v1/evidence/describe?ref=${encodeURIComponent(ref)}`);
       if (r.status === 404 || (r.status === 403 && errorCode(r.json) !== 'unauthenticated')) return null;
       if (r.status !== 200) throw new DomainError('unavailable', `The evidence engine answered ${r.status}`);
       const v = r.json;
@@ -79,8 +80,7 @@ export function httpEvidencePort(o: HttpPortOptions): Pick<EvidencePort, 'descri
 export function httpUseDecisionPort(o: HttpPortOptions): UseDecisionPort {
   return {
     async decide(ctx, request): Promise<UseDecision> {
-      checkScope(ctx, o.token(), 'consent');
-      const r = await call(o, 'consent', 'POST', '/v1/use-decisions', request);
+      const r = await call(o, ctx, 'consent', 'POST', '/v1/use-decisions', request);
       if (r.status !== 200 && r.status !== 201) throw new DomainError('unavailable', `The consent engine answered ${r.status}`);
       const d = r.json;
       if (!isObj(d) || !['allow', 'deny', 'review'].includes(d.decision as string) || !strings(d.reasons) || !strings(d.permissionRefs) || !strings(d.restrictions ?? []) || typeof d.decidedAt !== 'string') {
