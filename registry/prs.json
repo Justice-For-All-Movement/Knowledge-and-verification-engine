@@ -690,7 +690,7 @@
     },
     {
       "id": "http-port-response-bounds",
-      "status": "incomplete WIP; final-head CI pending",
+      "status": "accepted PR47 after all six final-head checks success",
       "dependsOn": "accepted PR46 b145267b2ec7a2796be6c9058e47f0524c23f32f",
       "documentation": "docs/HTTP_PORT_RESPONSE_BOUNDS.md",
       "localEvidence": "10 new +4 credential groups pass locally and all14 packed public exports; four existing HTTP groups/typecheck/build/registry/types/3runtime bytes pass; 0 failures/skips. Consumer copied prepared deps, not fresh install/full local suite.",
@@ -700,7 +700,31 @@
         "suite-wide acceptance separate; operational PAM stopped"
       ],
       "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/47",
-      "verification": "docs/http-port-response-verification.json"
+      "verification": "docs/http-port-response-verification.json",
+      "sourceCommit": "31f2230aad5614f754ccfe7d5ed8c9918688d0d1",
+      "mergeCommit": "aed5c2272fb18909c9a19f9b80973cf62839bfab",
+      "ciEvidence": {
+        "ordinaryJob": 134674920223,
+        "ordinaryTests": 307,
+        "postgresJob": 134674919880,
+        "postgresTests": 21,
+        "crossEngineJob": 134674920248,
+        "crossEngineTests": 1,
+        "rawFailures": 0,
+        "rawSkips": 0
+      }
+    },
+    {
+      "id": "http-port-byte-ownership",
+      "status": "incomplete WIP; qualification underway",
+      "baseCommit": "aed5c2272fb18909c9a19f9b80973cf62839bfab",
+      "documentation": "docs/HTTP_PORT_BYTE_OWNERSHIP.md",
+      "localEvidence": "Native Buffer source reuse reproduces an earlier-chunk rewrite; ordinary Uint8Array control passes on base",
+      "remaining": [
+        "source/package review and final-head CI",
+        "host/deployed credentials and source qualification",
+        "suite-wide acceptance separate; operational PAM stopped"
+      ]
     }
   ]
 }

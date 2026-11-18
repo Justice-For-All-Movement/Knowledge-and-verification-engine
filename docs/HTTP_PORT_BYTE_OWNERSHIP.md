@@ -1,0 +1,7 @@
+# Standalone HTTP chunk ownership
+
+Incomplete WIP. A native Node Buffer is a Uint8Array subclass, but Buffer.slice() aliases the original storage. The HTTP reader previously retained that alias. A producer that reused its buffer while satisfying the next read could change an earlier observed JSON chunk before decoding, including a valid Evidence filename. This was reproduced on accepted PR47 source: the Buffer regression fails, while the ordinary Uint8Array control passes.
+
+Retain new Uint8Array(chunk) instead. The typed-array constructor copies the chunk bytes into independently owned storage. The two native Response/ReadableStream tests use highWaterMark zero, so producer reuse occurs only when the reader asks for its next chunk, after the previous read was admitted. They assert the producer really mutated its bytes and that the returned descriptor still matches the originally observed JSON. This is byte ownership, not authentication or proof of source truth. Producer mutation before a read is delivered cannot be repaired here.
+
+All existing response byte/chunk/UTF8/deadline/scope checks remain. No ports, persistence, schema, pins, original architecture IDs/dependencies, sends or publication are added. Local/package/source review and final-head CI remain separate. No local PostgreSQL, deployed-provider, TLS, browser or assistive-technology qualification is claimed. Operational PAM stays at its authorized foundation.
