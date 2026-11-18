@@ -1,0 +1,34 @@
+{
+  "status": "incomplete WIP; all final-head CI still required",
+  "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/48",
+  "baseCommit": "aed5c2272fb18909c9a19f9b80973cf62839bfab",
+  "reproduction": "Native Buffer source-reuse test fails on accepted47, ordinary Uint8Array control passes; source reuse occurs only on next explicitly requested read",
+  "local": {
+    "focusedGroups": 16,
+    "packedGroups": 16,
+    "existingHttpGroups": 4,
+    "failures": 0,
+    "skips": 0,
+    "typecheck": true,
+    "build": true,
+    "registry": true,
+    "declarations": true,
+    "byteMatchedRuntime": [
+      "dist/engine/http-ports.js",
+      "dist/engine/serve.js",
+      "dist/contracts.js"
+    ]
+  },
+  "review": "Clear: typed-array construction copies native Buffer bytes using the visible chunk range; no overriding Buffer.slice alias retained. Existing scope/deadline/byte/chunk/UTF8/descriptor admission preserved. No API/pins/contracts/SQL/schema/original IDs/dependencies change.",
+  "limits": [
+    "normally prepared copied consumer deps, not fresh installation/full local suite",
+    "mutation before delivering a read is outside this guarantee",
+    "byte ownership is not source truth/current rights/authentication/distributed fencing",
+    "no local PostgreSQL/deployed providers/TLS/browser/assistive-technology qualification; PAM stays at foundation"
+  ],
+  "sha256": {
+    "src/engine/http-ports.ts": "134b875632b6767e22758d837235195d4f35d60a56c0a11f97ab3330b8c48c3e",
+    "tests/http-port-ownership.test.ts": "48b2c811ee26b50689a17fe7a14c25ce113277a05a09359ebfb9b20f5d74cccf",
+    "docs/HTTP_PORT_BYTE_OWNERSHIP.md": "aac964358865b4da33fe6c3f15e9442eb55d9f0a40c4131337f0c7ec7b23df93"
+  }
+}

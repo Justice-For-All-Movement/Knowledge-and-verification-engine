@@ -102,7 +102,8 @@ async function call(o: HttpPortOptions, ctx: ServiceContext, engine: string, met
         if (part.done) break;
         if (!(part.value instanceof Uint8Array) || chunks.length >= MAX_RESPONSE_CHUNKS || part.value.byteLength > MAX_RESPONSE_BYTES - bytes) throw failed();
         bytes += part.value.byteLength;
-        chunks.push(part.value.slice());
+        // Buffer is a Uint8Array subclass whose slice() aliases the producer's backing storage.
+        chunks.push(new Uint8Array(part.value));
         check();
       }
     }
