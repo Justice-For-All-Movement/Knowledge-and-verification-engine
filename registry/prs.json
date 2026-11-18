@@ -695,7 +695,6 @@
       "documentation": "docs/HTTP_PORT_RESPONSE_BOUNDS.md",
       "localEvidence": "10 new +4 credential groups pass locally and all14 packed public exports; four existing HTTP groups/typecheck/build/registry/types/3runtime bytes pass; 0 failures/skips. Consumer copied prepared deps, not fresh install/full local suite.",
       "remaining": [
-        "all final-head CI after retargeting main, source review and current branch rules",
         "host credentials/egress/TLS/deployment acceptance",
         "suite-wide acceptance separate; operational PAM stopped"
       ],
@@ -716,15 +715,18 @@
     },
     {
       "id": "http-port-byte-ownership",
-      "status": "incomplete WIP; qualification underway",
+      "status": "incomplete WIP; all final-head CI pending",
       "baseCommit": "aed5c2272fb18909c9a19f9b80973cf62839bfab",
       "documentation": "docs/HTTP_PORT_BYTE_OWNERSHIP.md",
-      "localEvidence": "Native Buffer source reuse reproduces an earlier-chunk rewrite; ordinary Uint8Array control passes on base",
+      "localEvidence": "All16 focused source +16 packed public-export groups and four existing HTTP groups pass; types/build/registry/strict declarations/3runtime bytes match; zero failures/skips; recovered copied prepared deps, not fresh installation/full suite",
       "remaining": [
         "source/package review and final-head CI",
         "host/deployed credentials and source qualification",
         "suite-wide acceptance separate; operational PAM stopped"
-      ]
+      ],
+      "pullRequest": "https://github.com/Justice-For-All-Movement/Knowledge-and-verification-engine/pull/48",
+      "verification": "docs/http-port-byte-ownership-verification.json",
+      "sourceReview": "clear for independent response-chunk copy; old Buffer regression reproduced"
     }
   ]
 }
