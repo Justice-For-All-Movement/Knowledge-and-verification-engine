@@ -131,3 +131,12 @@ test('native loopback HTTP body overflow aborts the real transport before remote
     clearTimeout(timer); server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve()));
   }
 });
+
+test('Evidence descriptions retain a positive exact cited revision, SHA256 digest and safe nonnegative byte count', async () => {
+  for (const change of [{ revision: 0 }, { revision: -1 }, { revision: 2 }, { revision: 1.5 },
+    { size: -1 }, { size: 1.5 }, { size: Number.MAX_SAFE_INTEGER + 1 },
+    { sha256: 'not-a-digest' }, { sha256: 'a'.repeat(63) }]) {
+    await assert.rejects(invoke(async () => Response.json({ ...valid, ...change })), unavailable);
+  }
+  assert.equal((await invoke(async () => Response.json({ ...valid, size: 0 })))?.size, 0, 'zero-byte descriptors remain representable');
+});

@@ -141,8 +141,13 @@ export function httpEvidencePort(o: HttpPortOptions): Pick<EvidencePort, 'descri
       if (r.status === 404 || (r.status === 403 && errorCode(r.json) !== 'unauthenticated')) return null;
       if (r.status !== 200) throw new DomainError('unavailable', `The evidence engine answered ${r.status}`);
       const v = r.json;
-      if (!isObj(v) || typeof v.ref !== 'string' || typeof v.evidenceId !== 'string' || !Number.isSafeInteger(v.revision) || typeof v.sha256 !== 'string'
-        || typeof v.size !== 'number' || typeof v.mediaType !== 'string' || typeof v.filename !== 'string' || !(v.compartment === null || typeof v.compartment === 'string') || typeof v.available !== 'boolean') {
+      const requestedRevision = /@([1-9]\d*)$/.exec(ref)?.[1];
+      if (!isObj(v) || typeof v.ref !== 'string' || typeof v.evidenceId !== 'string'
+        || typeof v.revision !== 'number' || !Number.isSafeInteger(v.revision) || v.revision < 1
+        || requestedRevision === undefined || Number(requestedRevision) !== v.revision
+        || typeof v.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(v.sha256)
+        || typeof v.size !== 'number' || !Number.isSafeInteger(v.size) || v.size < 0
+        || typeof v.mediaType !== 'string' || typeof v.filename !== 'string' || !(v.compartment === null || typeof v.compartment === 'string') || typeof v.available !== 'boolean') {
         throw new DomainError('unavailable', 'The evidence engine returned an invalid version description');
       }
       // The answer must describe the version that was asked for, not, for example, the current one.

@@ -679,7 +679,7 @@
       "status": "incomplete WIP; final-head CI pending",
       "dependsOn": "http-port-credential-selection (PR46)",
       "documentation": "docs/HTTP_PORT_RESPONSE_BOUNDS.md",
-      "localEvidence": "9 new +4 credential groups pass locally and all13 packed public exports; four existing HTTP groups/typecheck/build/registry/types/3runtime bytes pass; 0 failures/skips. Consumer copied prepared deps, not fresh install/full local suite.",
+      "localEvidence": "10 new +4 credential groups pass locally and all14 packed public exports; four existing HTTP groups/typecheck/build/registry/types/3runtime bytes pass; 0 failures/skips. Consumer copied prepared deps, not fresh install/full local suite.",
       "remaining": [
         "all final-head CI and current branch rules; retarget main after46 merge",
         "host credentials/egress/TLS/deployment acceptance",
